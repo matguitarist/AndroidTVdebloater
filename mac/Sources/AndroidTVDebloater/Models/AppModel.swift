@@ -16,11 +16,9 @@ final class AppModel {
     var choose: ChooseModel?
     var apply: ApplyModel?
     var restore: RestoreModel?
-    let updater = UpdaterModel()
 
     init() {
         connect = ConnectModel(app: self)
-        updater.app = self
     }
 
     static let steps = ["Step_Prepare", "Step_Connect", "Step_Choose", "Step_Apply"]
@@ -715,83 +713,5 @@ final class HomeScreenModel {
         status = ""
         status = await work()
         isBusy = false
-    }
-}
-
-// MARK: - Updates
-
-enum UpdateSheet: Identifiable {
-    case available, upToDate, failed
-    var id: Self { self }
-}
-
-@MainActor @Observable
-final class UpdaterModel {
-    weak var app: AppModel?
-    var update: UpdateInfo?
-    var sheet: UpdateSheet?
-    var isChecking = false
-    var isDownloading = false
-    var progress = 0.0
-    var error = ""
-
-    var autoCheck: Bool {
-        get { UserDefaults.standard.object(forKey: "checkForUpdates") as? Bool ?? true }
-        set { UserDefaults.standard.set(newValue, forKey: "checkForUpdates") }
-    }
-    private var skippedVersion: String? {
-        get { UserDefaults.standard.string(forKey: "skippedVersion") }
-        set { UserDefaults.standard.set(newValue, forKey: "skippedVersion") }
-    }
-
-    let canInstallInPlace = Updater.canInstallInPlace
-
-    /// Quiet check at start-up: only speaks up when there is something new and not skipped.
-    func checkInBackground() async {
-        guard autoCheck else { return }
-        try? await Task.sleep(for: .milliseconds(1500))
-        guard let u = try? await Updater.check() else { return }
-        update = u
-        if skippedVersion != u.version && app?.isBusy != true { sheet = .available }
-    }
-
-    func checkNow() async {
-        if update != nil { sheet = .available; return }
-        isChecking = true
-        defer { isChecking = false }
-        error = ""
-        do {
-            update = try await Updater.check()
-            sheet = update == nil ? .upToDate : .available
-        } catch {
-            sheet = .failed
-        }
-    }
-
-    func install() async {
-        guard let update else { return }
-        guard canInstallInPlace else {
-            NSWorkspace.shared.open(update.pageURL)
-            sheet = nil
-            return
-        }
-        if app?.isBusy == true { error = L("Update_Busy"); return }
-        isDownloading = true
-        error = ""
-        defer { isDownloading = false }
-        do {
-            try await Updater.install(update) { p in Task { @MainActor in self.progress = p * 100 } }
-        } catch Updater.UpdateError.checksum {
-            error = L("Update_ChecksumFailed")
-        } catch {
-            self.error = L("Update_InstallFailed", error.localizedDescription)
-        }
-    }
-
-    func later() { error = ""; sheet = nil }
-
-    func skip() {
-        if let update { skippedVersion = update.version }
-        later()
     }
 }

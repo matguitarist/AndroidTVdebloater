@@ -56,7 +56,7 @@ d'autre à installer : la première fois, l'application télécharge les outils 
 | | Fichier | Premier lancement |
 |---|---|---|
 | **Windows** 10/11 | `AndroidTVDebloater.exe` | SmartScreen peut signaler un éditeur inconnu (application non signée) : **Informations complémentaires → Exécuter quand même**. |
-| **macOS** 14+ | `AndroidTVDebloater-mac.zip` | Une vraie application Mac (SwiftUI), pour Apple silicon et Intel. Décompressez, placez-la dans Applications et ouvrez-la. macOS indique qu'il ne peut pas vérifier le développeur (application non notariée) : ouvrez **Réglages Système → Confidentialité et sécurité** et cliquez sur **Ouvrir quand même**. Autorisez-la à trouver des appareils sur le réseau local. |
+| **macOS** 14+ | `AndroidTVDebloater-mac.zip` | Une vraie application Mac (SwiftUI), pour Apple silicon et Intel, signée et notariée par Apple. Décompressez, placez-la dans Applications et ouvrez-la. Autorisez-la à trouver des appareils sur le réseau local. Les mises à jour arrivent par Sparkle. |
 | **Linux** x64 | `AndroidTVDebloater-linux-x64` | `chmod +x AndroidTVDebloater-linux-x64` puis lancez-le. |
 
 ### Sur le téléviseur, avant de commencer

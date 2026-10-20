@@ -4,6 +4,7 @@ import SwiftUI
 struct AndroidTVDebloaterApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
     @State private var model = AppModel()
+    private let updater = AppUpdater.shared
 
     var body: some Scene {
         Window("Android TV Debloater", id: "main") {
@@ -11,16 +12,15 @@ struct AndroidTVDebloaterApp: App {
                 .environment(model)
                 .frame(minWidth: 860, minHeight: 600)
                 .task {
-                    await model.updater.checkInBackground()
-                }
-                .task {
+                    updater.isBusy = { [model] in model.isBusy }
                     await Catalog.refreshFromGitHub()
                 }
         }
         .defaultSize(width: 1060, height: 760)
         .commands {
             CommandGroup(after: .appInfo) {
-                Button(L("Mac_CheckForUpdatesMenu")) { Task { await model.updater.checkNow() } }
+                Button(L("Mac_CheckForUpdatesMenu")) { updater.checkForUpdates() }
+                    .disabled(!updater.canCheckForUpdates)
             }
             CommandGroup(replacing: .newItem) {}
         }
@@ -52,9 +52,6 @@ struct ContentView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-        .sheet(item: Binding(get: { model.updater.sheet }, set: { model.updater.sheet = $0 })) { _ in
-            UpdateSheetView(updater: model.updater)
         }
     }
 }
@@ -97,18 +94,12 @@ struct Sidebar: View {
                 }
                 Divider()
                 HStack {
-                    Text("v\(Updater.currentVersion)").font(.caption).foregroundStyle(.secondary)
+                    Text("v\(AppUpdater.currentVersion)").font(.caption).foregroundStyle(.secondary)
                     Spacer()
-                    Button { Task { await model.updater.checkNow() } } label: {
-                        if let u = model.updater.update {
-                            Label(L("Side_UpdateAvailable", u.version), systemImage: "arrow.down.circle.fill")
-                        } else {
-                            Text(L("Side_CheckUpdates"))
-                        }
-                    }
-                    .buttonStyle(.link)
-                    .font(.caption)
-                    .disabled(model.updater.isChecking)
+                    Button(L("Side_CheckUpdates")) { AppUpdater.shared.checkForUpdates() }
+                        .buttonStyle(.link)
+                        .font(.caption)
+                        .disabled(!AppUpdater.shared.canCheckForUpdates)
                 }
             }
             .padding(12)

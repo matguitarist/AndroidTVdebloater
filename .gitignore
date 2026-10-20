@@ -9,3 +9,4 @@ publish/
 mac/.build/
 mac/build/
 swaptest/
+mac/.tools/

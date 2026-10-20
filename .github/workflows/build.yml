@@ -40,17 +40,66 @@ jobs:
           name: linux
           path: publish/AndroidTVDebloater-linux-x64
 
-  # Native SwiftUI app, universal (Apple silicon and Intel).
+  # Native SwiftUI app, universal (Apple silicon and Intel). On version tags it is signed with the
+  # Developer ID certificate, notarized, stapled, and an appcast.xml is written for Sparkle.
   mac:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+      - name: Sparkle tools
+        run: |
+          mkdir -p mac/.tools/sparkle
+          curl -sL https://github.com/sparkle-project/Sparkle/releases/download/2.10.0/Sparkle-2.10.0.tar.xz | tar -xJ -C mac/.tools/sparkle
+      - name: Signing, notarization and update keys
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
+          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+          NOTARY_KEY_P8: ${{ secrets.NOTARY_KEY_P8 }}
+          NOTARY_KEY_ID: ${{ secrets.NOTARY_KEY_ID }}
+          NOTARY_ISSUER: ${{ secrets.NOTARY_ISSUER }}
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          # A throwaway keychain holding only the Developer ID certificate.
+          KC="$RUNNER_TEMP/signing.keychain-db"
+          KCPW="$(uuidgen)"
+          security create-keychain -p "$KCPW" "$KC"
+          security set-keychain-settings -lut 21600 "$KC"
+          security unlock-keychain -p "$KCPW" "$KC"
+          echo "$MACOS_CERT_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security import "$RUNNER_TEMP/cert.p12" -k "$KC" -P "$MACOS_CERT_PASSWORD" -T /usr/bin/codesign
+          rm "$RUNNER_TEMP/cert.p12"
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KCPW" "$KC" > /dev/null
+          security list-keychains -d user -s "$KC" $(security list-keychains -d user | tr -d '"')
+          IDENTITY="$(security find-identity -v -p codesigning "$KC" | grep -o '"Developer ID Application: [^"]*"' | head -1 | tr -d '"')"
+          test -n "$IDENTITY"
+          echo "SIGN_IDENTITY=$IDENTITY" >> "$GITHUB_ENV"
+
+          echo "$NOTARY_KEY_P8" | base64 --decode > "$RUNNER_TEMP/AuthKey.p8"
+          echo "NOTARY_KEY=$RUNNER_TEMP/AuthKey.p8" >> "$GITHUB_ENV"
+          echo "NOTARY_KEY_ID=$NOTARY_KEY_ID" >> "$GITHUB_ENV"
+          echo "NOTARY_ISSUER=$NOTARY_ISSUER" >> "$GITHUB_ENV"
+
+          printf '%s' "$SPARKLE_PRIVATE_KEY" > "$RUNNER_TEMP/sparkle.key"
+          echo "SPARKLE_KEY_FILE=$RUNNER_TEMP/sparkle.key" >> "$GITHUB_ENV"
+
+          git fetch --force origin "refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}"
+          git tag -l --format='%(contents:body)' "${GITHUB_REF_NAME}" > "$RUNNER_TEMP/notes.md"
+          echo "NOTES_FILE=$RUNNER_TEMP/notes.md" >> "$GITHUB_ENV"
       - name: Build the app
         run: ARCHS="arm64 x86_64" mac/build-app.sh
+      - name: Remove keys
+        if: always()
+        run: |
+          rm -f "$RUNNER_TEMP/AuthKey.p8" "$RUNNER_TEMP/sparkle.key"
+          security delete-keychain "$RUNNER_TEMP/signing.keychain-db" 2>/dev/null || true
       - uses: actions/upload-artifact@v4
         with:
           name: mac
-          path: mac/build/AndroidTVDebloater-mac.zip
+          path: |
+            mac/build/AndroidTVDebloater-mac.zip
+            mac/build/appcast.xml
+          if-no-files-found: ignore
 
   # The in-place update (rename the running exe, move the new one in) only works on Windows.
   update-swap-test:
@@ -92,3 +141,4 @@ jobs:
             dist/AndroidTVDebloater.exe
             dist/AndroidTVDebloater-linux-x64
             dist/AndroidTVDebloater-mac.zip
+            dist/appcast.xml

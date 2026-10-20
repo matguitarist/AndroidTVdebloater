@@ -48,7 +48,7 @@ else to install: the first time, the app downloads Google's official ADB tools (
 | | File | First launch |
 |---|---|---|
 | **Windows** 10/11 | `AndroidTVDebloater.exe` | SmartScreen may warn about an unknown publisher (the app isn't code-signed): **More info → Run anyway**. |
-| **macOS** 14+ | `AndroidTVDebloater-mac.zip` | A native Mac app (SwiftUI), for Apple silicon and Intel. Unzip, move it to Applications and open it. macOS says it can't check the developer (the app isn't notarized): open **System Settings → Privacy & Security** and click **Open Anyway**. Allow it to find devices on the local network when asked. |
+| **macOS** 14+ | `AndroidTVDebloater-mac.zip` | A native Mac app (SwiftUI), for Apple silicon and Intel, signed and notarized by Apple. Unzip, move it to Applications and open it. Allow it to find devices on the local network when asked. Updates arrive through Sparkle. |
 | **Linux** x64 | `AndroidTVDebloater-linux-x64` | `chmod +x AndroidTVDebloater-linux-x64` and run it. |
 
 ![The Mac app](docs/mac-welcome-en.png)
@@ -110,8 +110,9 @@ dotnet publish src/AndroidTVDebloater -c Release -r win-x64 -o publish
 `tools/Screenshots` renders every page off-screen to PNG (light/dark, EN/FR) with a simulated TV:
 `dotnet run --project tools/Screenshots -- docs`.
 
-Mac app (`mac/`, Swift and SwiftUI): requires Xcode. `mac/build-app.sh` builds
-`mac/build/Android TV Debloater.app`. Its text comes from the Windows app's `Strings.cs`: after
+Mac app (`mac/`, Swift and SwiftUI, updates with [Sparkle](https://sparkle-project.org)): requires
+Xcode. `mac/build-app.sh` builds `mac/build/Android TV Debloater.app` (ad-hoc signed for local use;
+release builds are signed with a Developer ID, notarized and get a Sparkle appcast, see the script). Its text comes from the Windows app's `Strings.cs`: after
 changing it, run `python3 tools/gen-mac-strings.py`.
 
 Pushing a tag like `v1.2.0` builds all three on GitHub Actions and publishes a release; the tag
