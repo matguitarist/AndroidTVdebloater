@@ -15,11 +15,23 @@ public sealed partial class TweakGroup : ObservableObject
 
     public string Title => TitleText.ToString();
     public string Description => DescriptionText.ToString();
+    public string CountText => Loc.Format("Choose_GroupCount", Tweaks.Count(t => t.IsSelected), Tweaks.Count);
+
+    /// <summary>Keep <see cref="CountText"/> up to date once the list is filled.</summary>
+    public void WatchSelection()
+    {
+        foreach (var t in Tweaks)
+            t.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName == nameof(Tweak.IsSelected)) OnPropertyChanged(nameof(CountText));
+            };
+    }
 
     public void RefreshTexts()
     {
         OnPropertyChanged(nameof(Title));
         OnPropertyChanged(nameof(Description));
+        OnPropertyChanged(nameof(CountText));
         foreach (var t in Tweaks) t.RefreshTexts();
     }
 }
@@ -109,6 +121,7 @@ public static class Catalog
             t.SelectedOption ??= t.Options?.FirstOrDefault();
             t.IsSelected = t.Recommended;
         }
+        foreach (var g in list) g.WatchSelection();
         return list;
     }
 

@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:l="using:AndroidTVDebloater.Localization"
              xmlns:vm="using:AndroidTVDebloater.ViewModels"
+             xmlns:v="using:AndroidTVDebloater.Views"
              x:Class="AndroidTVDebloater.Views.ApplyView">
   <UserControl.Styles>
     <Style Selector="Border.state">
@@ -38,23 +39,80 @@
     </Style>
   </UserControl.Styles>
 
+  <UserControl.Resources>
+    <!-- One line of the progress log, used while working and in "Details" afterwards -->
+    <DataTemplate x:Key="StepRow" DataType="vm:StepItem">
+      <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14" Margin="18,11">
+        <Border Classes="state" Classes.running="{Binding IsRunning}" Classes.done="{Binding IsDone}" Classes.failed="{Binding IsFailed}">
+          <TextBlock Text="{Binding Icon}" />
+        </Border>
+        <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+          <TextBlock Text="{Binding Text}" TextWrapping="Wrap" />
+          <TextBlock Classes="muted" FontSize="12" Text="{Binding Detail}" IsVisible="{Binding HasDetail}" />
+        </StackPanel>
+      </Grid>
+    </DataTemplate>
+  </UserControl.Resources>
+
   <ScrollViewer>
     <StackPanel Margin="44,38,44,40" MaxWidth="860" HorizontalAlignment="Left" Spacing="22">
-      <StackPanel Spacing="8">
-        <TextBlock Classes="h1" Text="{Binding Title}" />
-        <TextBlock Classes="lead" Text="{Binding Subtitle}" />
-      </StackPanel>
 
+      <!-- Title, with a big tick or warning sign once finished -->
+      <Grid ColumnDefinitions="Auto,*" ColumnSpacing="18">
+        <Panel IsVisible="{Binding IsFinished}" VerticalAlignment="Center">
+          <Border Classes="badge" Background="{DynamicResource OkBg}" IsVisible="{Binding !HasProblems}">
+            <Path Stroke="{DynamicResource OkFg}" Data="M5 12.5 L10 17.5 L19 7" />
+          </Border>
+          <Border Classes="badge" Background="{DynamicResource WarnBg}" IsVisible="{Binding HasProblems}">
+            <Path Stroke="{DynamicResource WarnFg}" Data="M12 6 V13 M12 17.5 V18" />
+          </Border>
+        </Panel>
+        <StackPanel Grid.Column="1" Spacing="6" VerticalAlignment="Center">
+          <TextBlock Classes="h1" Text="{Binding Title}" />
+          <TextBlock Classes="lead" Text="{Binding Subtitle}" />
+        </StackPanel>
+      </Grid>
+
+      <!-- Working -->
       <ProgressBar Value="{Binding Progress}" Maximum="100" IsVisible="{Binding !IsFinished}" />
+      <Border Classes="card" Padding="0,4" IsVisible="{Binding !IsFinished}">
+        <ItemsControl ItemsSource="{Binding Items}" ItemTemplate="{StaticResource StepRow}" />
+      </Border>
 
       <!-- Finished -->
-      <StackPanel Spacing="16" IsVisible="{Binding IsFinished}">
-        <Border Classes="card" BorderBrush="{DynamicResource WarnFg}" BorderThickness="1.5">
-          <StackPanel Spacing="8">
-            <TextBlock Classes="h2" Text="{l:T Apply_LastStepTitle}" />
-            <TextBlock Classes="muted" Text="{l:T Apply_LastStep}" />
-          </StackPanel>
-        </Border>
+      <StackPanel Spacing="22" IsVisible="{Binding IsFinished}">
+        <UniformGrid Columns="3">
+          <Border Classes="tile" Margin="0,0,8,0">
+            <StackPanel Spacing="2">
+              <TextBlock Classes="stat" Text="{Binding AppsOff}" />
+              <TextBlock Classes="muted" Text="{l:T Apply_StatApps}" />
+            </StackPanel>
+          </Border>
+          <Border Classes="tile" Margin="4,0,4,0">
+            <StackPanel Spacing="2">
+              <TextBlock Classes="stat" Text="{Binding SettingsChanged}" />
+              <TextBlock Classes="muted" Text="{l:T Apply_StatSettings}" />
+            </StackPanel>
+          </Border>
+          <Border Classes="tile" Margin="8,0,0,0">
+            <StackPanel Spacing="2">
+              <TextBlock Classes="stat" Text="{Binding CheckValue}" Foreground="{DynamicResource OkFg}" IsVisible="{Binding !HasProblems}" />
+              <TextBlock Classes="stat" Text="{Binding CheckValue}" Foreground="{DynamicResource WarnFg}" IsVisible="{Binding HasProblems}" />
+              <TextBlock Classes="muted" Text="{Binding CheckLabel}" />
+            </StackPanel>
+          </Border>
+        </UniformGrid>
+
+        <Expander HorizontalAlignment="Stretch" IsExpanded="{Binding HasProblems, Mode=OneWay}">
+          <Expander.Header>
+            <TextBlock Text="{l:T Apply_Details}" FontWeight="SemiBold" />
+          </Expander.Header>
+          <ItemsControl ItemsSource="{Binding Items}" ItemTemplate="{StaticResource StepRow}" Margin="-18,-6,-18,-6" />
+        </Expander>
+
+        <!-- Optional: a home screen without ads -->
+        <v:HomeScreenCard DataContext="{Binding HomeScreen}" IsVisible="{Binding $parent[UserControl].DataContext.ShowHomeScreen}" />
+
         <Border Classes="card">
           <StackPanel Spacing="10">
             <TextBlock Classes="h2" Text="{l:T Apply_BackupTitle}" />
@@ -63,30 +121,54 @@
                                  Foreground="{DynamicResource TextMuted}" />
             <StackPanel Orientation="Horizontal" Spacing="10">
               <Button Content="{l:T Apply_OpenFolder}" Command="{Binding OpenBackupFolderCommand}" />
-              <Button Content="{l:T Side_Restore}" Command="{Binding $parent[Window].DataContext.GoRestoreCommand}" />
+              <Button Content="{l:T Side_Restore}" Command="{Binding $parent[Window].DataContext.GoRestoreCommand}"
+                      IsVisible="{Binding StillConnected}" />
             </StackPanel>
           </StackPanel>
         </Border>
-        <Button Classes="accent" Content="{l:T Apply_BackToChoices}" Command="{Binding BackToChoicesCommand}" />
-      </StackPanel>
 
-      <Border Classes="card" Padding="0">
-        <ItemsControl ItemsSource="{Binding Items}">
-          <ItemsControl.ItemTemplate>
-            <DataTemplate DataType="vm:StepItem">
-              <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14" Margin="18,11">
-                <Border Classes="state" Classes.running="{Binding IsRunning}" Classes.done="{Binding IsDone}" Classes.failed="{Binding IsFailed}">
-                  <TextBlock Text="{Binding Icon}" />
-                </Border>
-                <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
-                  <TextBlock Text="{Binding Text}" TextWrapping="Wrap" />
-                  <TextBlock Classes="muted" FontSize="12" Text="{Binding Detail}" IsVisible="{Binding HasDetail}" />
-                </StackPanel>
-              </Grid>
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>
-      </Border>
+        <!-- Last step: debugging off -->
+        <Border Classes="card" BorderBrush="{DynamicResource WarnFg}" BorderThickness="1.5" IsVisible="{Binding StillConnected}">
+          <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+            <Border Width="40" Height="40" CornerRadius="10" Background="{DynamicResource WarnBg}" VerticalAlignment="Top">
+              <Path Stroke="{DynamicResource WarnFg}" StrokeThickness="1.7" StrokeLineCap="Round" StrokeJoin="Round"
+                    Width="20" Height="20" Stretch="Uniform"
+                    Data="M7 11 V8 A5 5 0 0 1 17 8 V11 M5 11 H19 V21 H5 Z M12 15 V17" />
+            </Border>
+            <StackPanel Grid.Column="1" Spacing="10">
+              <TextBlock Classes="h2" Text="{l:T Apply_LastStepTitle}" />
+              <TextBlock Classes="muted" Text="{l:T Apply_LastStep}" />
+              <StackPanel Orientation="Horizontal" Spacing="12">
+                <Button Content="{l:T Apply_DebugOffButton}" Command="{Binding TurnOffDebuggingCommand}"
+                        IsEnabled="{Binding !IsTurningOffDebug}" />
+                <ProgressBar Width="140" IsIndeterminate="True" VerticalAlignment="Center" IsVisible="{Binding IsTurningOffDebug}" />
+              </StackPanel>
+              <Border Classes="warn" IsVisible="{Binding DebugStatus, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                <TextBlock Text="{Binding DebugStatus}" Foreground="{DynamicResource WarnFg}" TextWrapping="Wrap" />
+              </Border>
+            </StackPanel>
+          </Grid>
+        </Border>
+        <Border Classes="ok" IsVisible="{Binding DebugOff}">
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <TextBlock Text="✓" Foreground="{DynamicResource OkFg}" FontWeight="Bold" />
+            <TextBlock Text="{Binding DebugStatus}" Foreground="{DynamicResource OkFg}" TextWrapping="Wrap" />
+          </StackPanel>
+        </Border>
+
+        <!-- Where to go from here -->
+        <WrapPanel>
+          <Button Classes="accent big" Command="{Binding StartOverCommand}" Margin="0,0,12,0">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <Path Stroke="White" StrokeThickness="2" StrokeLineCap="Round" StrokeJoin="Round" Width="16" Height="16" Stretch="Uniform"
+                    VerticalAlignment="Center" Data="M4 12 A8 8 0 1 0 6.5 6.2 M4 4 V8 H8" />
+              <TextBlock Text="{l:T Apply_StartOver}" Foreground="White" />
+            </StackPanel>
+          </Button>
+          <Button Classes="big" Content="{l:T Apply_BackToChoices}" Command="{Binding BackToChoicesCommand}"
+                  IsVisible="{Binding StillConnected}" />
+        </WrapPanel>
+      </StackPanel>
     </StackPanel>
   </ScrollViewer>
 </UserControl>

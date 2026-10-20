@@ -45,8 +45,30 @@ public sealed partial class ApplyViewModel(MainViewModel main, TvDevice device, 
 
     [ObservableProperty] private double _progress;
     [ObservableProperty] private string _backupPath = "";
+    [ObservableProperty] private int _appsOff;
+    [ObservableProperty] private int _settingsChanged;
+    [ObservableProperty] private HomeScreenViewModel? _homeScreen;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(StillConnected), nameof(ShowHomeScreen))]
+    private bool _debugOff;
+
+    [ObservableProperty] private bool _isTurningOffDebug;
+    [ObservableProperty] private string _debugStatus = "";
 
     public bool HasProblems => ProblemCount > 0;
+    public bool StillConnected => !DebugOff;
+    public bool ShowHomeScreen => HomeScreen is { HasPlayStore: true } && !DebugOff;
+    partial void OnHomeScreenChanged(HomeScreenViewModel? value) => OnPropertyChanged(nameof(ShowHomeScreen));
+
+    public string CheckValue => ProblemCount == 0 ? "OK" : ProblemCount.ToString();
+    public string CheckLabel => Loc.Get(ProblemCount > 0 ? "Apply_StatProblems" : reboot ? "Apply_StatChecks" : "Apply_StatChecksNoReboot");
+    partial void OnProblemCountChanged(int value)
+    {
+        OnPropertyChanged(nameof(HasProblems));
+        OnPropertyChanged(nameof(CheckValue));
+        OnPropertyChanged(nameof(CheckLabel));
+    }
 
     public string Title => !IsFinished ? Loc.Get("Apply_Working")
         : ProblemCount == 0 ? Loc.Get("Apply_DoneTitle") : Loc.Get("Apply_DoneWithProblems");
@@ -58,6 +80,8 @@ public sealed partial class ApplyViewModel(MainViewModel main, TvDevice device, 
     {
         OnPropertyChanged(nameof(Title));
         OnPropertyChanged(nameof(Subtitle));
+        OnPropertyChanged(nameof(CheckLabel));
+        HomeScreen?.RefreshTexts();
     }
 
     private TvDevice _device = device;
@@ -111,6 +135,8 @@ public sealed partial class ApplyViewModel(MainViewModel main, TvDevice device, 
                 step.State = StepState.Failed;
             }
             if (step.State == StepState.Failed) ProblemCount++;
+            else if (tweak is PackageTweak) AppsOff++;
+            else SettingsChanged++;
             backup.Save();
             Tick();
         }
@@ -143,7 +169,12 @@ public sealed partial class ApplyViewModel(MainViewModel main, TvDevice device, 
 
         IsFinished = true;
         Main.RefreshSteps();
-        Main.Device = _device = await TvDevice.LoadAsync(Main.Adb, _device.Serial);
+        try
+        {
+            Main.Device = _device = await TvDevice.LoadAsync(Main.Adb, _device.Serial);
+            HomeScreen = new HomeScreenViewModel(Main, _device);
+        }
+        catch { /* the TV went away; the summary above still stands */ }
     }
 
     private StepItem Add(string text)
@@ -237,4 +268,38 @@ public sealed partial class ApplyViewModel(MainViewModel main, TvDevice device, 
 
     [RelayCommand]
     private Task BackToChoicesAsync() => Main.GoChooseAsync(reload: true);
+
+    [RelayCommand]
+    private Task StartOverAsync() => Main.StartOverAsync();
+
+    /// <summary>
+    /// Turns USB and network debugging off from here. adbd stops as soon as the setting is
+    /// written, so success is "the TV no longer answers", not the command's output.
+    /// </summary>
+    [RelayCommand]
+    private async Task TurnOffDebuggingAsync()
+    {
+        IsTurningOffDebug = true;
+        DebugStatus = "";
+        var serial = _device.Serial;
+        try
+        {
+            await Main.Adb.ShellAsync(serial, "settings put global adb_wifi_enabled 0; settings put global adb_enabled 0", 8000);
+            await Task.Delay(3000);
+            if (serial.Contains(':'))
+            {
+                await Main.Adb.RunAsync(["disconnect", serial], 5000);
+                await Main.Adb.RunAsync(["connect", serial], 8000);
+            }
+            DebugOff = await Main.Adb.GetStateAsync(serial) != "device";
+            if (DebugOff)
+            {
+                if (serial.Contains(':')) await Main.Adb.RunAsync(["disconnect", serial], 5000);
+                Main.Device = null;
+            }
+            DebugStatus = Loc.Get(DebugOff ? "Apply_DebugOffDone" : "Apply_DebugOffFailed");
+        }
+        catch (Exception ex) { DebugStatus = ex.Message; }
+        finally { IsTurningOffDebug = false; }
+    }
 }

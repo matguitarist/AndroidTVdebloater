@@ -24,6 +24,15 @@
           <SolidColorBrush x:Key="ErrFg" Color="#B42E24" />
           <SolidColorBrush x:Key="ErrBg" Color="#FDECEA" />
           <SolidColorBrush x:Key="StepIdleBg" Color="#ECEEF1" />
+          <SolidColorBrush x:Key="RowHover" Color="#F7F8FA" />
+          <SolidColorBrush x:Key="ExpanderHeaderBackground" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="ExpanderHeaderBackgroundPointerOver" Color="#F7F8FA" />
+          <SolidColorBrush x:Key="ExpanderHeaderBackgroundPressed" Color="#F7F8FA" />
+          <SolidColorBrush x:Key="ExpanderHeaderBorderBrush" Color="#E2E4E8" />
+          <SolidColorBrush x:Key="ExpanderHeaderBorderBrushPointerOver" Color="#E2E4E8" />
+          <SolidColorBrush x:Key="ExpanderHeaderBorderBrushPressed" Color="#E2E4E8" />
+          <SolidColorBrush x:Key="ExpanderContentBackground" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="ExpanderContentBorderBrush" Color="#E2E4E8" />
         </ResourceDictionary>
         <ResourceDictionary x:Key="Dark">
           <SolidColorBrush x:Key="AppBg" Color="#15171B" />
@@ -43,6 +52,15 @@
           <SolidColorBrush x:Key="ErrFg" Color="#FF8A80" />
           <SolidColorBrush x:Key="ErrBg" Color="#3B1E1C" />
           <SolidColorBrush x:Key="StepIdleBg" Color="#2A2E35" />
+          <SolidColorBrush x:Key="RowHover" Color="#23262C" />
+          <SolidColorBrush x:Key="ExpanderHeaderBackground" Color="#1F2228" />
+          <SolidColorBrush x:Key="ExpanderHeaderBackgroundPointerOver" Color="#23262C" />
+          <SolidColorBrush x:Key="ExpanderHeaderBackgroundPressed" Color="#23262C" />
+          <SolidColorBrush x:Key="ExpanderHeaderBorderBrush" Color="#2E323A" />
+          <SolidColorBrush x:Key="ExpanderHeaderBorderBrushPointerOver" Color="#2E323A" />
+          <SolidColorBrush x:Key="ExpanderHeaderBorderBrushPressed" Color="#2E323A" />
+          <SolidColorBrush x:Key="ExpanderContentBackground" Color="#1F2228" />
+          <SolidColorBrush x:Key="ExpanderContentBorderBrush" Color="#2E323A" />
         </ResourceDictionary>
       </ResourceDictionary.ThemeDictionaries>
     </ResourceDictionary>

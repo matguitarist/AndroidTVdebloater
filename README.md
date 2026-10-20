@@ -21,6 +21,10 @@
 - **Backs up first, then applies, restarts the TV and checks it**: home screen, internet and name
   lookups. If the ad-blocking DNS breaks lookups, it is undone on the spot.
 - **Undo any run exactly** from the Restore page, or turn every app back on in one click.
+- **Suggests a home screen without ads** (Projectivy Launcher, FLauncher): opens it in the Play Store
+  on the TV, makes it the home screen once installed, and can put the original one back.
+- **Turns debugging off for you** at the end, then **Start over** to clean the next TV. TVs you
+  used before are listed on the Connect page.
 - **English and French**, switchable at any time. Light and dark themes follow Windows.
 
 Nothing is uninstalled. Apps are disabled with Android's own `pm disable-user`, and a factory reset
@@ -48,7 +52,7 @@ Choose **More info → Run anyway**.
 Newer Google TV devices that only offer **Wireless debugging** with a pairing code are supported
 from the Connect page.
 
-When you are done, turn USB debugging off again. The app reminds you.
+When you are done, turn USB debugging off again. The last screen has a button that does it.
 
 ## Screens
 
@@ -56,6 +60,7 @@ When you are done, turn USB debugging off again. The app reminds you.
 |---|---|
 | ![Prepare](docs/welcome-light-en.png) | ![Connect](docs/connect-light-en.png) |
 | ![Choisir, in French and dark mode](docs/choose-dark-fr.png) | ![Done](docs/apply-dark-en.png) |
+| ![Terminé, in French](docs/apply-light-fr.png) | ![Restore](docs/restore-light-en.png) |
 
 ## Supported devices
 

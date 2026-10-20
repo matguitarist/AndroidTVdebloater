@@ -82,24 +82,31 @@
             </StackPanel>
           </StackPanel>
 
-          <ItemsControl ItemsSource="{Binding Steps}">
-            <ItemsControl.ItemsPanel>
-              <ItemsPanelTemplate><StackPanel Spacing="16" /></ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-              <DataTemplate DataType="vm:StepInfo">
-                <StackPanel Orientation="Horizontal" Spacing="12">
-                  <Border Classes="dot" Classes.active="{Binding IsActive}" Classes.done="{Binding IsDone}">
-                    <Panel>
-                      <TextBlock Text="{Binding Number}" IsVisible="{Binding !IsDone}" />
-                      <TextBlock Text="✓" IsVisible="{Binding IsDone}" />
-                    </Panel>
-                  </Border>
-                  <TextBlock Classes="steptitle" Classes.active="{Binding IsActive}" Text="{Binding Title}" />
-                </StackPanel>
-              </DataTemplate>
-            </ItemsControl.ItemTemplate>
-          </ItemsControl>
+          <Panel>
+            <!-- The line joining the step dots -->
+            <Border Width="2" HorizontalAlignment="Left" Margin="12,14,0,14" Background="{DynamicResource StepIdleBg}" />
+            <ItemsControl ItemsSource="{Binding Steps}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate><StackPanel Spacing="18" /></ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="vm:StepInfo">
+                  <Button Classes="nav" IsHitTestVisible="{Binding CanNavigate}"
+                          Command="{Binding $parent[Window].DataContext.GoToStepCommand}" CommandParameter="{Binding}">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                      <Border Classes="dot" Classes.active="{Binding IsActive}" Classes.done="{Binding IsDone}">
+                        <Panel>
+                          <TextBlock Text="{Binding Number}" IsVisible="{Binding !IsDone}" />
+                          <TextBlock Text="✓" IsVisible="{Binding IsDone}" />
+                        </Panel>
+                      </Border>
+                      <TextBlock Classes="steptitle" Classes.active="{Binding IsActive}" Text="{Binding Title}" />
+                    </StackPanel>
+                  </Button>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </Panel>
         </StackPanel>
 
         <StackPanel DockPanel.Dock="Bottom" Spacing="16" VerticalAlignment="Bottom">

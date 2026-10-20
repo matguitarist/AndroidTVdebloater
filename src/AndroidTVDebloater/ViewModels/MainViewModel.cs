@@ -21,6 +21,8 @@ public sealed partial class StepInfo(int number, string titleKey) : ObservableOb
     public string Title => Loc.Get(TitleKey);
     [ObservableProperty] private bool _isActive;
     [ObservableProperty] private bool _isDone;
+    /// <summary>A finished step the user can click to go back to.</summary>
+    [ObservableProperty] private bool _canNavigate;
     public void Refresh() => OnPropertyChanged(nameof(Title));
 }
 
@@ -58,13 +60,41 @@ public sealed partial class MainViewModel : ObservableObject
 
     partial void OnCurrentPageChanged(PageViewModel value) => RefreshSteps();
 
+    /// <summary>Changes are being made to the TV: don't let the user leave the page.</summary>
+    private bool IsBusy => CurrentPage is ApplyViewModel { IsFinished: false } or RestoreViewModel { IsBusy: true };
+
     public void RefreshSteps()
     {
         foreach (var s in Steps)
         {
             s.IsActive = s.Number - 1 == CurrentPage.StepIndex;
             s.IsDone = s.Number - 1 < CurrentPage.StepIndex;
+            s.CanNavigate = s.IsDone && !IsBusy && s.Number < 4 && (s.Number != 3 || HasDevice);
         }
+    }
+
+    [RelayCommand]
+    private async Task GoToStepAsync(StepInfo step)
+    {
+        if (!step.CanNavigate) return;
+        switch (step.Number)
+        {
+            case 1: CurrentPage = new WelcomeViewModel(this); break;
+            case 2: GoConnect(); break;
+            case 3:
+                try { await GoChooseAsync(reload: true); }
+                catch { GoConnect(); }
+                break;
+        }
+    }
+
+    /// <summary>Back to the first page with no TV connected, e.g. to clean another one.</summary>
+    public async Task StartOverAsync()
+    {
+        if (Device is { } d && d.Serial.Contains(':'))
+            await Adb.RunAsync(["disconnect", d.Serial], 5000);
+        Device = null;
+        CurrentPage = new WelcomeViewModel(this);
     }
 
     public void GoConnect() => CurrentPage = new ConnectViewModel(this);
@@ -90,5 +120,9 @@ public sealed partial class MainViewModel : ObservableObject
         if (Device is not null) CurrentPage = new RestoreViewModel(this, Device);
     }
 
-    partial void OnDeviceChanged(TvDevice? value) => GoRestoreCommand.NotifyCanExecuteChanged();
+    partial void OnDeviceChanged(TvDevice? value)
+    {
+        GoRestoreCommand.NotifyCanExecuteChanged();
+        RefreshSteps();
+    }
 }

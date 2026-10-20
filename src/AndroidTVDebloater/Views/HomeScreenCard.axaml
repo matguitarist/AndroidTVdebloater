@@ -1,0 +1,66 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="using:AndroidTVDebloater.Localization"
+             xmlns:vm="using:AndroidTVDebloater.ViewModels"
+             x:Class="AndroidTVDebloater.Views.HomeScreenCard">
+  <Border Classes="card" Padding="0">
+    <StackPanel>
+      <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16" Margin="20,18,20,14">
+        <Border Width="40" Height="40" CornerRadius="10" Background="{DynamicResource AccentSoft}" VerticalAlignment="Top">
+          <Path Stroke="{DynamicResource AccentFg}" StrokeThickness="1.7" StrokeLineCap="Round" StrokeJoin="Round"
+                Width="20" Height="20" Stretch="Uniform"
+                Data="M3 11 L12 4 L21 11 M5.5 9.5 V20 H18.5 V9.5 M10 20 V14 H14 V20" />
+        </Border>
+        <StackPanel Grid.Column="1" Spacing="4">
+          <TextBlock Classes="h2" Text="{l:T Home_Title}" />
+          <TextBlock Classes="muted" Text="{l:T Home_Text}" />
+        </StackPanel>
+      </Grid>
+
+      <Border Height="1" Background="{DynamicResource Divider}" />
+
+      <ItemsControl Classes="rows" ItemsSource="{Binding Launchers}" IsEnabled="{Binding !IsBusy}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate DataType="vm:LauncherOption">
+            <Border Classes="row">
+              <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" Margin="16,0,0,0">
+                  <Button Content="{l:T Home_OpenStore}" IsVisible="{Binding CanInstall}"
+                          Command="{Binding $parent[UserControl].DataContext.OpenStoreCommand}" CommandParameter="{Binding}" />
+                  <Button Classes="accent" Content="{l:T Home_MakeHome}" IsVisible="{Binding CanMakeHome}"
+                          Command="{Binding $parent[UserControl].DataContext.MakeHomeCommand}" CommandParameter="{Binding}" />
+                </StackPanel>
+                <StackPanel Spacing="3">
+                  <WrapPanel>
+                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14" Margin="0,0,10,0" />
+                    <Border Classes="pill" IsVisible="{Binding IsCurrent}">
+                      <TextBlock Text="{l:T Home_CurrentPill}" />
+                    </Border>
+                    <Border Classes="pill info" IsVisible="{Binding CanMakeHome}">
+                      <TextBlock Text="{l:T Home_InstalledPill}" />
+                    </Border>
+                  </WrapPanel>
+                  <TextBlock Classes="muted" Text="{Binding Description}" />
+                </StackPanel>
+              </DockPanel>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+
+      <Border Height="1" Background="{DynamicResource Divider}" />
+
+      <StackPanel Margin="20,14,20,18" Spacing="12">
+        <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsBusy}" />
+        <Border Classes="note" IsVisible="{Binding Status, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+          <TextBlock Classes="muted" Text="{Binding Status}" Foreground="{DynamicResource TextMain}" />
+        </Border>
+        <TextBlock Classes="faint" TextWrapping="Wrap" Text="{l:T Home_GoogleTvNote}" IsVisible="{Binding IsGoogleTv}" />
+        <WrapPanel IsEnabled="{Binding !IsBusy}">
+          <Button Content="{l:T Home_CheckAgain}" Command="{Binding CheckAgainCommand}" Margin="0,0,10,0" />
+          <Button Content="{l:T Home_RestoreOriginal}" Command="{Binding RestoreOriginalCommand}" IsVisible="{Binding CanRestoreOriginal}" />
+        </WrapPanel>
+      </StackPanel>
+    </StackPanel>
+  </Border>
+</UserControl>

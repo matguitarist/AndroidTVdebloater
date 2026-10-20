@@ -35,6 +35,7 @@ var tv = new TvDevice
         "com.google.android.marvin.talkback", "com.google.android.katniss", "com.google.android.apps.mediashell",
         "com.netflix.ninja", "com.google.android.youtube.tv", "com.amazon.amazonvideo.livingroom",
         "com.android.dreams.basic", "com.example.launcher", "org.example.speedtest",
+        "com.android.vending", "com.spocky.projengmenu",
     ],
     Disabled = ["com.example.oldapp"],
     ThirdParty = ["org.example.speedtest", "com.netflix.ninja"],
@@ -57,9 +58,17 @@ void Shot(string name, ThemeVariant theme, string lang, Func<MainViewModel, Page
 
 Shot("welcome-light-en", ThemeVariant.Light, "en", m => new WelcomeViewModel(m), 980);
 Shot("welcome-dark-fr", ThemeVariant.Dark, "fr", m => new WelcomeViewModel(m), 980);
+Shot("apply-light-fr", ThemeVariant.Light, "fr", m =>
+{
+    var a = new ApplyViewModel(m, tv, [], false) { AppsOff = 12, SettingsChanged = 5, BackupPath = @"C:\Users\vous\AppData\Local\AndroidTVDebloater\backups\Example" };
+    a.HomeScreen = new HomeScreenViewModel(m, tv);
+    a.IsFinished = true;
+    return a;
+}, 1500);
 Shot("connect-light-en", ThemeVariant.Light, "en", m =>
 {
     var c = new ConnectViewModel(m);
+    c.Recent.Add(new FoundTv("192.168.1.42") { Name = "Example Smart TV 4K" });
     c.Found.Add(new FoundTv("192.168.1.42") { Name = "android-livingroom.lan" });
     c.Found.Add(new FoundTv("192.168.1.57"));
     return c;
@@ -83,9 +92,12 @@ Shot("apply-dark-en", ThemeVariant.Dark, "en", m =>
              })
         a.Items.Add(new StepItem(text) { State = state, Detail = detail });
     a.BackupPath = @"C:\Users\you\AppData\Local\AndroidTVDebloater\backups\Example_Smart_TV_4K-DEMO";
+    a.AppsOff = 3;
+    a.SettingsChanged = 1;
+    a.HomeScreen = new HomeScreenViewModel(m, tv);
     a.IsFinished = true;
     return a;
-}, 1100);
+}, 1500);
 Shot("apply-working-light-fr", ThemeVariant.Light, "fr", m =>
 {
     var a = new ApplyViewModel(m, tv, [], false);

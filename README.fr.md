@@ -12,6 +12,8 @@
 
 ![Choisir ce qu'il faut désactiver](docs/choose-dark-fr.png)
 
+![Terminé](docs/apply-light-fr.png)
+
 ## Ce que fait l'application
 
 - **Trouve votre téléviseur sur le réseau** et s'y connecte en Wi-Fi ou Ethernet. Sans câble, sans root.
@@ -25,6 +27,10 @@
   internet et résolution de noms. Si le DNS anti-pub empêche la résolution, il est annulé sur-le-champ.
 - **Annule exactement n'importe quelle opération** depuis la page Restaurer, ou réactive toutes
   les applications en un clic.
+- **Propose un écran d'accueil sans publicité** (Projectivy Launcher, FLauncher) : l'ouvre dans le
+  Play Store du téléviseur, en fait l'écran d'accueil une fois installé, et peut remettre celui d'origine.
+- **Désactive le débogage pour vous** à la fin, puis **Recommencer** pour nettoyer le téléviseur
+  suivant. Les téléviseurs déjà utilisés sont listés sur la page Connecter.
 - **Français et anglais**, modifiable à tout moment. Thèmes clair et sombre selon Windows.
 
 Rien n'est désinstallé. Les applications sont désactivées avec la commande Android `pm disable-user`,
@@ -54,7 +60,7 @@ Choisissez **Informations complémentaires → Exécuter quand même**.
 Les appareils Google TV récents qui proposent seulement le **Débogage sans fil** avec un code
 d'association sont pris en charge depuis la page Connecter.
 
-Une fois terminé, désactivez de nouveau le Débogage USB. L'application vous le rappelle.
+Une fois terminé, désactivez de nouveau le Débogage USB. Le dernier écran a un bouton qui le fait.
 
 ## Appareils pris en charge
 

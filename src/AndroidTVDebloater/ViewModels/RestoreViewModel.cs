@@ -26,12 +26,16 @@ public sealed partial class RestoreViewModel : PageViewModel
     [ObservableProperty] private bool _statusIsError;
 
     public bool HasBackups => Backups.Count > 0;
+    public HomeScreenViewModel HomeScreen { get; private set; }
 
     public RestoreViewModel(MainViewModel main, TvDevice device) : base(main)
     {
         Device = device;
+        HomeScreen = new HomeScreenViewModel(main, device);
         Reload();
     }
+
+    partial void OnIsBusyChanged(bool value) => Main.RefreshSteps();
 
     private void Reload()
     {
@@ -43,6 +47,7 @@ public sealed partial class RestoreViewModel : PageViewModel
     public override void OnLanguageChanged()
     {
         foreach (var b in Backups) b.Refresh();
+        HomeScreen.RefreshTexts();
     }
 
     /// <summary>Undo one run: re-enable its apps and put every setting back as it was.</summary>
@@ -98,6 +103,8 @@ public sealed partial class RestoreViewModel : PageViewModel
             Status = await work();
             Device = await TvDevice.LoadAsync(Main.Adb, Device.Serial);
             Main.Device = Device;
+            HomeScreen = new HomeScreenViewModel(Main, Device);
+            OnPropertyChanged(nameof(HomeScreen));
             Reload();
         }
         catch (Exception ex)

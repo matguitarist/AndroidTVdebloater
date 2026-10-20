@@ -18,11 +18,26 @@ public sealed partial class FoundTv(string address) : ObservableObject
     partial void OnNameChanged(string value) => OnPropertyChanged(nameof(HasName));
 }
 
-public sealed partial class ConnectViewModel(MainViewModel main) : PageViewModel(main)
+public sealed partial class ConnectViewModel : PageViewModel
 {
     public override int StepIndex => 1;
 
     public ObservableCollection<FoundTv> Found { get; } = [];
+    public List<FoundTv> Recent { get; }
+    public bool HasRecent => Recent.Count > 0;
+
+    private readonly Dictionary<string, string> _recentNames;
+
+    public ConnectViewModel(MainViewModel main) : base(main)
+    {
+        var recent = RecentTvs.Load();
+        Recent = recent.Select(r => new FoundTv(DisplayAddress(r.Address)) { Name = r.Name }).ToList();
+        _recentNames = recent.GroupBy(r => r.Address).ToDictionary(g => g.Key, g => g.First().Name);
+    }
+
+    /// <summary>"192.168.1.20:5555" → "192.168.1.20"; other ports are kept.</summary>
+    private static string DisplayAddress(string serial) =>
+        serial.EndsWith(":" + NetworkScanner.AdbPort) ? serial[..serial.LastIndexOf(':')] : serial;
 
     [ObservableProperty] private string _address = "";
     [ObservableProperty] private bool _isScanning;
@@ -73,7 +88,8 @@ public sealed partial class ConnectViewModel(MainViewModel main) : PageViewModel
             {
                 var tv = new FoundTv(ip);
                 Found.Add(tv);
-                _ = ResolveNameAsync(tv);
+                if (_recentNames.TryGetValue($"{ip}:{NetworkScanner.AdbPort}", out var known)) tv.Name = known;
+                else _ = ResolveNameAsync(tv);
             }
         }
         finally
@@ -150,6 +166,7 @@ public sealed partial class ConnectViewModel(MainViewModel main) : PageViewModel
 
             State = ConnectState.Reading;
             var device = await TvDevice.LoadAsync(Main.Adb, target);
+            RecentTvs.Remember(target, device.DisplayName);
             Main.Device = device;
             await Main.GoChooseAsync();
         }

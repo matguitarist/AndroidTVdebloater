@@ -4,14 +4,6 @@
              xmlns:m="using:AndroidTVDebloater.Models"
              x:Class="AndroidTVDebloater.Views.ChooseView">
   <UserControl.Styles>
-    <Style Selector="Border.row">
-      <Setter Property="Padding" Value="18,14" />
-      <Setter Property="BorderBrush" Value="{DynamicResource Divider}" />
-      <Setter Property="BorderThickness" Value="0,0,0,1" />
-    </Style>
-    <Style Selector="ItemsControl.rows > ContentPresenter:nth-last-child(1) Border.row">
-      <Setter Property="BorderThickness" Value="0" />
-    </Style>
     <Style Selector="CheckBox.tweak">
       <Setter Property="HorizontalAlignment" Value="Stretch" />
       <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -59,7 +51,12 @@
             <DataTemplate DataType="m:TweakGroup">
               <StackPanel Spacing="10">
                 <StackPanel Spacing="3">
-                  <TextBlock Classes="h2" Text="{Binding Title}" />
+                  <DockPanel>
+                    <Border DockPanel.Dock="Right" Classes="pill count" VerticalAlignment="Bottom">
+                      <TextBlock Text="{Binding CountText}" />
+                    </Border>
+                    <TextBlock Classes="h2" Text="{Binding Title}" />
+                  </DockPanel>
                   <TextBlock Classes="muted" Text="{Binding Description}" />
                 </StackPanel>
                 <Border Classes="card" Padding="0">

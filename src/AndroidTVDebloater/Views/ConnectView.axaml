@@ -3,6 +3,39 @@
              xmlns:l="using:AndroidTVDebloater.Localization"
              xmlns:vm="using:AndroidTVDebloater.ViewModels"
              x:Class="AndroidTVDebloater.Views.ConnectView">
+  <UserControl.Resources>
+    <!-- A TV found on the network or used before -->
+    <DataTemplate x:Key="TvRow" DataType="vm:FoundTv">
+      <Border Classes="tvrow">
+        <DockPanel>
+          <Button DockPanel.Dock="Right" Content="{l:T Connect_ConnectThis}" VerticalAlignment="Center"
+                  Command="{Binding $parent[UserControl].DataContext.ConnectFoundCommand}"
+                  CommandParameter="{Binding}" />
+          <Border DockPanel.Dock="Left" Width="36" Height="36" CornerRadius="9" Background="{DynamicResource AccentSoft}" Margin="0,0,14,0">
+            <Path Stroke="{DynamicResource AccentFg}" StrokeThickness="1.7" StrokeLineCap="Round" StrokeJoin="Round"
+                  Width="18" Height="18" Stretch="Uniform" Data="M3 5 H21 V16 H3 Z M8 20 H16 M12 16 V20" />
+          </Border>
+          <StackPanel VerticalAlignment="Center" Spacing="1">
+            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" IsVisible="{Binding HasName}" />
+            <TextBlock Text="{Binding Address}" FontWeight="SemiBold" IsVisible="{Binding !HasName}" />
+            <TextBlock Classes="faint" Text="{Binding Address}" IsVisible="{Binding HasName}" />
+          </StackPanel>
+        </DockPanel>
+      </Border>
+    </DataTemplate>
+  </UserControl.Resources>
+  <UserControl.Styles>
+    <Style Selector="Border.tvrow">
+      <Setter Property="BorderBrush" Value="{DynamicResource CardBorder}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="12,10" />
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="Border.tvrow:pointerover">
+      <Setter Property="Background" Value="{DynamicResource RowHover}" />
+    </Style>
+  </UserControl.Styles>
   <ScrollViewer>
     <StackPanel Margin="44,38,44,40" MaxWidth="860" HorizontalAlignment="Left" Spacing="22">
       <StackPanel Spacing="8">
@@ -44,6 +77,20 @@
         </StackPanel>
       </Border>
 
+      <Border Classes="card" IsEnabled="{Binding !IsBusy}" IsVisible="{Binding HasRecent}">
+        <StackPanel Spacing="14">
+          <StackPanel Spacing="4">
+            <TextBlock Classes="h2" Text="{l:T Connect_RecentTitle}" />
+            <TextBlock Classes="muted" Text="{l:T Connect_RecentText}" />
+          </StackPanel>
+          <ItemsControl ItemsSource="{Binding Recent}" ItemTemplate="{StaticResource TvRow}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate><StackPanel Spacing="8" /></ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+
       <Border Classes="card" IsEnabled="{Binding !IsBusy}">
         <StackPanel Spacing="14">
           <StackPanel Spacing="4">
@@ -54,25 +101,10 @@
             <Button Classes="accent" Content="{l:T Connect_Scan}" Command="{Binding ScanCommand}" IsEnabled="{Binding !IsScanning}" />
             <ProgressBar Width="220" VerticalAlignment="Center" Value="{Binding ScanProgress}" Maximum="100" IsVisible="{Binding IsScanning}" />
           </StackPanel>
-          <ItemsControl ItemsSource="{Binding Found}">
+          <ItemsControl ItemsSource="{Binding Found}" ItemTemplate="{StaticResource TvRow}">
             <ItemsControl.ItemsPanel>
               <ItemsPanelTemplate><StackPanel Spacing="8" /></ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-              <DataTemplate DataType="vm:FoundTv">
-                <Border BorderBrush="{DynamicResource CardBorder}" BorderThickness="1" CornerRadius="8" Padding="14,10">
-                  <DockPanel>
-                    <Button DockPanel.Dock="Right" Content="{l:T Connect_ConnectThis}"
-                            Command="{Binding $parent[UserControl].DataContext.ConnectFoundCommand}"
-                            CommandParameter="{Binding}" />
-                    <StackPanel VerticalAlignment="Center" Spacing="2">
-                      <TextBlock Text="{Binding Address}" FontWeight="SemiBold" />
-                      <TextBlock Classes="faint" Text="{Binding Name}" IsVisible="{Binding HasName}" />
-                    </StackPanel>
-                  </DockPanel>
-                </Border>
-              </DataTemplate>
-            </ItemsControl.ItemTemplate>
           </ItemsControl>
           <Border Classes="warn" IsVisible="{Binding NothingFound}">
             <TextBlock Text="{l:T Connect_NothingFound}" Foreground="{DynamicResource WarnFg}" TextWrapping="Wrap" />
