@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/AndroidTVDebloater/AndroidTVDebloater.csproj" />
+  <Project Path="tools/Screenshots/Screenshots.csproj" />
+</Solution>

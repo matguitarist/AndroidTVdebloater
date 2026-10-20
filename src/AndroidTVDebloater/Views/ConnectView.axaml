@@ -1,0 +1,113 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="using:AndroidTVDebloater.Localization"
+             xmlns:vm="using:AndroidTVDebloater.ViewModels"
+             x:Class="AndroidTVDebloater.Views.ConnectView">
+  <ScrollViewer>
+    <StackPanel Margin="44,38,44,40" MaxWidth="860" HorizontalAlignment="Left" Spacing="22">
+      <StackPanel Spacing="8">
+        <TextBlock Classes="h1" Text="{l:T Connect_Title}" />
+        <TextBlock Classes="lead" Text="{l:T Connect_Lead}" />
+      </StackPanel>
+
+      <!-- Waiting for "Allow USB debugging?" on the TV -->
+      <Border Classes="card" BorderBrush="{DynamicResource SystemAccentColor}" BorderThickness="2" IsVisible="{Binding IsWaiting}">
+        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="18">
+          <Border Width="52" Height="52" CornerRadius="12" Background="{DynamicResource AccentSoft}" VerticalAlignment="Top">
+            <Path Stroke="{DynamicResource AccentFg}" StrokeThickness="1.8" StrokeLineCap="Round" StrokeJoin="Round"
+                  Width="28" Height="28" Stretch="Uniform"
+                  Data="M3 5 H21 V16 H3 Z M8 20 H16 M12 16 V20 M10 9 L12 11 L10 13" />
+          </Border>
+          <StackPanel Grid.Column="1" Spacing="10">
+            <TextBlock Classes="h2" Text="{l:T Connect_ApproveTitle}" />
+            <TextBlock Classes="muted" Text="{l:T Connect_ApproveText}" />
+            <ProgressBar IsIndeterminate="True" />
+            <Button Content="{l:T Common_Cancel}" Command="{Binding CancelCommand}" />
+          </StackPanel>
+        </Grid>
+      </Border>
+
+      <!-- Connecting / reading / error -->
+      <Border Classes="card" IsVisible="{Binding ShowStatus}">
+        <StackPanel Spacing="10">
+          <StackPanel Spacing="10" IsVisible="{Binding IsBusy}">
+            <TextBlock Classes="h2" Text="{Binding StatusText}" />
+            <ProgressBar IsIndeterminate="True" />
+          </StackPanel>
+          <StackPanel Spacing="10" IsVisible="{Binding HasError}">
+            <TextBlock Classes="h2" Text="{l:T Connect_FailedTitle}" Foreground="{DynamicResource ErrFg}" />
+            <Border Classes="err">
+              <SelectableTextBlock Text="{Binding StatusText}" TextWrapping="Wrap" Foreground="{DynamicResource ErrFg}" />
+            </Border>
+            <TextBlock Classes="muted" Text="{l:T Connect_Tips}" />
+          </StackPanel>
+        </StackPanel>
+      </Border>
+
+      <Border Classes="card" IsEnabled="{Binding !IsBusy}">
+        <StackPanel Spacing="14">
+          <StackPanel Spacing="4">
+            <TextBlock Classes="h2" Text="{l:T Connect_FindTitle}" />
+            <TextBlock Classes="muted" Text="{l:T Connect_FindText}" />
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" Spacing="14">
+            <Button Classes="accent" Content="{l:T Connect_Scan}" Command="{Binding ScanCommand}" IsEnabled="{Binding !IsScanning}" />
+            <ProgressBar Width="220" VerticalAlignment="Center" Value="{Binding ScanProgress}" Maximum="100" IsVisible="{Binding IsScanning}" />
+          </StackPanel>
+          <ItemsControl ItemsSource="{Binding Found}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate><StackPanel Spacing="8" /></ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate DataType="vm:FoundTv">
+                <Border BorderBrush="{DynamicResource CardBorder}" BorderThickness="1" CornerRadius="8" Padding="14,10">
+                  <DockPanel>
+                    <Button DockPanel.Dock="Right" Content="{l:T Connect_ConnectThis}"
+                            Command="{Binding $parent[UserControl].DataContext.ConnectFoundCommand}"
+                            CommandParameter="{Binding}" />
+                    <StackPanel VerticalAlignment="Center" Spacing="2">
+                      <TextBlock Text="{Binding Address}" FontWeight="SemiBold" />
+                      <TextBlock Classes="faint" Text="{Binding Name}" IsVisible="{Binding HasName}" />
+                    </StackPanel>
+                  </DockPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <Border Classes="warn" IsVisible="{Binding NothingFound}">
+            <TextBlock Text="{l:T Connect_NothingFound}" Foreground="{DynamicResource WarnFg}" TextWrapping="Wrap" />
+          </Border>
+        </StackPanel>
+      </Border>
+
+      <Border Classes="card" IsEnabled="{Binding !IsBusy}">
+        <StackPanel Spacing="14">
+          <StackPanel Spacing="4">
+            <TextBlock Classes="h2" Text="{l:T Connect_ManualTitle}" />
+            <TextBlock Classes="muted" Text="{l:T Connect_ManualText}" />
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <TextBox Width="260" Watermark="192.168.1.20" Text="{Binding Address}" />
+            <Button Classes="accent" Content="{l:T Connect_Connect}" Command="{Binding ConnectManualCommand}" IsDefault="True" />
+          </StackPanel>
+        </StackPanel>
+      </Border>
+
+      <Expander IsEnabled="{Binding !IsBusy}" HorizontalAlignment="Stretch">
+        <Expander.Header>
+          <TextBlock Text="{l:T Connect_PairTitle}" FontWeight="SemiBold" />
+        </Expander.Header>
+        <StackPanel Spacing="12" Margin="4,4,4,8">
+          <TextBlock Classes="muted" Text="{l:T Connect_PairText}" />
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <TextBox Width="220" Watermark="192.168.1.20:37099" Text="{Binding PairAddress}" />
+            <TextBox Width="140" Watermark="123456" Text="{Binding PairCode}" />
+            <Button Content="{l:T Connect_Pair}" Command="{Binding PairCommand}" />
+          </StackPanel>
+          <TextBlock Classes="muted" Text="{Binding PairResult}"
+                     IsVisible="{Binding PairResult, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+        </StackPanel>
+      </Expander>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

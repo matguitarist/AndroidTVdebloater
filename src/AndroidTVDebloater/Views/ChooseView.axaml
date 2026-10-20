@@ -1,0 +1,114 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="using:AndroidTVDebloater.Localization"
+             xmlns:m="using:AndroidTVDebloater.Models"
+             x:Class="AndroidTVDebloater.Views.ChooseView">
+  <UserControl.Styles>
+    <Style Selector="Border.row">
+      <Setter Property="Padding" Value="18,14" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Divider}" />
+      <Setter Property="BorderThickness" Value="0,0,0,1" />
+    </Style>
+    <Style Selector="ItemsControl.rows > ContentPresenter:nth-last-child(1) Border.row">
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style Selector="CheckBox.tweak">
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    </Style>
+  </UserControl.Styles>
+
+  <Grid RowDefinitions="*,Auto">
+    <ScrollViewer>
+      <StackPanel Margin="44,34,44,32" MaxWidth="900" HorizontalAlignment="Left" Spacing="22">
+
+        <!-- The TV -->
+        <Border Classes="card" Padding="20,16">
+          <DockPanel>
+            <Button DockPanel.Dock="Right" Classes="link" VerticalAlignment="Center"
+                    Content="{l:T Choose_ChangeTv}" Command="{Binding ChangeTvCommand}" />
+            <StackPanel Spacing="4">
+              <TextBlock Classes="h2" Text="{Binding Device.DisplayName}" />
+              <WrapPanel>
+                <TextBlock Classes="muted" Text="{Binding AndroidText}" />
+                <TextBlock Classes="faint" Text="  ·  " VerticalAlignment="Center" />
+                <TextBlock Classes="muted" Text="{Binding RamText}" />
+                <TextBlock Classes="faint" Text="  ·  " VerticalAlignment="Center" />
+                <TextBlock Classes="muted" Text="{Binding NetworkText}" />
+                <TextBlock Classes="faint" Text="  ·  " VerticalAlignment="Center" IsVisible="{Binding HasAlreadyOff}" />
+                <TextBlock Classes="muted" Text="{Binding AlreadyOffText}" IsVisible="{Binding HasAlreadyOff}" />
+              </WrapPanel>
+            </StackPanel>
+          </DockPanel>
+        </Border>
+
+        <StackPanel Spacing="8">
+          <TextBlock Classes="h1" Text="{l:T Choose_Title}" />
+          <TextBlock Classes="lead" Text="{l:T Choose_Lead}" />
+          <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,6,0,0">
+            <Button Content="{l:T Choose_Recommended}" Command="{Binding SelectRecommendedCommand}" />
+            <Button Content="{l:T Choose_None}" Command="{Binding SelectNoneCommand}" />
+          </StackPanel>
+        </StackPanel>
+
+        <ItemsControl ItemsSource="{Binding Groups}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate><StackPanel Spacing="26" /></ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="m:TweakGroup">
+              <StackPanel Spacing="10">
+                <StackPanel Spacing="3">
+                  <TextBlock Classes="h2" Text="{Binding Title}" />
+                  <TextBlock Classes="muted" Text="{Binding Description}" />
+                </StackPanel>
+                <Border Classes="card" Padding="0">
+                  <ItemsControl Classes="rows" ItemsSource="{Binding Tweaks}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate DataType="m:Tweak">
+                        <Border Classes="row">
+                          <StackPanel Spacing="8">
+                            <CheckBox Classes="tweak" IsChecked="{Binding IsSelected}">
+                              <StackPanel Spacing="3" Margin="4,0,0,0">
+                                <WrapPanel>
+                                  <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14" Margin="0,0,10,0" />
+                                  <Border Classes="pill" IsVisible="{Binding Recommended}">
+                                    <TextBlock Text="{l:T Choose_RecommendedPill}" />
+                                  </Border>
+                                </WrapPanel>
+                                <TextBlock Classes="muted" Text="{Binding Description}" />
+                                <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding HasWarning}">
+                                  <TextBlock Text="⚠" Foreground="{DynamicResource WarnFg}" />
+                                  <TextBlock Text="{Binding Warning}" Foreground="{DynamicResource WarnFg}" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <TextBlock Classes="faint mono" Text="{Binding Technical}" Margin="0,2,0,0" />
+                              </StackPanel>
+                            </CheckBox>
+                            <ComboBox Margin="36,0,0,0" MinWidth="320" IsVisible="{Binding HasOptions}"
+                                      IsEnabled="{Binding IsSelected}"
+                                      ItemsSource="{Binding Options}" SelectedItem="{Binding SelectedOption}" />
+                          </StackPanel>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </Border>
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- Action bar -->
+    <Border Grid.Row="1" Background="{DynamicResource SidebarBg}" BorderBrush="{DynamicResource CardBorder}" BorderThickness="0,1,0,0" Padding="44,14">
+      <DockPanel>
+        <Button DockPanel.Dock="Right" Classes="accent big" Content="{Binding ApplyText}" Command="{Binding ApplyCommand}" />
+        <StackPanel Spacing="2" VerticalAlignment="Center">
+          <TextBlock Text="{Binding SelectedText}" FontWeight="SemiBold" />
+          <CheckBox IsChecked="{Binding RebootAfter}" Content="{l:T Choose_Reboot}" />
+        </StackPanel>
+      </DockPanel>
+    </Border>
+  </Grid>
+</UserControl>

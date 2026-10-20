@@ -1,0 +1,92 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="using:AndroidTVDebloater.Localization"
+             xmlns:vm="using:AndroidTVDebloater.ViewModels"
+             x:Class="AndroidTVDebloater.Views.ApplyView">
+  <UserControl.Styles>
+    <Style Selector="Border.state">
+      <Setter Property="Width" Value="22" />
+      <Setter Property="Height" Value="22" />
+      <Setter Property="CornerRadius" Value="11" />
+      <Setter Property="VerticalAlignment" Value="Top" />
+      <Setter Property="BorderThickness" Value="1.5" />
+      <Setter Property="BorderBrush" Value="{DynamicResource CardBorder}" />
+    </Style>
+    <Style Selector="Border.state.running">
+      <Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
+      <Setter Property="BorderThickness" Value="3" />
+    </Style>
+    <Style Selector="Border.state.done">
+      <Setter Property="Background" Value="{DynamicResource OkBg}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource OkBg}" />
+    </Style>
+    <Style Selector="Border.state.failed">
+      <Setter Property="Background" Value="{DynamicResource ErrBg}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource ErrBg}" />
+    </Style>
+    <Style Selector="Border.state > TextBlock">
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Border.state.done > TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource OkFg}" />
+    </Style>
+    <Style Selector="Border.state.failed > TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource ErrFg}" />
+    </Style>
+  </UserControl.Styles>
+
+  <ScrollViewer>
+    <StackPanel Margin="44,38,44,40" MaxWidth="860" HorizontalAlignment="Left" Spacing="22">
+      <StackPanel Spacing="8">
+        <TextBlock Classes="h1" Text="{Binding Title}" />
+        <TextBlock Classes="lead" Text="{Binding Subtitle}" />
+      </StackPanel>
+
+      <ProgressBar Value="{Binding Progress}" Maximum="100" IsVisible="{Binding !IsFinished}" />
+
+      <!-- Finished -->
+      <StackPanel Spacing="16" IsVisible="{Binding IsFinished}">
+        <Border Classes="card" BorderBrush="{DynamicResource WarnFg}" BorderThickness="1.5">
+          <StackPanel Spacing="8">
+            <TextBlock Classes="h2" Text="{l:T Apply_LastStepTitle}" />
+            <TextBlock Classes="muted" Text="{l:T Apply_LastStep}" />
+          </StackPanel>
+        </Border>
+        <Border Classes="card">
+          <StackPanel Spacing="10">
+            <TextBlock Classes="h2" Text="{l:T Apply_BackupTitle}" />
+            <TextBlock Classes="muted" Text="{l:T Apply_BackupText}" />
+            <SelectableTextBlock Classes="mono" Text="{Binding BackupPath}" TextWrapping="Wrap" FontSize="12"
+                                 Foreground="{DynamicResource TextMuted}" />
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <Button Content="{l:T Apply_OpenFolder}" Command="{Binding OpenBackupFolderCommand}" />
+              <Button Content="{l:T Side_Restore}" Command="{Binding $parent[Window].DataContext.GoRestoreCommand}" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+        <Button Classes="accent" Content="{l:T Apply_BackToChoices}" Command="{Binding BackToChoicesCommand}" />
+      </StackPanel>
+
+      <Border Classes="card" Padding="0">
+        <ItemsControl ItemsSource="{Binding Items}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="vm:StepItem">
+              <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14" Margin="18,11">
+                <Border Classes="state" Classes.running="{Binding IsRunning}" Classes.done="{Binding IsDone}" Classes.failed="{Binding IsFailed}">
+                  <TextBlock Text="{Binding Icon}" />
+                </Border>
+                <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+                  <TextBlock Text="{Binding Text}" TextWrapping="Wrap" />
+                  <TextBlock Classes="muted" FontSize="12" Text="{Binding Detail}" IsVisible="{Binding HasDetail}" />
+                </StackPanel>
+              </Grid>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

@@ -1,0 +1,60 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="AndroidTVDebloater.App"
+             RequestedThemeVariant="Default">
+
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+          <SolidColorBrush x:Key="AppBg" Color="#F3F4F6" />
+          <SolidColorBrush x:Key="SidebarBg" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="CardBg" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="CardBorder" Color="#E2E4E8" />
+          <SolidColorBrush x:Key="Divider" Color="#ECEDF0" />
+          <SolidColorBrush x:Key="TextMain" Color="#16181D" />
+          <SolidColorBrush x:Key="TextMuted" Color="#5D6470" />
+          <SolidColorBrush x:Key="TextFaint" Color="#8A909A" />
+          <SolidColorBrush x:Key="AccentFg" Color="#2459D6" />
+          <SolidColorBrush x:Key="AccentSoft" Color="#E9F0FF" />
+          <SolidColorBrush x:Key="WarnFg" Color="#8A5300" />
+          <SolidColorBrush x:Key="WarnBg" Color="#FFF5E1" />
+          <SolidColorBrush x:Key="OkFg" Color="#127556" />
+          <SolidColorBrush x:Key="OkBg" Color="#E5F6EF" />
+          <SolidColorBrush x:Key="ErrFg" Color="#B42E24" />
+          <SolidColorBrush x:Key="ErrBg" Color="#FDECEA" />
+          <SolidColorBrush x:Key="StepIdleBg" Color="#ECEEF1" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+          <SolidColorBrush x:Key="AppBg" Color="#15171B" />
+          <SolidColorBrush x:Key="SidebarBg" Color="#1C1F24" />
+          <SolidColorBrush x:Key="CardBg" Color="#1F2228" />
+          <SolidColorBrush x:Key="CardBorder" Color="#2E323A" />
+          <SolidColorBrush x:Key="Divider" Color="#2A2E35" />
+          <SolidColorBrush x:Key="TextMain" Color="#EDEFF3" />
+          <SolidColorBrush x:Key="TextMuted" Color="#A3AAB5" />
+          <SolidColorBrush x:Key="TextFaint" Color="#7A818C" />
+          <SolidColorBrush x:Key="AccentFg" Color="#7FA6FF" />
+          <SolidColorBrush x:Key="AccentSoft" Color="#22304D" />
+          <SolidColorBrush x:Key="WarnFg" Color="#F2BE6B" />
+          <SolidColorBrush x:Key="WarnBg" Color="#3A2E18" />
+          <SolidColorBrush x:Key="OkFg" Color="#5FD3A7" />
+          <SolidColorBrush x:Key="OkBg" Color="#173328" />
+          <SolidColorBrush x:Key="ErrFg" Color="#FF8A80" />
+          <SolidColorBrush x:Key="ErrBg" Color="#3B1E1C" />
+          <SolidColorBrush x:Key="StepIdleBg" Color="#2A2E35" />
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+    </ResourceDictionary>
+  </Application.Resources>
+
+  <Application.Styles>
+    <FluentTheme>
+      <FluentTheme.Palettes>
+        <ColorPaletteResources x:Key="Light" Accent="#2459D6" />
+        <ColorPaletteResources x:Key="Dark" Accent="#4D7CF0" />
+      </FluentTheme.Palettes>
+    </FluentTheme>
+    <StyleInclude Source="avares://AndroidTVDebloater/Styles/AppStyles.axaml" />
+  </Application.Styles>
+</Application>

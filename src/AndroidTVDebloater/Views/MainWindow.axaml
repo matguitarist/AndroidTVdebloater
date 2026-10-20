@@ -1,0 +1,143 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AndroidTVDebloater.ViewModels"
+        xmlns:v="using:AndroidTVDebloater.Views"
+        xmlns:l="using:AndroidTVDebloater.Localization"
+        x:Class="AndroidTVDebloater.Views.MainWindow"
+        Title="Android TV Debloater"
+        Width="1140" Height="800" MinWidth="920" MinHeight="620"
+        WindowStartupLocation="CenterScreen"
+        Icon="/Assets/app.ico"
+        Background="{DynamicResource AppBg}">
+
+  <Window.DataTemplates>
+    <DataTemplate DataType="vm:WelcomeViewModel"><v:WelcomeView /></DataTemplate>
+    <DataTemplate DataType="vm:ConnectViewModel"><v:ConnectView /></DataTemplate>
+    <DataTemplate DataType="vm:ChooseViewModel"><v:ChooseView /></DataTemplate>
+    <DataTemplate DataType="vm:ApplyViewModel"><v:ApplyView /></DataTemplate>
+    <DataTemplate DataType="vm:RestoreViewModel"><v:RestoreView /></DataTemplate>
+  </Window.DataTemplates>
+
+  <Window.Styles>
+    <Style Selector="Border.dot">
+      <Setter Property="Width" Value="26" />
+      <Setter Property="Height" Value="26" />
+      <Setter Property="CornerRadius" Value="13" />
+      <Setter Property="Background" Value="{DynamicResource StepIdleBg}" />
+    </Style>
+    <Style Selector="Border.dot TextBlock">
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="{DynamicResource TextMuted}" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Border.dot.active">
+      <Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
+    </Style>
+    <Style Selector="Border.dot.active TextBlock">
+      <Setter Property="Foreground" Value="White" />
+    </Style>
+    <Style Selector="Border.dot.done">
+      <Setter Property="Background" Value="{DynamicResource OkBg}" />
+    </Style>
+    <Style Selector="Border.dot.done TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource OkFg}" />
+    </Style>
+    <Style Selector="TextBlock.steptitle">
+      <Setter Property="Foreground" Value="{DynamicResource TextMuted}" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="FontSize" Value="14" />
+    </Style>
+    <Style Selector="TextBlock.steptitle.active">
+      <Setter Property="Foreground" Value="{DynamicResource TextMain}" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="RadioButton.lang">
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="Width" Value="48" />
+      <Setter Property="Height" Value="30" />
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+  </Window.Styles>
+
+  <Grid ColumnDefinitions="252,*">
+    <!-- Sidebar -->
+    <Border Background="{DynamicResource SidebarBg}" BorderBrush="{DynamicResource CardBorder}" BorderThickness="0,0,1,0">
+      <DockPanel Margin="22,26,22,20">
+        <StackPanel DockPanel.Dock="Top" Spacing="34">
+          <StackPanel Orientation="Horizontal" Spacing="12">
+            <Border Width="38" Height="38" CornerRadius="10" Background="{DynamicResource SystemAccentColor}">
+              <Path Stroke="White" StrokeThickness="1.8" StrokeLineCap="Round" StrokeJoin="Round"
+                    Width="22" Height="22" Stretch="Uniform"
+                    Data="M3 5 H21 V16 H3 Z M8 20 H16 M12 16 V20 M9 9.5 L11 11.5 L15 7.5" />
+            </Border>
+            <StackPanel VerticalAlignment="Center">
+              <TextBlock Text="Android TV" FontWeight="SemiBold" FontSize="15" />
+              <TextBlock Text="Debloater" Classes="faint" FontSize="13" />
+            </StackPanel>
+          </StackPanel>
+
+          <ItemsControl ItemsSource="{Binding Steps}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate><StackPanel Spacing="16" /></ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate DataType="vm:StepInfo">
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                  <Border Classes="dot" Classes.active="{Binding IsActive}" Classes.done="{Binding IsDone}">
+                    <Panel>
+                      <TextBlock Text="{Binding Number}" IsVisible="{Binding !IsDone}" />
+                      <TextBlock Text="✓" IsVisible="{Binding IsDone}" />
+                    </Panel>
+                  </Border>
+                  <TextBlock Classes="steptitle" Classes.active="{Binding IsActive}" Text="{Binding Title}" />
+                </StackPanel>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+
+        <StackPanel DockPanel.Dock="Bottom" Spacing="16" VerticalAlignment="Bottom">
+          <Border Classes="note" IsVisible="{Binding HasDevice}" Padding="12,10">
+            <StackPanel Spacing="2">
+              <TextBlock Classes="label" Text="{l:T Side_Connected}" />
+              <TextBlock Text="{Binding DeviceName}" TextWrapping="Wrap" FontSize="13" FontWeight="SemiBold" />
+              <TextBlock Text="{Binding DeviceAddress}" Classes="faint" />
+            </StackPanel>
+          </Border>
+
+          <Button Classes="link" Command="{Binding GoRestoreCommand}" IsVisible="{Binding HasDevice}">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="↺" Foreground="{DynamicResource AccentFg}" />
+              <TextBlock Text="{l:T Side_Restore}" Foreground="{DynamicResource AccentFg}" />
+            </StackPanel>
+          </Button>
+
+          <Border Height="1" Background="{DynamicResource Divider}" />
+
+          <DockPanel>
+            <TextBlock Classes="label" Text="{l:T Side_Language}" VerticalAlignment="Center" />
+            <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Right">
+              <RadioButton Classes="lang" GroupName="lang" Content="EN"
+                           Theme="{StaticResource {x:Type ToggleButton}}"
+                           IsChecked="{Binding Loc.IsEnglish, Mode=TwoWay}" />
+              <RadioButton Classes="lang" GroupName="lang" Content="FR"
+                           Theme="{StaticResource {x:Type ToggleButton}}"
+                           IsChecked="{Binding Loc.IsFrench, Mode=TwoWay}" />
+            </StackPanel>
+          </DockPanel>
+          <TextBlock Classes="faint" Text="{Binding Version}" />
+        </StackPanel>
+        <Panel />
+      </DockPanel>
+    </Border>
+
+    <!-- Current page -->
+    <ContentControl Grid.Column="1" Content="{Binding CurrentPage}" />
+  </Grid>
+</Window>

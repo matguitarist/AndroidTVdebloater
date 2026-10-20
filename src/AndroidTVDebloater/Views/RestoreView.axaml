@@ -1,0 +1,56 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="using:AndroidTVDebloater.Localization"
+             xmlns:vm="using:AndroidTVDebloater.ViewModels"
+             x:Class="AndroidTVDebloater.Views.RestoreView">
+  <ScrollViewer>
+    <StackPanel Margin="44,38,44,40" MaxWidth="860" HorizontalAlignment="Left" Spacing="22">
+      <StackPanel Spacing="8">
+        <TextBlock Classes="h1" Text="{l:T Restore_Title}" />
+        <TextBlock Classes="lead" Text="{l:T Restore_Lead}" />
+      </StackPanel>
+
+      <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsBusy}" />
+      <Border Classes="ok" IsVisible="{Binding Status, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+              Classes.err="{Binding StatusIsError}">
+        <TextBlock Text="{Binding Status}" TextWrapping="Wrap" />
+      </Border>
+
+      <StackPanel Spacing="10" IsEnabled="{Binding !IsBusy}">
+        <TextBlock Classes="h2" Text="{l:T Restore_RunsTitle}" />
+        <Border Classes="card" Padding="0" IsVisible="{Binding HasBackups}">
+          <ItemsControl ItemsSource="{Binding Backups}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate DataType="vm:BackupItem">
+                <Border Padding="18,14" BorderBrush="{DynamicResource Divider}" BorderThickness="0,0,0,1">
+                  <DockPanel>
+                    <Button DockPanel.Dock="Right" Content="{l:T Restore_Undo}" VerticalAlignment="Center"
+                            Command="{Binding $parent[UserControl].DataContext.RestoreCommand}"
+                            CommandParameter="{Binding}" />
+                    <StackPanel Spacing="2">
+                      <TextBlock Text="{Binding When}" FontWeight="SemiBold" />
+                      <TextBlock Classes="muted" Text="{Binding Summary}" />
+                    </StackPanel>
+                  </DockPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </Border>
+        <Border Classes="card" IsVisible="{Binding !HasBackups}">
+          <TextBlock Classes="muted" Text="{l:T Restore_None}" />
+        </Border>
+      </StackPanel>
+
+      <Border Classes="card" IsEnabled="{Binding !IsBusy}">
+        <StackPanel Spacing="10">
+          <TextBlock Classes="h2" Text="{l:T Restore_AllTitle}" />
+          <TextBlock Classes="muted" Text="{l:T Restore_AllText}" />
+          <Button Content="{l:T Restore_AllButton}" Command="{Binding EnableAllCommand}" />
+        </StackPanel>
+      </Border>
+
+      <Button Content="{l:T Common_Back}" Command="{Binding BackCommand}" IsEnabled="{Binding !IsBusy}" />
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>
