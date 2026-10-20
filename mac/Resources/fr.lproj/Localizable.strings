@@ -216,7 +216,7 @@
 "Update_Ok" = "OK";
 "Update_OnGitHub" = "Voir sur GitHub";
 "Update_Skip" = "Ignorer cette version";
-"Update_Text" = "Android TV Debloater %1$@ est sorti ; vous avez la %2$@. La mise à jour prend quelques secondes et l'application redémarre toute seule. Vos sauvegardes sont conservées.";
+"Update_Text" = "UnbloatMyTV %1$@ est sorti ; vous avez la %2$@. La mise à jour prend quelques secondes et l'application redémarre toute seule. Vos sauvegardes sont conservées.";
 "Update_Title" = "Une nouvelle version est disponible";
 "Update_UpToDate" = "La version %1$@ est la plus récente.";
 "Update_UpToDateTitle" = "Vous êtes à jour";
@@ -237,7 +237,7 @@
 "Welcome_Step4" = "Laissez le téléviseur allumé, sur le même réseau que ce Mac.";
 "Welcome_StepFire" = "Sur un Fire TV : Paramètres → Ma Fire TV → À propos, appuyez 7 fois sur OK sur le nom de l'appareil, puis revenez à Options pour les développeurs et activez Débogage ADB.";
 "Welcome_Supported" = "Fonctionne avec Android TV et Google TV (téléviseurs, boîtiers, clés et décodeurs d'opérateur) et avec Fire TV, où les applications d'Amazon ne peuvent pas être désactivées. Samsung (Tizen), LG (webOS), Roku et Apple TV utilisent d'autres systèmes et ne sont pas pris en charge.";
-"Welcome_Title" = "Rendez votre Android TV rapide et discret";
+"Welcome_Title" = "Rendez votre téléviseur rapide et discret";
 "Welcome_ToolsMissing" = "L'application téléchargera les outils Android officiels de Google (ADB, environ 7 Mo) quand vous appuierez sur Continuer. Ils restent dans le dossier de l'application ; rien n'est installé sur le système.";
 "Welcome_ToolsPill" = "Prêts";
 "Welcome_ToolsReady" = "Les outils Android de Google (ADB) sont installés pour cette application. Rien d'autre n'est nécessaire.";

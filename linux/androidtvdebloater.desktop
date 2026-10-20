@@ -1,9 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Android TV Debloater
-Comment=Turn off the ads, tracking and preinstalled apps on Android TV and Google TV
-Comment[fr]=Désactiver les publicités, le pistage et les applications préinstallées d'Android TV et Google TV
-Exec=AndroidTVDebloater
-Icon=androidtvdebloater
-Categories=Utility;
-Terminal=false

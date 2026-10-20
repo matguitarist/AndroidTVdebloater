@@ -115,7 +115,7 @@ enum RecentTvs {
 
 /// A pre-filled "new issue" link listing apps the catalog doesn't know. Only model and package names.
 enum IssueReport {
-    private static let newIssue = "https://github.com/matguitarist/AndroidTVdebloater/issues/new"
+    private static let newIssue = "https://github.com/matguitarist/UnbloatMyTV/issues/new"
     private static let maxURL = 7000
 
     static func build(_ dev: TvDevice, packages: [String], catalogVersion: Int) -> (url: URL, complete: Bool) {

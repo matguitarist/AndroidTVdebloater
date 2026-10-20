@@ -46,7 +46,7 @@ public static class Catalog
     public const string BasicScreensaver = "com.android.dreams.basic/com.android.dreams.basic.Colors";
     /// <summary>Catalog format this version understands.</summary>
     private const int Schema = 1;
-    private const string RemoteUrl = "https://raw.githubusercontent.com/matguitarist/AndroidTVdebloater/main/shared/catalog.json";
+    private const string RemoteUrl = "https://raw.githubusercontent.com/matguitarist/UnbloatMyTV/main/shared/catalog.json";
     private static string CachePath => Path.Combine(AdbService.DataDir, "catalog.json");
 
     private sealed class Text { public string En { get; set; } = ""; public string Fr { get; set; } = ""; }

@@ -1,4 +1,4 @@
 #!/bin/sh
 # Entry point of the AppImage: start the app that lives inside it.
 HERE="$(dirname "$(readlink -f "$0")")"
-exec "$HERE/usr/bin/AndroidTVDebloater" "$@"
+exec "$HERE/usr/bin/UnbloatMyTV" "$@"

@@ -6,7 +6,7 @@ enum Catalog {
     static let basicScreensaver = "com.android.dreams.basic/com.android.dreams.basic.Colors"
     /// Catalog format this version understands.
     private static let schema = 1
-    private static let remoteURL = URL(string: "https://raw.githubusercontent.com/matguitarist/AndroidTVdebloater/main/shared/catalog.json")!
+    private static let remoteURL = URL(string: "https://raw.githubusercontent.com/matguitarist/UnbloatMyTV/main/shared/catalog.json")!
     private static var cacheURL: URL { AppPaths.dataDir.appendingPathComponent("catalog.json") }
 
     struct GroupDef: Codable { var id: String; var title: LocText; var description: LocText }

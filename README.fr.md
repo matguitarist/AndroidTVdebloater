@@ -1,6 +1,6 @@
 <p align="center"><img src="docs/icon.png" width="96" alt=""></p>
 
-<h1 align="center">Android TV Debloater</h1>
+<h1 align="center">UnbloatMyTV</h1>
 
 <p align="center">
   Désactivez les publicités, le pistage et les applications préinstallées de n'importe quel Android TV, Google TV ou Fire TV.<br>
@@ -8,10 +8,11 @@
 </p>
 
 <p align="center">
-  <a href="../../releases/latest"><img alt="Dernière version" src="https://img.shields.io/github/v/release/matguitarist/AndroidTVdebloater?label=t%C3%A9l%C3%A9charger"></a>
+  <a href="../../releases/latest"><img alt="Dernière version" src="https://img.shields.io/github/v/release/matguitarist/UnbloatMyTV?label=t%C3%A9l%C3%A9charger"></a>
   <img alt="Android TV, Google TV, Fire TV" src="https://img.shields.io/badge/Android%20TV%20%C2%B7%20Google%20TV%20%C2%B7%20Fire%20TV-green">
   <img alt="Windows, macOS, Linux" src="https://img.shields.io/badge/Windows%20%C2%B7%20macOS%20%C2%B7%20Linux-blue">
-  <a href="LICENSE"><img alt="Licence MIT" src="https://img.shields.io/github/license/matguitarist/AndroidTVdebloater"></a>
+  <a href="LICENSE"><img alt="Licence MIT" src="https://img.shields.io/github/license/matguitarist/UnbloatMyTV"></a>
+  <br><sub>Anciennement « Android TV Debloater ».</sub>
   <br><a href="README.md">English version</a>
 </p>
 
@@ -25,9 +26,9 @@ d'autre à installer : la première fois, l'application télécharge les outils 
 
 | | Fichier | Premier lancement |
 |---|---|---|
-| **Windows** 10/11 | `AndroidTVDebloater.exe` | SmartScreen peut indiquer un éditeur inconnu (l'exe n'est pas encore signé) : **Informations complémentaires → Exécuter quand même**. |
-| **macOS** 14+ | `AndroidTVDebloater-mac.zip` | Application Mac native pour Apple silicon et Intel, signée et notariée par Apple. Décompressez, placez-la dans Applications, ouvrez-la et autorisez-la à trouver des appareils sur le réseau local. |
-| **Linux** x64 | `AndroidTVDebloater-x86_64.AppImage` | La plupart des distributions (Ubuntu 22.04 et plus récent, Fedora, Debian, Arch…). Rendez-le exécutable (`chmod +x`, ou Propriétés → Autoriser l'exécution) et ouvrez-le. |
+| **Windows** 10/11 | `UnbloatMyTV.exe` | SmartScreen peut indiquer un éditeur inconnu (l'exe n'est pas encore signé) : **Informations complémentaires → Exécuter quand même**. |
+| **macOS** 14+ | `UnbloatMyTV-mac.zip` | Application Mac native pour Apple silicon et Intel, signée et notariée par Apple. Décompressez, placez-la dans Applications, ouvrez-la et autorisez-la à trouver des appareils sur le réseau local. |
+| **Linux** x64 | `UnbloatMyTV-x86_64.AppImage` | La plupart des distributions (Ubuntu 22.04 et plus récent, Fedora, Debian, Arch…). Rendez-le exécutable (`chmod +x`, ou Propriétés → Autoriser l'exécution) et ouvrez-le. |
 
 Chaque version se met à jour toute seule : elle affiche les nouveautés et installe la mise à jour en
 quelques secondes.
@@ -124,7 +125,7 @@ confidentialité** (Services d'informations de visionnage, Publicité ciblée, R
 - Chaque changement est inscrit dans une sauvegarde avec sa valeur d'origine *avant* d'être
   appliqué : même une opération interrompue peut être annulée. « Désactiver le Wi-Fi » n'est
   proposé qu'avec un câble Ethernet.
-- Les sauvegardes sont dans `%LOCALAPPDATA%\AndroidTVDebloater\backups` (Mac :
+- Les sauvegardes (dans des dossiers qui portent encore l'ancien nom de l'application) sont dans `%LOCALAPPDATA%\AndroidTVDebloater\backups` (Mac :
   `~/Library/Application Support/AndroidTVDebloater/backups`, Linux : `~/.local/share/AndroidTVDebloater/backups`),
   avec une copie brute de toutes les applications et de tous les réglages. Même format partout.
 

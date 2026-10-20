@@ -15,12 +15,15 @@ public sealed record UpdateInfo(Version Version, string Notes, string DownloadUr
 /// </summary>
 public static partial class UpdateService
 {
-    private const string Repo = "matguitarist/AndroidTVdebloater";
+    private const string Repo = "matguitarist/UnbloatMyTV";
     /// <summary>The release file for this system. The Mac app is a separate Swift app with its own updater.</summary>
     private static string AssetName =>
-        OperatingSystem.IsWindows() ? "AndroidTVDebloater.exe"
-        : AppImagePath is not null ? "AndroidTVDebloater-x86_64.AppImage"
-        : "AndroidTVDebloater-linux-x64";
+        OperatingSystem.IsWindows() ? "UnbloatMyTV.exe"
+        : AppImagePath is not null ? "UnbloatMyTV-x86_64.AppImage"
+        : "UnbloatMyTV-linux-x64";
+
+    /// <summary>Releases before 1.5 used the old name, "Android TV Debloater".</summary>
+    private static string LegacyAssetName => AssetName.Replace("UnbloatMyTV", "AndroidTVDebloater");
 
     /// <summary>Set by the AppImage runtime: the .AppImage file this copy was started from.</summary>
     private static string? AppImagePath =>
@@ -35,7 +38,7 @@ public static partial class UpdateService
     private static HttpClient NewClient(TimeSpan timeout)
     {
         var http = new HttpClient { Timeout = timeout };
-        http.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("AndroidTVDebloater", Current.ToString()));
+        http.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("UnbloatMyTV", Current.ToString()));
         // CI only: shared build machines hit GitHub's anonymous rate limit, so tests use their token.
         if (Environment.GetEnvironmentVariable("GITHUB_TOKEN") is { Length: > 0 } token)
             http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -55,20 +58,21 @@ public static partial class UpdateService
         var version = Normalize(parsed);
         if (version <= (than ?? Current)) return null;
 
-        foreach (var asset in root.GetProperty("assets").EnumerateArray())
-        {
-            if (asset.GetProperty("name").GetString() != AssetName) continue;
-            var digest = asset.TryGetProperty("digest", out var d) ? d.GetString() ?? "" : "";
-            if (!digest.StartsWith("sha256:")) return null; // no checksum, no update
-            return new UpdateInfo(
-                version,
-                CleanNotes(root.TryGetProperty("body", out var b) ? b.GetString() : null),
-                asset.GetProperty("browser_download_url").GetString()!,
-                asset.GetProperty("size").GetInt64(),
-                digest["sha256:".Length..].ToLowerInvariant(),
-                root.GetProperty("html_url").GetString() ?? ReleasesPage);
-        }
-        return null;
+        var assets = root.GetProperty("assets").EnumerateArray().ToList();
+        JsonElement? asset = null;
+        foreach (var name in new[] { AssetName, LegacyAssetName })
+            asset ??= assets.Cast<JsonElement?>().FirstOrDefault(a => a!.Value.GetProperty("name").GetString() == name);
+        if (asset is not { } found) return null;
+
+        var digest = found.TryGetProperty("digest", out var d) ? d.GetString() ?? "" : "";
+        if (!digest.StartsWith("sha256:")) return null; // no checksum, no update
+        return new UpdateInfo(
+            version,
+            CleanNotes(root.TryGetProperty("body", out var b) ? b.GetString() : null),
+            found.GetProperty("browser_download_url").GetString()!,
+            found.GetProperty("size").GetInt64(),
+            digest["sha256:".Length..].ToLowerInvariant(),
+            root.GetProperty("html_url").GetString() ?? ReleasesPage);
     }
 
     /// <summary>Release notes are Markdown; show them as plain text.</summary>

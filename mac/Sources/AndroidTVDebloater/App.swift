@@ -7,7 +7,7 @@ struct AndroidTVDebloaterApp: App {
     private let updater = AppUpdater.shared
 
     var body: some Scene {
-        Window("Android TV Debloater", id: "main") {
+        Window("UnbloatMyTV", id: "main") {
             ContentView()
                 .environment(model)
                 .frame(minWidth: 860, minHeight: 600)

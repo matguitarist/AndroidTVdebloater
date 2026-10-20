@@ -6,14 +6,14 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
-    <AssemblyName>AndroidTVDebloater</AssemblyName>
+    <AssemblyName>UnbloatMyTV</AssemblyName>
     <RootNamespace>AndroidTVDebloater</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon Condition="Exists('Assets\app.ico')">Assets\app.ico</ApplicationIcon>
     <!-- Localised text is bound by key at runtime, so bindings stay reflection-based. -->
     <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
-    <Version>1.4.1</Version>
-    <Product>Android TV Debloater</Product>
+    <Version>1.5.0</Version>
+    <Product>UnbloatMyTV</Product>
     <Description>Disable bloatware, ads and tracking on Android TV and Google TV, with a one-click restore.</Description>
     <Copyright>MIT License</Copyright>
   </PropertyGroup>

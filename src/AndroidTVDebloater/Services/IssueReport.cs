@@ -6,7 +6,7 @@ namespace AndroidTVDebloater.Services;
 /// <summary>A pre-filled "new issue" link listing apps the catalog doesn't know. Only model and package names.</summary>
 public static class IssueReport
 {
-    private const string NewIssue = "https://github.com/matguitarist/AndroidTVdebloater/issues/new";
+    private const string NewIssue = "https://github.com/matguitarist/UnbloatMyTV/issues/new";
     /// <summary>Browsers and GitHub cope with links up to about 8000 characters.</summary>
     private const int MaxUrl = 7000;
 

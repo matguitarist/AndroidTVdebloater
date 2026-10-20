@@ -216,7 +216,7 @@
 "Update_Ok" = "OK";
 "Update_OnGitHub" = "View on GitHub";
 "Update_Skip" = "Skip this version";
-"Update_Text" = "Android TV Debloater %1$@ is out; you have %2$@. Updating takes a few seconds and the app restarts by itself. Your backups are kept.";
+"Update_Text" = "UnbloatMyTV %1$@ is out; you have %2$@. Updating takes a few seconds and the app restarts by itself. Your backups are kept.";
 "Update_Title" = "A new version is available";
 "Update_UpToDate" = "Version %1$@ is the latest.";
 "Update_UpToDateTitle" = "You're up to date";
@@ -237,7 +237,7 @@
 "Welcome_Step4" = "Leave the TV on, connected to the same home network as this Mac.";
 "Welcome_StepFire" = "On a Fire TV: Settings → My Fire TV → About, press OK on the device name 7 times, then go back to Developer options and turn on ADB debugging.";
 "Welcome_Supported" = "Works with Android TV and Google TV (TVs, streaming boxes, sticks and operator set-top boxes) and with Fire TV, where Amazon's own apps can't be switched off. Samsung (Tizen), LG (webOS), Roku and Apple TV run other systems and are not supported.";
-"Welcome_Title" = "Make your Android TV quick and private again";
+"Welcome_Title" = "Make your TV quick and private again";
 "Welcome_ToolsMissing" = "The app will download Google's official Android tools (ADB, about 7 MB) when you press Continue. They stay inside this app's folder; nothing is installed on the system.";
 "Welcome_ToolsPill" = "Ready";
 "Welcome_ToolsReady" = "Google's Android tools (ADB) are installed for this app. Nothing else is needed.";

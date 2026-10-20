@@ -212,7 +212,7 @@ public sealed partial class ChooseViewModel : PageViewModel
     private static TopLevel? Window =>
         (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
 
-    private static readonly FilePickerFileType ChoicesFileType = new("Android TV Debloater")
+    private static readonly FilePickerFileType ChoicesFileType = new("UnbloatMyTV")
     {
         Patterns = ["*.json"],
         AppleUniformTypeIdentifiers = ["public.json"],

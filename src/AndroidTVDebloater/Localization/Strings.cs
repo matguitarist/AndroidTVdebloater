@@ -85,7 +85,7 @@ public static class Strings
         ["Side_UpdateAvailable"] = "Update to {0}",
 
         ["Update_Title"] = "A new version is available",
-        ["Update_Text"] = "Android TV Debloater {0} is out; you have {1}. Updating takes a few seconds and the app restarts by itself. Your backups are kept.",
+        ["Update_Text"] = "UnbloatMyTV {0} is out; you have {1}. Updating takes a few seconds and the app restarts by itself. Your backups are kept.",
         ["Update_Notes"] = "WHAT'S NEW",
         ["Update_NoNotes"] = "No notes for this version.",
         ["Update_OnGitHub"] = "View on GitHub",
@@ -104,7 +104,7 @@ public static class Strings
         ["Update_FailedTitle"] = "Couldn't check for updates",
         ["Update_FailedText"] = "GitHub couldn't be reached. Check the internet connection and try again later.",
 
-        ["Welcome_Title"] = "Make your Android TV quick and private again",
+        ["Welcome_Title"] = "Make your TV quick and private again",
         ["Welcome_Lead"] = "This app turns off the ads, tracking and preinstalled apps you don't use, then checks the TV still works. It takes about five minutes and you decide every change.",
         ["Welcome_F1Title"] = "Nothing is deleted",
         ["Welcome_F1Text"] = "Apps are switched off, not uninstalled. A factory reset brings everything back too.",
@@ -336,7 +336,7 @@ public static class Strings
         ["Side_UpdateAvailable"] = "Mettre à jour ({0})",
 
         ["Update_Title"] = "Une nouvelle version est disponible",
-        ["Update_Text"] = "Android TV Debloater {0} est sorti ; vous avez la {1}. La mise à jour prend quelques secondes et l'application redémarre toute seule. Vos sauvegardes sont conservées.",
+        ["Update_Text"] = "UnbloatMyTV {0} est sorti ; vous avez la {1}. La mise à jour prend quelques secondes et l'application redémarre toute seule. Vos sauvegardes sont conservées.",
         ["Update_Notes"] = "NOUVEAUTÉS",
         ["Update_NoNotes"] = "Pas de notes pour cette version.",
         ["Update_OnGitHub"] = "Voir sur GitHub",
@@ -355,7 +355,7 @@ public static class Strings
         ["Update_FailedTitle"] = "Impossible de vérifier les mises à jour",
         ["Update_FailedText"] = "GitHub est injoignable. Vérifiez la connexion internet et réessayez plus tard.",
 
-        ["Welcome_Title"] = "Rendez votre Android TV rapide et discret",
+        ["Welcome_Title"] = "Rendez votre téléviseur rapide et discret",
         ["Welcome_Lead"] = "Cette application désactive les publicités, le pistage et les applications préinstallées que vous n'utilisez pas, puis vérifie que le téléviseur fonctionne toujours. Comptez cinq minutes, et vous décidez de chaque changement.",
         ["Welcome_F1Title"] = "Rien n'est supprimé",
         ["Welcome_F1Text"] = "Les applications sont désactivées, pas désinstallées. Une réinitialisation d'usine remet aussi tout.",

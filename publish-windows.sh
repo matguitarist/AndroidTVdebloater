@@ -3,4 +3,4 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 dotnet publish src/AndroidTVDebloater -c Release -r win-x64 -o publish
-echo "Built publish/AndroidTVDebloater.exe"
+echo "Built publish/UnbloatMyTV.exe"

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Builds "Android TV Debloater.app" and AndroidTVDebloater-mac.zip in mac/build.
+# Builds UnbloatMyTV.app and UnbloatMyTV-mac.zip in mac/build.
 #
 #   ./build-app.sh                         this Mac's architecture, ad-hoc signed (local testing)
 #   ARCHS="arm64 x86_64" ./build-app.sh    universal (needs Xcode)
@@ -17,15 +17,15 @@ cd "$(dirname "$0")"
 VERSION="${VERSION:-$(sed -nE 's|.*<Version>(.*)</Version>.*|\1|p' ../src/AndroidTVDebloater/AndroidTVDebloater.csproj | head -1)}"
 ARCHS="${ARCHS:-$(uname -m)}"
 IDENTITY="${SIGN_IDENTITY:--}"
-REPO="matguitarist/AndroidTVdebloater"
+REPO="matguitarist/UnbloatMyTV"
 ARCH_FLAGS=()
 for a in $ARCHS; do ARCH_FLAGS+=(--arch "$a"); done
 
 swift build -c release "${ARCH_FLAGS[@]}"
 BIN_DIR="$(swift build -c release "${ARCH_FLAGS[@]}" --show-bin-path)"
 
-APP="build/Android TV Debloater.app"
-ZIP="build/AndroidTVDebloater-mac.zip"
+APP="build/UnbloatMyTV.app"
+ZIP="build/UnbloatMyTV-mac.zip"
 rm -rf build
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" "$APP/Contents/Frameworks"
 cp "$BIN_DIR/AndroidTVDebloater" "$APP/Contents/MacOS/AndroidTVDebloater"
@@ -80,11 +80,11 @@ for line in notes.splitlines() + [""]:
         parts.append("<ul>" + "".join(items) + "</ul>"); items = []
     if line:
         parts.append(f"<p>{html.escape(line)}</p>")
-url = f"https://github.com/{repo}/releases/download/v{v}/AndroidTVDebloater-mac.zip"
+url = f"https://github.com/{repo}/releases/download/v{v}/UnbloatMyTV-mac.zip"
 print(f"""<?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
   <channel>
-    <title>Android TV Debloater</title>
+    <title>UnbloatMyTV</title>
     <link>https://github.com/{repo}</link>
     <item>
       <title>Version {v}</title>

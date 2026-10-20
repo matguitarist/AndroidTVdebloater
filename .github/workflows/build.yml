@@ -22,7 +22,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: windows
-          path: publish/AndroidTVDebloater.exe
+          path: publish/UnbloatMyTV.exe
 
   linux:
     runs-on: ubuntu-22.04
@@ -34,13 +34,13 @@ jobs:
       - name: Build the AppImage
         run: linux/build-appimage.sh
       - name: Plain program too (older copies update from it)
-        run: cp linux/build/publish/AndroidTVDebloater linux/build/AndroidTVDebloater-linux-x64
+        run: cp linux/build/publish/UnbloatMyTV linux/build/UnbloatMyTV-linux-x64
       # Start it on a virtual screen: still running after 15 s means it launched.
       - name: Check that the AppImage starts
         run: |
           sudo apt-get install -y -qq xvfb libfuse2 > /dev/null
           set +e
-          xvfb-run -a timeout 15 linux/build/AndroidTVDebloater-x86_64.AppImage
+          xvfb-run -a timeout 15 linux/build/UnbloatMyTV-x86_64.AppImage
           code=$?
           set -e
           echo "exit code $code"
@@ -49,9 +49,9 @@ jobs:
         with:
           name: linux
           path: |
-            linux/build/AndroidTVDebloater-x86_64.AppImage
-            linux/build/AndroidTVDebloater-x86_64.AppImage.zsync
-            linux/build/AndroidTVDebloater-linux-x64
+            linux/build/UnbloatMyTV-x86_64.AppImage
+            linux/build/UnbloatMyTV-x86_64.AppImage.zsync
+            linux/build/UnbloatMyTV-linux-x64
           if-no-files-found: error
 
   # Native SwiftUI app, universal (Apple silicon and Intel). On version tags it is signed with the
@@ -112,7 +112,7 @@ jobs:
         with:
           name: mac
           path: |
-            mac/build/AndroidTVDebloater-mac.zip
+            mac/build/UnbloatMyTV-mac.zip
             mac/build/appcast.xml
           if-no-files-found: ignore
 
@@ -150,14 +150,24 @@ jobs:
         run: |
           git fetch --force origin "refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}"
           git tag -l --format='%(contents:body)' "${GITHUB_REF_NAME}" > notes.md
-          chmod +x dist/AndroidTVDebloater-linux-x64 dist/AndroidTVDebloater-x86_64.AppImage
+          chmod +x dist/UnbloatMyTV-linux-x64 dist/UnbloatMyTV-x86_64.AppImage
+      # Copies installed before the rename (1.4.1 and older) look for the old file names.
+      - name: Copies under the old name, "Android TV Debloater"
+        run: |
+          for f in UnbloatMyTV.exe UnbloatMyTV-linux-x64 UnbloatMyTV-x86_64.AppImage UnbloatMyTV-x86_64.AppImage.zsync; do
+            cp -p "dist/$f" "dist/${f/UnbloatMyTV/AndroidTVDebloater}"
+          done
       - uses: softprops/action-gh-release@v2
         with:
           body_path: notes.md
           files: |
+            dist/UnbloatMyTV.exe
+            dist/UnbloatMyTV-linux-x64
+            dist/UnbloatMyTV-x86_64.AppImage
+            dist/UnbloatMyTV-x86_64.AppImage.zsync
+            dist/UnbloatMyTV-mac.zip
             dist/AndroidTVDebloater.exe
             dist/AndroidTVDebloater-linux-x64
             dist/AndroidTVDebloater-x86_64.AppImage
             dist/AndroidTVDebloater-x86_64.AppImage.zsync
-            dist/AndroidTVDebloater-mac.zip
             dist/appcast.xml

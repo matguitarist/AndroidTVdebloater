@@ -4,7 +4,7 @@
         xmlns:v="using:AndroidTVDebloater.Views"
         xmlns:l="using:AndroidTVDebloater.Localization"
         x:Class="AndroidTVDebloater.Views.MainWindow"
-        Title="Android TV Debloater"
+        Title="UnbloatMyTV"
         Width="1140" Height="800" MinWidth="920" MinHeight="620"
         WindowStartupLocation="CenterScreen"
         Icon="/Assets/app.ico"
@@ -96,8 +96,8 @@
                     Data="M3 5 H21 V16 H3 Z M8 20 H16 M12 16 V20 M9 9.5 L11 11.5 L15 7.5" />
             </Border>
             <StackPanel VerticalAlignment="Center">
-              <TextBlock Text="Android TV" FontWeight="SemiBold" FontSize="15" />
-              <TextBlock Text="Debloater" Classes="faint" FontSize="13" />
+              <TextBlock Text="UnbloatMyTV" FontWeight="SemiBold" FontSize="15" />
+              <TextBlock Text="Android TV · Google TV · Fire TV" Classes="faint" FontSize="11" />
             </StackPanel>
           </StackPanel>
 

@@ -1,6 +1,6 @@
 <p align="center"><img src="docs/icon.png" width="96" alt=""></p>
 
-<h1 align="center">Android TV Debloater</h1>
+<h1 align="center">UnbloatMyTV</h1>
 
 <p align="center">
   Turn off the ads, tracking and preinstalled apps on any Android TV, Google TV or Fire TV.<br>
@@ -8,10 +8,11 @@
 </p>
 
 <p align="center">
-  <a href="../../releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/matguitarist/AndroidTVdebloater?label=download"></a>
+  <a href="../../releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/matguitarist/UnbloatMyTV?label=download"></a>
   <img alt="Android TV, Google TV, Fire TV" src="https://img.shields.io/badge/Android%20TV%20%C2%B7%20Google%20TV%20%C2%B7%20Fire%20TV-green">
   <img alt="Windows, macOS, Linux" src="https://img.shields.io/badge/Windows%20%C2%B7%20macOS%20%C2%B7%20Linux-blue">
-  <a href="LICENSE"><img alt="MIT licence" src="https://img.shields.io/github/license/matguitarist/AndroidTVdebloater"></a>
+  <a href="LICENSE"><img alt="MIT licence" src="https://img.shields.io/github/license/matguitarist/UnbloatMyTV"></a>
+  <br><sub>Formerly “Android TV Debloater”.</sub>
   <br><a href="README.fr.md">Version française</a>
 </p>
 
@@ -25,9 +26,9 @@ install: the first time, the app downloads Google's official ADB tools (about 7 
 
 | | File | First launch |
 |---|---|---|
-| **Windows** 10/11 | `AndroidTVDebloater.exe` | SmartScreen may say the publisher is unknown (the exe isn't code-signed yet): **More info → Run anyway**. |
-| **macOS** 14+ | `AndroidTVDebloater-mac.zip` | Native Mac app for Apple silicon and Intel, signed and notarized by Apple. Unzip, move it to Applications, open it, and allow it to find devices on the local network. |
-| **Linux** x64 | `AndroidTVDebloater-x86_64.AppImage` | Most distributions (Ubuntu 22.04 and newer, Fedora, Debian, Arch…). Make it executable (`chmod +x`, or Properties → Allow executing) and open it. |
+| **Windows** 10/11 | `UnbloatMyTV.exe` | SmartScreen may say the publisher is unknown (the exe isn't code-signed yet): **More info → Run anyway**. |
+| **macOS** 14+ | `UnbloatMyTV-mac.zip` | Native Mac app for Apple silicon and Intel, signed and notarized by Apple. Unzip, move it to Applications, open it, and allow it to find devices on the local network. |
+| **Linux** x64 | `UnbloatMyTV-x86_64.AppImage` | Most distributions (Ubuntu 22.04 and newer, Fedora, Debian, Arch…). Make it executable (`chmod +x`, or Properties → Allow executing) and open it. |
 
 Every version updates itself: it shows what's new and installs the update in a few seconds.
 
@@ -112,7 +113,7 @@ Interest-Based Advertisement, Voice Recognition).
   operator parts a set-top box needs (the list's `keep` section).
 - Every change is written to a backup with its original value *before* it is made, so even an
   interrupted run can be undone. "Turn Wi-Fi off" is only offered on an Ethernet cable.
-- Backups live in `%LOCALAPPDATA%\AndroidTVDebloater\backups` (Mac:
+- Backups (in folders still named after the app's old name) live in `%LOCALAPPDATA%\AndroidTVDebloater\backups` (Mac:
   `~/Library/Application Support/AndroidTVDebloater/backups`, Linux: `~/.local/share/AndroidTVDebloater/backups`),
   with a raw snapshot of all packages and settings. Same format on every system.
 

@@ -73,6 +73,6 @@
         <ColorPaletteResources x:Key="Dark" Accent="#4D7CF0" />
       </FluentTheme.Palettes>
     </FluentTheme>
-    <StyleInclude Source="avares://AndroidTVDebloater/Styles/AppStyles.axaml" />
+    <StyleInclude Source="avares://UnbloatMyTV/Styles/AppStyles.axaml" />
   </Application.Styles>
 </Application>
