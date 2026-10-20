@@ -22,11 +22,13 @@ public sealed class Backup
     public string SerialNo { get; set; } = "";
     public string AndroidVersion { get; set; } = "";
     public List<string> DisabledPackages { get; set; } = [];
+    /// <summary>Apps a choice turned back on (e.g. for the screensaver); Restore turns them off again.</summary>
+    public List<string> EnabledPackages { get; set; } = [];
     public List<SettingChange> Settings { get; set; } = [];
     public bool? WifiWasOn { get; set; }
 
     [JsonIgnore] public string FilePath { get; set; } = "";
-    [JsonIgnore] public int ChangeCount => DisabledPackages.Count + Settings.Count + (WifiWasOn == true ? 1 : 0);
+    [JsonIgnore] public int ChangeCount => DisabledPackages.Count + EnabledPackages.Count + Settings.Count + (WifiWasOn == true ? 1 : 0);
     [JsonIgnore] public string CreatedText => Created.ToString("g");
 
     private static readonly JsonSerializerOptions Json = new() { WriteIndented = true };

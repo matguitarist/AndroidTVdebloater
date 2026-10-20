@@ -65,6 +65,8 @@ public sealed partial class RestoreViewModel : PageViewModel
                 await SettingsIO.RestoreAsync(adb, serial, s.Namespace, s.Key, s.OldValue);
             if (b.WifiWasOn == true)
                 await adb.ShellAsync(serial, "svc wifi enable");
+            foreach (var pkg in b.EnabledPackages)
+                await adb.ShellAsync(serial, $"pm disable-user --user 0 {pkg}");
 
             // Keep the file for reference, but stop offering it.
             File.Move(b.FilePath, b.FilePath.Replace("changes-", "restored-"), true);

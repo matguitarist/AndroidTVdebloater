@@ -4,7 +4,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AndroidTVDebloater.Models;
 
-public sealed record TweakOption(LocText Label, string Value)
+/// <param name="Keeps">Apps this option needs: they are not turned off while it is chosen.</param>
+public sealed record TweakOption(LocText Label, string Value, IReadOnlyList<string>? Keeps = null)
 {
     public override string ToString() => Label.ToString();
 }
@@ -39,6 +40,9 @@ public abstract partial class Tweak : ObservableObject
     public string? Warning => WarningText?.ToString();
     public bool HasWarning => WarningText is not null;
     public bool HasOptions => Options is { Count: > 0 };
+
+    /// <summary>Apps the chosen option needs, which must not be turned off in the same run.</summary>
+    public IReadOnlyList<string> KeptPackages => IsSelected ? SelectedOption?.Keeps ?? [] : [];
 
     /// <summary>Small technical line under the description (package name, setting key).</summary>
     public abstract string Technical { get; }
@@ -91,6 +95,13 @@ public sealed class SettingsTweak : Tweak
 
     public override async Task<TweakResult> ApplyAsync(ApplyContext ctx)
     {
+        // The chosen option needs an app that was turned off (e.g. Google Ambient): turn it back on.
+        foreach (var pkg in KeptPackages.Where(ctx.Device.Disabled.Contains))
+        {
+            await ctx.Adb.ShellAsync(ctx.Serial, $"pm enable {pkg}");
+            ctx.Backup.EnabledPackages.Add(pkg);
+            ctx.Backup.Save();
+        }
         foreach (var w in Writes)
         {
             var value = w.Value.Replace("{option}", SelectedOption?.Value ?? "");
@@ -182,6 +193,23 @@ public sealed class TrimCachesTweak : Tweak
         var after = await TvDevice.ReadStorageAsync(ctx.Adb, ctx.Serial);
         var freed = Math.Max(0, after.FreeMb - before.FreeMb);
         return new TweakResult(true, Loc.Format("Apply_Freed", freed));
+    }
+}
+
+/// <summary>
+/// Run Android's background app optimisation now ("bg-dexopt-job"). Nothing to back up or undo.
+/// </summary>
+public sealed class OptimizeAppsTweak : Tweak
+{
+    public override string Technical => "cmd package bg-dexopt-job";
+
+    public override async Task<TweakResult> ApplyAsync(ApplyContext ctx)
+    {
+        var started = DateTime.UtcNow;
+        var r = await ctx.Adb.ShellAsync(ctx.Serial, "cmd package bg-dexopt-job", 20 * 60 * 1000);
+        if (!r.Ok) return new TweakResult(false, PackageTweak.FirstLine(r.All));
+        var minutes = Math.Max(1, (int)Math.Round((DateTime.UtcNow - started).TotalMinutes));
+        return new TweakResult(true, Loc.Format("Apply_OptimizeDone", minutes));
     }
 }
 

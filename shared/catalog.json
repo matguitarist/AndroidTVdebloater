@@ -1,7 +1,7 @@
 {
   "// schema": "Bump 'version' on every change: apps download this file from GitHub and use it when it is newer than their own copy. Bump 'schema' only for changes older apps can't read.",
   "schema": 1,
-  "version": 5,
+  "version": 6,
   "groups": [
     {
       "id": "telemetry",
@@ -334,11 +334,15 @@
         { "namespace": "global", "key": "transition_animation_scale", "value": "{option}" },
         { "namespace": "global", "key": "window_animation_scale", "value": "{option}" }
       ] },
-    { "id": "screensaver", "kind": "settings", "group": "performance", "recommended": true,
-      "when": { "installed": "com.android.dreams.basic", "screensaverIsNot": "com.android.dreams.basic/com.android.dreams.basic.Colors" },
-      "name": { "en": "Simple screensaver", "fr": "Écran de veille simple" },
-      "description": { "en": "Slowly changing colours instead of a screensaver that downloads photos and suggestions. Still protects the screen.", "fr": "Des couleurs qui changent lentement au lieu d'un écran de veille qui télécharge photos et suggestions. Protège toujours l'écran." },
-      "writes": [ { "namespace": "secure", "key": "screensaver_components", "value": "com.android.dreams.basic/com.android.dreams.basic.Colors" } ] },
+    { "id": "screensaver", "kind": "screensaver", "group": "performance", "recommended": false,
+      "recommendedWhen": { "screensaverIsNot": "com.android.dreams.basic/com.android.dreams.basic.Colors" },
+      "name": { "en": "Screensaver", "fr": "Écran de veille" },
+      "description": { "en": "What the TV shows when nobody touches the remote for a while. Both protect the screen; the simple one uses no network and almost no memory.", "fr": "Ce qu'affiche le téléviseur quand personne ne touche la télécommande pendant un moment. Les deux protègent l'écran ; le simple n'utilise pas le réseau et presque pas de mémoire." },
+      "options": [
+        { "label": { "en": "Simple colours (recommended)", "fr": "Couleurs simples (recommandé)" }, "value": "com.android.dreams.basic/com.android.dreams.basic.Colors", "installed": "com.android.dreams.basic" },
+        { "label": { "en": "Google Ambient: photos, art and suggestions", "fr": "Google Ambient : photos, œuvres d'art et suggestions" }, "value": "com.google.android.backdrop/.Backdrop", "installed": "com.google.android.backdrop", "keeps": ["com.google.android.backdrop"] }
+      ],
+      "writes": [ { "namespace": "secure", "key": "screensaver_components", "value": "{option}" } ] },
     { "id": "bglimit", "kind": "backgroundLimit", "group": "performance", "recommended": false,
       "name": { "en": "Keep fewer apps in memory", "fr": "Garder moins d'applications en mémoire" },
       "description": { "en": "Limits how many closed apps Android keeps in the background, leaving more memory for what you watch.", "fr": "Limite le nombre d'applications fermées qu'Android garde en arrière-plan, pour laisser plus de mémoire à ce que vous regardez." },
@@ -347,6 +351,15 @@
         { "label": { "en": "16 apps", "fr": "16 applications" }, "value": "16" },
         { "label": { "en": "24 apps", "fr": "24 applications" }, "value": "24" }
       ] },
+    { "id": "freezer", "kind": "settings", "group": "performance", "recommended": false,
+      "when": { "minSdk": 30 },
+      "name": { "en": "Freeze apps left in the background", "fr": "Geler les applications laissées en arrière-plan" },
+      "description": { "en": "Apps you have left stop using the processor until you go back to them, so the one you are watching runs smoother. Android 12 and newer do this by default. Takes effect after the restart.", "fr": "Les applications que vous avez quittées n'utilisent plus le processeur jusqu'à votre retour, et celle que vous regardez est plus fluide. Android 12 et plus récent le font par défaut. Prend effet après le redémarrage." },
+      "warning": { "en": "Rarely, an app takes a second longer to come back.", "fr": "Rarement, une application met une seconde de plus à revenir." },
+      "writes": [ { "namespace": "global", "key": "cached_apps_freezer", "value": "enabled" } ] },
+    { "id": "optimizeapps", "kind": "optimizeApps", "group": "performance", "recommended": false,
+      "name": { "en": "Optimise apps now", "fr": "Optimiser les applications maintenant" },
+      "description": { "en": "Runs Android's own app optimisation, which makes apps start faster. TVs that are rarely idle may never get to run it. Takes a few minutes; nothing to undo.", "fr": "Lance l'optimisation des applications d'Android, qui les fait démarrer plus vite. Les téléviseurs rarement inactifs ne la lancent parfois jamais. Prend quelques minutes ; rien à annuler." } },
     { "id": "trimcaches", "kind": "trimCaches", "group": "performance", "recommended": false,
       "recommendedWhen": { "storageFreeBelowPercent": 20 },
       "name": { "en": "Free up storage (clear app caches)", "fr": "Libérer de l'espace (vider les caches)" },

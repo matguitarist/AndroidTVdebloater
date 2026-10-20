@@ -120,8 +120,17 @@ public sealed partial class ApplyViewModel(MainViewModel main, TvDevice device, 
 
         // 2. Changes, packages first so the screensaver fix below can see what went.
         var ctx = new ApplyContext(Main.Adb, _device, backup);
+        var kept = selected.SelectMany(t => t.KeptPackages).ToHashSet();
         foreach (var (tweak, step) in tweakSteps.OrderBy(x => x.tweak is PackageTweak ? 0 : 1))
         {
+            if (tweak is PackageTweak p && kept.Contains(p.Package))
+            {
+                // A choice in the same run needs this app (e.g. the screensaver): leave it on.
+                step.Detail = Loc.Get("Apply_Kept");
+                step.State = StepState.Skipped;
+                Tick();
+                continue;
+            }
             step.State = StepState.Running;
             try
             {
@@ -136,7 +145,7 @@ public sealed partial class ApplyViewModel(MainViewModel main, TvDevice device, 
             }
             if (step.State == StepState.Failed) ProblemCount++;
             else if (tweak is PackageTweak) AppsOff++;
-            else if (tweak is not TrimCachesTweak) SettingsChanged++;
+            else if (tweak is not (TrimCachesTweak or OptimizeAppsTweak)) SettingsChanged++;
             backup.Save();
             Tick();
         }

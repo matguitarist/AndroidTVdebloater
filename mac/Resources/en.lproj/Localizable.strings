@@ -18,9 +18,11 @@
 "Apply_DoneTitle" = "All done";
 "Apply_DoneWithProblems" = "Done, with some problems";
 "Apply_Freed" = "%1$@ MB freed";
+"Apply_Kept" = "Left on: another choice you made needs it.";
 "Apply_LastStep" = "Turn debugging off once you are done. While it is on, other devices on your network can ask to control the TV. This app can do it for you, or turn off USB debugging (and Network debugging) yourself in Developer options. Turn it on again whenever you want to use this app.";
 "Apply_LastStepTitle" = "One last step on the TV";
 "Apply_OpenFolder" = "Open folder";
+"Apply_OptimizeDone" = "Done in %1$@ min";
 "Apply_ProblemsSub" = "%1$@ step(s) didn't work; see below. Everything else was applied, and you can undo it from Restore.";
 "Apply_Reboot" = "Restarting the TV";
 "Apply_RebootSettle" = "Back on, letting it settle…";

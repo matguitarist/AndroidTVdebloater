@@ -18,9 +18,11 @@
 "Apply_DoneTitle" = "Terminé";
 "Apply_DoneWithProblems" = "Terminé, avec quelques problèmes";
 "Apply_Freed" = "%1$@ Mo libérés";
+"Apply_Kept" = "Laissée activée : un autre de vos choix en a besoin.";
 "Apply_LastStep" = "Désactivez le débogage une fois terminé. Tant qu'il est activé, d'autres appareils de votre réseau peuvent demander à contrôler le téléviseur. Cette application peut le faire pour vous, ou désactivez vous-même le Débogage USB (et le Débogage réseau) dans les Options pour les développeurs. Réactivez-le quand vous voulez réutiliser cette application.";
 "Apply_LastStepTitle" = "Une dernière étape sur le téléviseur";
 "Apply_OpenFolder" = "Ouvrir le dossier";
+"Apply_OptimizeDone" = "Terminé en %1$@ min";
 "Apply_ProblemsSub" = "%1$@ étape(s) n'ont pas fonctionné ; voir ci-dessous. Le reste a été appliqué, et vous pouvez l'annuler depuis Restaurer.";
 "Apply_Reboot" = "Redémarrage du téléviseur";
 "Apply_RebootSettle" = "Rallumé, on le laisse se stabiliser…";

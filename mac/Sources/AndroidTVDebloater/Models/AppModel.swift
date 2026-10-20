@@ -303,6 +303,13 @@ final class ChooseModel {
         return f.string(from: NSNumber(value: v)) ?? "\(v)"
     }
 
+    /// A chosen option that needs an app (e.g. Google Ambient) unticks turning that app off.
+    func enforceKeeps(_ tweak: Tweak) {
+        let kept = tweak.keptPackages
+        guard !kept.isEmpty else { return }
+        for t in allTweaks where t.packageName.map(kept.contains) == true { t.isSelected = false }
+    }
+
     func selectRecommended() {
         for t in allTweaks { t.isSelected = t.recommended }
         choicesStatus = ""
@@ -417,14 +424,22 @@ final class ApplyModel {
 
         // 2. Changes, packages first so the screensaver fix below can see what went.
         let ctx = ApplyContext(adb: adb, device: device, backup: backup)
+        let kept = Set(selected.flatMap(\.keptPackages))
         for (tweak, step) in tweakSteps.sorted(by: { $0.0.isPackage && !$1.0.isPackage }) {
+            if let pkg = tweak.packageName, kept.contains(pkg) {
+                // A choice in the same run needs this app (e.g. the screensaver): leave it on.
+                step.detail = L("Apply_Kept")
+                step.state = .skipped
+                tick()
+                continue
+            }
             step.state = .running
             let r = await tweak.apply(ctx)
             step.detail = r.detail
             step.state = r.success ? .done : .failed
             if !r.success { problemCount += 1 }
             else if tweak.isPackage { appsOff += 1 }
-            else if !tweak.isTrimCaches { settingsChanged += 1 }
+            else if !tweak.isMaintenance { settingsChanged += 1 }
             try? backup.save()
             tick()
         }
@@ -566,6 +581,7 @@ final class RestoreModel {
             for pkg in b.disabledPackages { _ = await adb.shell(serial, "pm enable \(pkg)") }
             for s in b.settings.reversed() { await SettingsIO.restore(adb, serial, s.namespace, s.key, s.oldValue) }
             if b.wifiWasOn == true { _ = await adb.shell(serial, "svc wifi enable") }
+            for pkg in b.enabledPackages { _ = await adb.shell(serial, "pm disable-user --user 0 \(pkg)") }
             // Keep the file for reference, but stop offering it.
             let renamed = b.fileURL.deletingLastPathComponent()
                 .appendingPathComponent(b.fileURL.lastPathComponent.replacingOccurrences(of: "changes-", with: "restored-"))

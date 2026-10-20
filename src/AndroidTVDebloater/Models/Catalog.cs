@@ -64,7 +64,14 @@ public static class Catalog
     }
     /// <summary>A known system part that must stay on: never offered, never reported as unknown.</summary>
     private sealed class KeepDef { public string Id { get; set; } = ""; }
-    private sealed class OptionDef { public Text Label { get; set; } = new(); public string Value { get; set; } = ""; }
+    private sealed class OptionDef
+    {
+        public Text Label { get; set; } = new();
+        public string Value { get; set; } = "";
+        /// <summary>Offered only when this app is installed (it is turned back on if needed).</summary>
+        public string? Installed { get; set; }
+        public List<string>? Keeps { get; set; }
+    }
     private sealed class WriteDef { public string Namespace { get; set; } = ""; public string Key { get; set; } = ""; public string Value { get; set; } = ""; }
     private sealed class WhenDef
     {
@@ -240,7 +247,9 @@ public static class Catalog
         if (description.En.Contains("{storage}"))
             description = new LocText(description.En.Replace("{storage}", StorageText(dev, "en")),
                                       description.Fr.Replace("{storage}", StorageText(dev, "fr")));
-        var options = def.Options?.Select(o => new TweakOption(L(o.Label), o.Value)).ToList();
+        var options = def.Options?
+            .Where(o => o.Installed is null || dev.IsInstalled(o.Installed))
+            .Select(o => new TweakOption(L(o.Label), o.Value, o.Keeps)).ToList();
         var recommended = def.Recommended || (def.RecommendedWhen is not null && Matches(def.RecommendedWhen, dev));
         var title = L(def.Name);
         var warning = def.Warning is null ? null : L(def.Warning);
@@ -252,6 +261,21 @@ public static class Catalog
                 Id = def.Id, GroupId = def.Group, Recommended = recommended, TitleText = title,
                 DescriptionText = description, WarningText = warning, Options = options,
                 Writes = def.Writes.Select(w => new SettingWrite(w.Namespace, w.Key, w.Value)).ToList(),
+            },
+            // A choice of screensaver, starting on the current one. Nothing to choose: not offered.
+            "screensaver" when def.Writes is { Count: > 0 } && options is { Count: > 0 }
+                               && !(options.Count == 1 && options[0].Value == dev.ScreensaverComponent) => new SettingsTweak
+            {
+                Id = def.Id, GroupId = def.Group, Recommended = recommended, TitleText = title,
+                DescriptionText = description, WarningText = warning, Options = options,
+                SelectedOption = recommended ? options[0]
+                    : options.FirstOrDefault(o => o.Value == dev.ScreensaverComponent) ?? options[0],
+                Writes = def.Writes.Select(w => new SettingWrite(w.Namespace, w.Key, w.Value)).ToList(),
+            },
+            "optimizeApps" => new OptimizeAppsTweak
+            {
+                Id = def.Id, GroupId = def.Group, Recommended = recommended, TitleText = title,
+                DescriptionText = description, WarningText = warning,
             },
             "backgroundLimit" => new BackgroundLimitTweak
             {

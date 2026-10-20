@@ -22,6 +22,8 @@ final class Backup: Codable {
     var serialNo: String
     var androidVersion: String
     var disabledPackages: [String] = []
+    /// Apps a choice turned back on (e.g. for the screensaver); Restore turns them off again.
+    var enabledPackages: [String] = []
     var settings: [SettingChange] = []
     var wifiWasOn: Bool?
 
@@ -29,7 +31,20 @@ final class Backup: Codable {
 
     enum CodingKeys: String, CodingKey {
         case created = "Created", deviceName = "DeviceName", serialNo = "SerialNo", androidVersion = "AndroidVersion"
-        case disabledPackages = "DisabledPackages", settings = "Settings", wifiWasOn = "WifiWasOn"
+        case disabledPackages = "DisabledPackages", enabledPackages = "EnabledPackages", settings = "Settings", wifiWasOn = "WifiWasOn"
+    }
+
+    // Older backups have no EnabledPackages.
+    required init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        created = try c.decode(String.self, forKey: .created)
+        deviceName = try c.decodeIfPresent(String.self, forKey: .deviceName) ?? ""
+        serialNo = try c.decodeIfPresent(String.self, forKey: .serialNo) ?? ""
+        androidVersion = try c.decodeIfPresent(String.self, forKey: .androidVersion) ?? ""
+        disabledPackages = try c.decodeIfPresent([String].self, forKey: .disabledPackages) ?? []
+        enabledPackages = try c.decodeIfPresent([String].self, forKey: .enabledPackages) ?? []
+        settings = try c.decodeIfPresent([SettingChange].self, forKey: .settings) ?? []
+        wifiWasOn = try c.decodeIfPresent(Bool.self, forKey: .wifiWasOn)
     }
 
     init(device: TvDevice) {
@@ -39,7 +54,7 @@ final class Backup: Codable {
         androidVersion = device.androidVersion
     }
 
-    var changeCount: Int { disabledPackages.count + settings.count + (wifiWasOn == true ? 1 : 0) }
+    var changeCount: Int { disabledPackages.count + enabledPackages.count + settings.count + (wifiWasOn == true ? 1 : 0) }
     var createdDate: Date { DateText.parse(created) ?? .distantPast }
     var createdText: String { DateText.display(created) }
 

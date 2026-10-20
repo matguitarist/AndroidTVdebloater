@@ -68,6 +68,10 @@ public sealed partial class ChooseViewModel : PageViewModel
 
     private void OnTweakChanged(object? sender, PropertyChangedEventArgs e)
     {
+        // A chosen option that needs an app (e.g. Google Ambient) unticks turning that app off.
+        if (sender is Tweak { KeptPackages.Count: > 0 } t && e.PropertyName is nameof(Tweak.IsSelected) or nameof(Tweak.SelectedOption))
+            foreach (var other in AllTweaks.OfType<PackageTweak>().Where(p => t.KeptPackages.Contains(p.Package)))
+                other.IsSelected = false;
         if (e.PropertyName != nameof(Tweak.IsSelected)) return;
         OnPropertyChanged(nameof(SelectedCount));
         OnPropertyChanged(nameof(SelectedText));

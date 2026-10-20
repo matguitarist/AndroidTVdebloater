@@ -4,6 +4,8 @@ import Observation
 struct TweakOption: Hashable, Identifiable {
     var label: LocText
     var value: String
+    /// Apps this option needs: they are not turned off while it is chosen.
+    var keeps: [String] = []
     var id: String { value }
 }
 
@@ -36,6 +38,7 @@ final class Tweak: Identifiable {
         case privateDns
         case wifiOff
         case trimCaches
+        case optimizeApps
     }
 
     let id: String
@@ -61,6 +64,16 @@ final class Tweak: Identifiable {
 
     var isPackage: Bool { if case .package = kind { return true }; return false }
     var isTrimCaches: Bool { if case .trimCaches = kind { return true }; return false }
+    var isMaintenance: Bool {
+        switch kind { case .trimCaches, .optimizeApps: true; default: false }
+    }
+    var packageName: String? { if case .package(let p) = kind { return p }; return nil }
+
+    /// Apps the chosen option needs, which must not be turned off in the same run.
+    var keptPackages: [String] {
+        guard isSelected else { return [] }
+        return options.first { $0.value == selectedOption }?.keeps ?? []
+    }
 
     /// Small technical line under the description (package name, setting key).
     var technical: String {
@@ -73,6 +86,7 @@ final class Tweak: Identifiable {
         case .privateDns: return "private_dns_mode · private_dns_specifier"
         case .wifiOff: return "svc wifi disable"
         case .trimCaches: return "pm trim-caches"
+        case .optimizeApps: return "cmd package bg-dexopt-job"
         }
     }
 
@@ -88,6 +102,12 @@ final class Tweak: Identifiable {
             return TweakResult(success: false, detail: Self.firstLine(r.all))
 
         case .settings(let writes):
+            // The chosen option needs an app that was turned off (e.g. Google Ambient): turn it back on.
+            for pkg in keptPackages where ctx.device.disabled.contains(pkg) {
+                _ = await ctx.adb.shell(ctx.serial, "pm enable \(pkg)")
+                ctx.backup.enabledPackages.append(pkg)
+                try? ctx.backup.save()
+            }
             for w in writes {
                 let value = w.value.replacingOccurrences(of: "{option}", with: selectedOption ?? "")
                 if !(await SettingsIO.change(ctx, w.namespace, w.key, value)) {
@@ -121,6 +141,13 @@ final class Tweak: Identifiable {
             try? await Task.sleep(for: .milliseconds(1500))
             let after = await TvDevice.readStorage(ctx.adb, serial: ctx.serial)
             return TweakResult(success: true, detail: L("Apply_Freed", max(0, after.freeMb - before.freeMb)))
+
+        case .optimizeApps:
+            // Android's own background optimisation, run now. Nothing to back up or undo.
+            let started = Date()
+            let r = await ctx.adb.shell(ctx.serial, "cmd package bg-dexopt-job", timeout: 20 * 60)
+            guard r.ok else { return TweakResult(success: false, detail: Self.firstLine(r.all)) }
+            return TweakResult(success: true, detail: L("Apply_OptimizeDone", max(1, Int((Date().timeIntervalSince(started) / 60).rounded()))))
         }
     }
 

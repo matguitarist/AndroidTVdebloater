@@ -59,7 +59,11 @@ struct ChooseView: View {
 
             ForEach(choose.groups) { group in
                 Section {
-                    ForEach(group.tweaks) { tweak in TweakRow(tweak: tweak) }
+                    ForEach(group.tweaks) { tweak in
+                        TweakRow(tweak: tweak)
+                            .onChange(of: tweak.isSelected) { choose.enforceKeeps(tweak) }
+                            .onChange(of: tweak.selectedOption) { choose.enforceKeeps(tweak) }
+                    }
                 } header: {
                     HStack(alignment: .firstTextBaseline) {
                         VStack(alignment: .leading, spacing: 2) {

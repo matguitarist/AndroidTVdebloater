@@ -20,7 +20,13 @@ enum Catalog {
         var description: LocText
         var warning: LocText?
     }
-    struct OptionDef: Codable { var label: LocText; var value: String }
+    struct OptionDef: Codable {
+        var label: LocText
+        var value: String
+        /// Offered only when this app is installed (it is turned back on if needed).
+        var installed: String?
+        var keeps: [String]?
+    }
     /// A known system part that must stay on: never offered, never reported as unknown.
     struct KeepDef: Codable { var id: String }
     struct WhenDef: Codable {
@@ -147,13 +153,25 @@ enum Catalog {
         if description.en.contains("{storage}") {
             description = description.replacing("{storage}", en: storageText(dev, "en"), fr: storageText(dev, "fr"))
         }
-        let options = (def.options ?? []).map { TweakOption(label: $0.label, value: $0.value) }
+        let options = (def.options ?? [])
+            .filter { $0.installed.map(dev.isInstalled) ?? true }
+            .map { TweakOption(label: $0.label, value: $0.value, keeps: $0.keeps ?? []) }
         let recommended = (def.recommended ?? false) || (def.recommendedWhen.map { matches($0, dev) } ?? false)
         let kind: Tweak.Kind
         switch def.kind ?? "settings" {
         case "settings":
             guard let writes = def.writes, !writes.isEmpty else { return nil }
             kind = .settings(writes)
+        case "screensaver":
+            // A choice of screensaver, starting on the current one. Nothing to choose: not offered.
+            guard let writes = def.writes, !writes.isEmpty, !options.isEmpty,
+                  !(options.count == 1 && options[0].value == dev.screensaverComponent) else { return nil }
+            let t = Tweak(id: def.id, groupId: def.group, recommended: recommended, title: def.name,
+                          description: description, warning: def.warning, options: options, kind: .settings(writes))
+            t.selectedOption = recommended ? options[0].value
+                : (options.first { $0.value == dev.screensaverComponent } ?? options[0]).value
+            return t
+        case "optimizeApps": kind = .optimizeApps
         case "backgroundLimit": kind = .backgroundLimit
         case "privateDns": kind = .privateDns
         case "wifiOff": kind = .wifiOff
