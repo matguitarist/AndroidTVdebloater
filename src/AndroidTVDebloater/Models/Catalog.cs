@@ -1,7 +1,8 @@
+using System.Globalization;
 using System.Reflection;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using AndroidTVDebloater.Localization;
+using AndroidTVDebloater.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AndroidTVDebloater.Models;
@@ -36,10 +37,17 @@ public sealed partial class TweakGroup : ObservableObject
     }
 }
 
-/// <summary>Builds the list of choices for one TV from catalog.json plus the settings below.</summary>
+/// <summary>
+/// Builds the list of choices for one TV from shared/catalog.json: the copy built into the app,
+/// or a newer one downloaded from GitHub (same file the Mac app uses).
+/// </summary>
 public static class Catalog
 {
     public const string BasicScreensaver = "com.android.dreams.basic/com.android.dreams.basic.Colors";
+    /// <summary>Catalog format this version understands.</summary>
+    private const int Schema = 1;
+    private const string RemoteUrl = "https://raw.githubusercontent.com/matguitarist/AndroidTVdebloater/main/shared/catalog.json";
+    private static string CachePath => Path.Combine(AdbService.DataDir, "catalog.json");
 
     private sealed class Text { public string En { get; set; } = ""; public string Fr { get; set; } = ""; }
     private sealed class GroupDef { public string Id { get; set; } = ""; public Text Title { get; set; } = new(); public Text Description { get; set; } = new(); }
@@ -54,27 +62,109 @@ public static class Catalog
         public Text Description { get; set; } = new();
         public Text? Warning { get; set; }
     }
-    private sealed class CatalogFile { public List<GroupDef> Groups { get; set; } = []; public List<PackageDef> Packages { get; set; } = []; }
+    private sealed class OptionDef { public Text Label { get; set; } = new(); public string Value { get; set; } = ""; }
+    private sealed class WriteDef { public string Namespace { get; set; } = ""; public string Key { get; set; } = ""; public string Value { get; set; } = ""; }
+    private sealed class WhenDef
+    {
+        public int? MinSdk { get; set; }
+        public string? Network { get; set; }
+        public string? Installed { get; set; }
+        public string? ScreensaverIsNot { get; set; }
+        public int? StorageFreeBelowPercent { get; set; }
+    }
+    private sealed class SettingDef
+    {
+        public string Id { get; set; } = "";
+        public string Kind { get; set; } = "settings";
+        public string Group { get; set; } = "";
+        public bool Recommended { get; set; }
+        public WhenDef? When { get; set; }
+        public WhenDef? RecommendedWhen { get; set; }
+        public Text Name { get; set; } = new();
+        public Text Description { get; set; } = new();
+        public Text? Warning { get; set; }
+        public List<OptionDef>? Options { get; set; }
+        public List<WriteDef>? Writes { get; set; }
+    }
+    private sealed class CatalogFile
+    {
+        public int Schema { get; set; }
+        public int Version { get; set; }
+        public List<GroupDef> Groups { get; set; } = [];
+        public List<PackageDef> Packages { get; set; } = [];
+        public List<SettingDef> Settings { get; set; } = [];
+    }
 
-    private static readonly Lazy<CatalogFile> File = new(() =>
+    private static readonly JsonSerializerOptions Json = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        ReadCommentHandling = JsonCommentHandling.Skip,
+    };
+
+    /// <summary>Null if the text isn't a catalog this version can use.</summary>
+    private static CatalogFile? Parse(string json)
+    {
+        try
+        {
+            var c = JsonSerializer.Deserialize<CatalogFile>(json, Json);
+            if (c is null || c.Schema != Schema || c.Groups.Count == 0) return null;
+            var groups = c.Groups.Select(g => g.Id).ToHashSet();
+            if (!groups.Contains("other")) return null;
+            if (c.Packages.Any(p => !groups.Contains(p.Group) || (p.Id is null && string.IsNullOrEmpty(p.Prefix)))) return null;
+            if (c.Settings.Any(s => !groups.Contains(s.Group))) return null;
+            return c;
+        }
+        catch { return null; }
+    }
+
+    private static readonly CatalogFile Embedded = LoadEmbedded();
+
+    private static CatalogFile LoadEmbedded()
     {
         using var s = Assembly.GetExecutingAssembly().GetManifestResourceStream("catalog.json")!;
-        return JsonSerializer.Deserialize<CatalogFile>(s, new JsonSerializerOptions
+        using var r = new StreamReader(s);
+        return Parse(r.ReadToEnd()) ?? throw new InvalidDataException("built-in catalog.json is invalid");
+    }
+
+    private static CatalogFile _current = LoadCachedOrEmbedded();
+
+    private static CatalogFile LoadCachedOrEmbedded()
+    {
+        try
         {
-            PropertyNameCaseInsensitive = true,
-            ReadCommentHandling = JsonCommentHandling.Skip,
-        })!;
-    });
+            if (File.Exists(CachePath) && Parse(File.ReadAllText(CachePath)) is { } cached && cached.Version > Embedded.Version)
+                return cached;
+        }
+        catch { }
+        return Embedded;
+    }
+
+    public static int Version => _current.Version;
+
+    /// <summary>Fetch the latest list from GitHub; it is used from the next TV list on.</summary>
+    public static async Task RefreshFromGitHubAsync()
+    {
+        try
+        {
+            using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(20) };
+            var json = await http.GetStringAsync(RemoteUrl);
+            if (Parse(json) is not { } remote || remote.Version <= _current.Version) return;
+            Directory.CreateDirectory(AdbService.DataDir);
+            await File.WriteAllTextAsync(CachePath, json);
+            _current = remote;
+        }
+        catch { /* offline: keep what we have */ }
+    }
 
     private static LocText L(Text t) => new(t.En, t.Fr);
-    private static LocText L(string en, string fr) => new(en, fr);
 
-    public static IEnumerable<string> AllKnownPackages =>
-        File.Value.Packages.Where(p => p.Id is not null).Select(p => p.Id!);
+    private static bool IsKnown(CatalogFile c, string pkg) =>
+        c.Packages.Any(p => p.Id == pkg || (p.Prefix is { Length: > 0 } pre && pkg.StartsWith(pre)));
 
     public static List<TweakGroup> Build(TvDevice dev)
     {
-        var groups = File.Value.Groups.Select(g => new TweakGroup
+        var c = _current;
+        var groups = c.Groups.Select(g => new TweakGroup
         {
             Id = g.Id, TitleText = L(g.Title), DescriptionText = L(g.Description),
         }).ToDictionary(g => g.Id);
@@ -82,7 +172,7 @@ public static class Catalog
         var used = new HashSet<string>();
 
         // Apps from the catalog, only those installed, enabled and not protected on this TV.
-        foreach (var def in File.Value.Packages)
+        foreach (var def in c.Packages)
         {
             if (def.RequiresSetupComplete && !dev.SetupComplete) continue;
             var matches = def.Id is not null
@@ -108,12 +198,14 @@ public static class Catalog
             groups["other"].Tweaks.Add(new PackageTweak
             {
                 Id = "pkg:" + pkg, GroupId = "other", Package = pkg, Recommended = false,
-                TitleText = L(FriendlyName(pkg), FriendlyName(pkg)),
-                DescriptionText = L("Installed app.", "Application installée."),
+                TitleText = new LocText(FriendlyName(pkg), FriendlyName(pkg)),
+                DescriptionText = new LocText("Installed app.", "Application installée."),
             });
         }
 
-        AddSettings(dev, groups);
+        foreach (var def in c.Settings)
+            if (Matches(def.When, dev) && CreateSetting(def, dev) is { } tweak)
+                groups[def.Group].Tweaks.Add(tweak);
 
         var list = groups.Values.Where(g => g.Tweaks.Count > 0).ToList();
         foreach (var t in list.SelectMany(g => g.Tweaks))
@@ -125,131 +217,89 @@ public static class Catalog
         return list;
     }
 
-    private static void AddSettings(TvDevice dev, Dictionary<string, TweakGroup> g)
+    private static bool Matches(WhenDef? w, TvDevice dev)
     {
-        g["performance"].Tweaks.Add(new SettingsTweak
-        {
-            Id = "animations", GroupId = "performance", Recommended = true,
-            TitleText = L("Faster animations", "Animations plus rapides"),
-            DescriptionText = L("Menus open and close quicker. Nothing else changes.",
-                                "Les menus s'ouvrent et se ferment plus vite. Rien d'autre ne change."),
-            Options =
-            [
-                new(L("Twice as fast (recommended)", "Deux fois plus rapides (recommandé)"), "0.5"),
-                new(L("Off, instant", "Désactivées, instantané"), "0"),
-            ],
-            Writes =
-            [
-                new("global", "animator_duration_scale", "{option}"),
-                new("global", "transition_animation_scale", "{option}"),
-                new("global", "window_animation_scale", "{option}"),
-            ],
-        });
-
-        if (dev.IsInstalled("com.android.dreams.basic") && dev.ScreensaverComponent != BasicScreensaver)
-            g["performance"].Tweaks.Add(new SettingsTweak
-            {
-                Id = "screensaver", GroupId = "performance", Recommended = true,
-                TitleText = L("Simple screensaver", "Écran de veille simple"),
-                DescriptionText = L("Slowly changing colours instead of a screensaver that downloads photos and suggestions. Still protects the screen.",
-                                    "Des couleurs qui changent lentement au lieu d'un écran de veille qui télécharge photos et suggestions. Protège toujours l'écran."),
-                Writes = [new("secure", "screensaver_components", BasicScreensaver)],
-            });
-
-        g["performance"].Tweaks.Add(new BackgroundLimitTweak
-        {
-            Id = "bglimit", GroupId = "performance", Recommended = false,
-            TitleText = L("Keep fewer apps in memory", "Garder moins d'applications en mémoire"),
-            DescriptionText = L("Limits how many closed apps Android keeps in the background, leaving more memory for what you watch.",
-                                "Limite le nombre d'applications fermées qu'Android garde en arrière-plan, pour laisser plus de mémoire à ce que vous regardez."),
-            WarningText = L("Apps you go back to may take a second longer to open.",
-                            "Les applications que vous rouvrez peuvent mettre une seconde de plus à s'ouvrir."),
-            Options =
-            [
-                new(L("16 apps", "16 applications"), "16"),
-                new(L("24 apps", "24 applications"), "24"),
-            ],
-        });
-
-        g["performance"].Tweaks.Add(new SettingsTweak
-        {
-            Id = "sleep", GroupId = "performance", Recommended = false,
-            TitleText = L("Standby when nobody is watching", "Veille quand personne ne regarde"),
-            DescriptionText = L("Puts the device to sleep after a long time without any remote button pressed, to save power.",
-                                "Met l'appareil en veille après un long moment sans appui sur la télécommande, pour économiser l'énergie."),
-            WarningText = L("A long film without touching the remote counts as idle.",
-                            "Un long film sans toucher la télécommande compte comme une inactivité."),
-            Options =
-            [
-                new(L("After 4 hours", "Après 4 heures"), "14400000"),
-                new(L("After 2 hours", "Après 2 heures"), "7200000"),
-                new(L("After 8 hours", "Après 8 heures"), "28800000"),
-            ],
-            Writes = [new("secure", "sleep_timeout", "{option}")],
-        });
-
-        g["privacy"].Tweaks.Add(new SettingsTweak
-        {
-            Id = "wifiscan", GroupId = "privacy", Recommended = true,
-            TitleText = L("Stop background Wi-Fi scanning", "Arrêter l'analyse Wi-Fi en arrière-plan"),
-            DescriptionText = L("Stops the TV scanning for networks all the time and nagging about available Wi-Fi. Your connection is not affected.",
-                                "Le téléviseur arrête de chercher des réseaux en permanence et de signaler les Wi-Fi disponibles. Votre connexion n'est pas touchée."),
-            Writes =
-            [
-                new("global", "wifi_scan_always_enabled", "0"),
-                new("global", "wifi_wakeup_enabled", "0"),
-                new("global", "wifi_networks_available_notification_on", "0"),
-            ],
-        });
-
-        g["privacy"].Tweaks.Add(new SettingsTweak
-        {
-            Id = "crashreports", GroupId = "privacy", Recommended = true,
-            TitleText = L("Stop sending crash reports", "Arrêter l'envoi de rapports de plantage"),
-            DescriptionText = L("Apps that crash no longer offer to send a report to Google.",
-                                "Les applications qui plantent ne proposent plus d'envoyer un rapport à Google."),
-            Writes = [new("global", "send_action_app_error", "0"), new("secure", "send_action_app_error", "0")],
-        });
-
-        if (dev.Sdk >= 28)
-            g["privacy"].Tweaks.Add(new PrivateDnsTweak
-            {
-                Id = "dns", GroupId = "privacy", Recommended = false,
-                TitleText = L("Block ads and trackers (DNS)", "Bloquer publicités et traqueurs (DNS)"),
-                DescriptionText = L("Uses a filtering DNS service for the whole TV, so ad and tracking servers can't be reached. Tested right away: if the internet stops working, it is undone automatically.",
-                                    "Utilise un service DNS filtrant pour tout le téléviseur : les serveurs de publicité et de pistage deviennent injoignables. Testé immédiatement : si internet ne fonctionne plus, c'est annulé automatiquement."),
-                WarningText = L("If an app stops loading something later, undo this first from the Restore page.",
-                                "Si une application n'affiche plus quelque chose plus tard, annulez d'abord ceci depuis la page Restaurer."),
-                Options =
-                [
-                    new(L("AdGuard DNS: ads and trackers (recommended)", "AdGuard DNS : publicités et traqueurs (recommandé)"), "dns.adguard-dns.com"),
-                    new(L("AdGuard Family: also adult content", "AdGuard Famille : aussi le contenu adulte"), "family.adguard-dns.com"),
-                    new(L("Mullvad: ads and trackers", "Mullvad : publicités et traqueurs"), "adblock.dns.mullvad.net"),
-                ],
-            });
-
-        g["privacy"].Tweaks.Add(new SettingsTweak
-        {
-            Id = "location", GroupId = "privacy", Recommended = false,
-            TitleText = L("Turn off location", "Désactiver la localisation"),
-            DescriptionText = L("A TV doesn't need to know where it is. Google network location is turned off.",
-                                "Un téléviseur n'a pas besoin de savoir où il est. La localisation réseau de Google est désactivée."),
-            WarningText = L("Weather or regional apps may ask for your city instead.",
-                            "Les applications météo ou régionales pourront vous demander votre ville."),
-            Writes = [new("secure", "location_mode", "0")],
-        });
-
-        if (dev.Network == NetworkKind.Ethernet)
-            g["privacy"].Tweaks.Add(new WifiOffTweak
-            {
-                Id = "wifioff", GroupId = "privacy", Recommended = false,
-                TitleText = L("Turn Wi-Fi off (this TV uses a cable)", "Désactiver le Wi-Fi (ce téléviseur utilise un câble)"),
-                DescriptionText = L("This TV is connected by Ethernet cable, so the Wi-Fi radio is doing nothing.",
-                                    "Ce téléviseur est connecté par câble Ethernet, la puce Wi-Fi ne sert donc à rien."),
-                WarningText = L("If you unplug the cable one day, turn Wi-Fi back on in the TV settings first.",
-                                "Si vous débranchez le câble un jour, réactivez d'abord le Wi-Fi dans les réglages du téléviseur."),
-            });
+        if (w is null) return true;
+        if (w.MinSdk is { } sdk && dev.Sdk < sdk) return false;
+        if (w.Network == "ethernet" && dev.Network != NetworkKind.Ethernet) return false;
+        if (w.Network == "wifi" && dev.Network != NetworkKind.WiFi) return false;
+        if (w.Installed is { } pkg && !dev.IsInstalled(pkg)) return false;
+        if (w.ScreensaverIsNot is { } dream && dev.ScreensaverComponent == dream) return false;
+        if (w.StorageFreeBelowPercent is { } pct && (dev.StorageTotalMb == 0 || dev.StorageFreeMb * 100 >= dev.StorageTotalMb * pct)) return false;
+        return true;
     }
+
+    /// <summary>A setting from the catalog, or null for a kind this version doesn't know.</summary>
+    private static Tweak? CreateSetting(SettingDef def, TvDevice dev)
+    {
+        var description = L(def.Description);
+        if (description.En.Contains("{storage}"))
+            description = new LocText(description.En.Replace("{storage}", StorageText(dev, "en")),
+                                      description.Fr.Replace("{storage}", StorageText(dev, "fr")));
+        var options = def.Options?.Select(o => new TweakOption(L(o.Label), o.Value)).ToList();
+        var recommended = def.Recommended || (def.RecommendedWhen is not null && Matches(def.RecommendedWhen, dev));
+        var title = L(def.Name);
+        var warning = def.Warning is null ? null : L(def.Warning);
+
+        return def.Kind switch
+        {
+            "settings" when def.Writes is { Count: > 0 } => new SettingsTweak
+            {
+                Id = def.Id, GroupId = def.Group, Recommended = recommended, TitleText = title,
+                DescriptionText = description, WarningText = warning, Options = options,
+                Writes = def.Writes.Select(w => new SettingWrite(w.Namespace, w.Key, w.Value)).ToList(),
+            },
+            "backgroundLimit" => new BackgroundLimitTweak
+            {
+                Id = def.Id, GroupId = def.Group, Recommended = recommended, TitleText = title,
+                DescriptionText = description, WarningText = warning, Options = options,
+            },
+            "privateDns" => new PrivateDnsTweak
+            {
+                Id = def.Id, GroupId = def.Group, Recommended = recommended, TitleText = title,
+                DescriptionText = description, WarningText = warning, Options = options,
+            },
+            "wifiOff" => new WifiOffTweak
+            {
+                Id = def.Id, GroupId = def.Group, Recommended = recommended, TitleText = title,
+                DescriptionText = description, WarningText = warning,
+            },
+            "trimCaches" when dev.StorageTotalMb > 0 => new TrimCachesTweak
+            {
+                Id = def.Id, GroupId = def.Group, Recommended = recommended, TitleText = title,
+                DescriptionText = description, WarningText = warning,
+            },
+            _ => null,
+        };
+    }
+
+    private static string StorageText(TvDevice dev, string lang)
+    {
+        var culture = CultureInfo.GetCultureInfo(lang);
+        string Gb(long mb) => (mb / 1024.0).ToString("0.0", culture);
+        return lang == "fr"
+            ? $"{Gb(dev.StorageFreeMb)} Go libres sur {Gb(dev.StorageTotalMb)} Go"
+            : $"{Gb(dev.StorageFreeMb)} GB free of {Gb(dev.StorageTotalMb)} GB";
+    }
+
+    private static readonly string[] CorePrefixes =
+    [
+        "android.", "com.android.", "com.google.android.", "com.qualcomm.", "com.qti.", "org.codeaurora.",
+        "com.mediatek.", "vendor.", "com.amlogic.", "com.realtek.", "com.broadcom.",
+    ];
+
+    /// <summary>
+    /// Preinstalled apps the catalog doesn't know yet, for the "help improve the list" report.
+    /// Android's own parts, chip vendor parts and resource overlays are left out.
+    /// </summary>
+    public static List<string> UnknownSystemApps(TvDevice dev) =>
+        dev.Enabled.Concat(dev.Disabled)
+            .Where(p => !dev.ThirdParty.Contains(p) && !dev.IsProtected(p) && !IsKnown(_current, p))
+            .Where(p => !CorePrefixes.Any(p.StartsWith) && p != "android")
+            .Where(p => !p.Contains("overlay", StringComparison.OrdinalIgnoreCase) && !p.Contains("auto_generated_rro")
+                        && !p.EndsWith("rro", StringComparison.OrdinalIgnoreCase))
+            .OrderBy(p => p)
+            .ToList();
 
     private static string FriendlyName(string pkg)
     {

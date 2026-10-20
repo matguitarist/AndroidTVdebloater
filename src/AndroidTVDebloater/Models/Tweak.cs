@@ -166,6 +166,25 @@ public sealed class PrivateDnsTweak : Tweak
     }
 }
 
+/// <summary>
+/// Clear every app's cache ("pm trim-caches"). Nothing to back up: apps rebuild caches on their own.
+/// </summary>
+public sealed class TrimCachesTweak : Tweak
+{
+    public override string Technical => "pm trim-caches";
+
+    public override async Task<TweakResult> ApplyAsync(ApplyContext ctx)
+    {
+        var before = await TvDevice.ReadStorageAsync(ctx.Adb, ctx.Serial);
+        var r = await ctx.Adb.ShellAsync(ctx.Serial, "pm trim-caches 999G", 120000);
+        if (!r.Ok) return new TweakResult(false, PackageTweak.FirstLine(r.All));
+        await Task.Delay(1500);
+        var after = await TvDevice.ReadStorageAsync(ctx.Adb, ctx.Serial);
+        var freed = Math.Max(0, after.FreeMb - before.FreeMb);
+        return new TweakResult(true, Loc.Format("Apply_Freed", freed));
+    }
+}
+
 /// <summary>Reading and writing settings, recording old values in the backup first.</summary>
 public static class SettingsIO
 {

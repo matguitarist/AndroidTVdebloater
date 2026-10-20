@@ -10,13 +10,14 @@ public sealed record UpdateInfo(Version Version, string Notes, string DownloadUr
 
 /// <summary>
 /// Sparkle-style updates from GitHub Releases. The new exe is checked against the SHA-256 that
-/// GitHub publishes for the file, then swapped in: Windows lets a running exe be renamed, so the
-/// old one becomes .old (deleted on the next start) and the new one takes its name.
+/// GitHub publishes for the file, then swapped in: Windows and Linux let a running program be
+/// renamed, so the old one becomes .old (deleted on the next start) and the new one takes its name.
 /// </summary>
 public static partial class UpdateService
 {
     private const string Repo = "matguitarist/AndroidTVdebloater";
-    private const string AssetName = "AndroidTVDebloater.exe";
+    /// <summary>The release file for this system. The Mac app is a separate Swift app with its own updater.</summary>
+    private static string AssetName => OperatingSystem.IsWindows() ? "AndroidTVDebloater.exe" : "AndroidTVDebloater-linux-x64";
     public const string ReleasesPage = $"https://github.com/{Repo}/releases/latest";
 
     public static Version Current => Normalize(typeof(UpdateService).Assembly.GetName().Version ?? new Version(1, 0, 0));
@@ -79,7 +80,7 @@ public static partial class UpdateService
     private static string? ExePath => Environment.ProcessPath;
 
     /// <summary>
-    /// Only the published Windows exe can replace itself, and only where it is allowed to write.
+    /// Only the published Windows or Linux build can replace itself, and only where it is allowed to write.
     /// Elsewhere (a dev build, Program Files…) the release page is opened instead.
     /// </summary>
     public static bool CanInstallInPlace
@@ -87,7 +88,7 @@ public static partial class UpdateService
         get
         {
             var exe = ExePath;
-            if (!OperatingSystem.IsWindows() || exe is null) return false;
+            if (!(OperatingSystem.IsWindows() || OperatingSystem.IsLinux()) || exe is null) return false;
             // A single-file exe has no assembly path; a dev build (dotnet run) does.
 #pragma warning disable IL3000 // empty Location is exactly what we are testing for
             if (typeof(UpdateService).Assembly.Location.Length > 0) return false;
@@ -138,6 +139,9 @@ public static partial class UpdateService
 
         if (File.Exists(old)) File.Delete(old);
         File.Move(exe, old);
+        if (!OperatingSystem.IsWindows())
+            File.SetUnixFileMode(download, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
+                                           UnixFileMode.GroupRead | UnixFileMode.GroupExecute | UnixFileMode.OtherRead | UnixFileMode.OtherExecute);
         try { File.Move(download, exe); }
         catch
         {
@@ -152,7 +156,7 @@ public static partial class UpdateService
     public static void CleanUpAfterUpdate()
     {
         var exe = ExePath;
-        if (!OperatingSystem.IsWindows() || exe is null) return;
+        if (!(OperatingSystem.IsWindows() || OperatingSystem.IsLinux()) || exe is null) return;
         _ = Task.Run(async () =>
         {
             for (var i = 0; i < 10; i++)

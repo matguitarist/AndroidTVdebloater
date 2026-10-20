@@ -21,21 +21,36 @@ jobs:
         run: dotnet publish src/AndroidTVDebloater -c Release -r win-x64 -o publish
       - uses: actions/upload-artifact@v4
         with:
-          name: AndroidTVDebloater
+          name: windows
           path: publish/AndroidTVDebloater.exe
-      # The annotated tag's message becomes the release notes, which the app's update dialog shows.
-      - name: Release notes from the tag message
-        if: startsWith(github.ref, 'refs/tags/v')
-        shell: bash
-        run: |
-          git fetch --force origin "refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}"
-          git tag -l --format='%(contents:body)' "${GITHUB_REF_NAME}" > notes.md
-      - name: Attach to release
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
         with:
-          files: publish/AndroidTVDebloater.exe
-          body_path: notes.md
+          dotnet-version: "10.0.x"
+      - name: Publish single-file program
+        run: |
+          dotnet publish src/AndroidTVDebloater -c Release -r linux-x64 -o publish
+          mv publish/AndroidTVDebloater publish/AndroidTVDebloater-linux-x64
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: publish/AndroidTVDebloater-linux-x64
+
+  # Native SwiftUI app, universal (Apple silicon and Intel).
+  mac:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the app
+        run: ARCHS="arm64 x86_64" mac/build-app.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mac
+          path: mac/build/AndroidTVDebloater-mac.zip
 
   # The in-place update (rename the running exe, move the new one in) only works on Windows.
   update-swap-test:
@@ -52,3 +67,28 @@ jobs:
       - name: Close the copy the update started
         if: always()
         run: Stop-Process -Name UpdateSwapTest -ErrorAction SilentlyContinue
+
+  # One release with all three builds, once they are all ready.
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [windows, linux, mac]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      # The annotated tag's message becomes the release notes, which the update dialogs show.
+      - name: Release notes from the tag message
+        run: |
+          git fetch --force origin "refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}"
+          git tag -l --format='%(contents:body)' "${GITHUB_REF_NAME}" > notes.md
+          chmod +x dist/AndroidTVDebloater-linux-x64
+      - uses: softprops/action-gh-release@v2
+        with:
+          body_path: notes.md
+          files: |
+            dist/AndroidTVDebloater.exe
+            dist/AndroidTVDebloater-linux-x64
+            dist/AndroidTVDebloater-mac.zip

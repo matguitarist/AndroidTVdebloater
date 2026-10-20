@@ -140,7 +140,8 @@ public sealed partial class ConnectViewModel : PageViewModel
         try
         {
             var r = await Main.Adb.RunAsync(["connect", target], 20000, ct);
-            if (!r.All.Contains("connected to"))
+            // "failed to authenticate" means the TV is showing "Allow USB debugging?": wait for it below.
+            if (!r.All.Contains("connected to") && !r.All.Contains("failed to authenticate"))
             {
                 Fail(Loc.Format("Connect_Refused", target) + "\n" + r.All);
                 return;

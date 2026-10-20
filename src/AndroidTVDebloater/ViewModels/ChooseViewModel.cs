@@ -1,6 +1,11 @@
 using System.ComponentModel;
 using AndroidTVDebloater.Localization;
 using AndroidTVDebloater.Models;
+using AndroidTVDebloater.Services;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -15,10 +20,22 @@ public sealed partial class ChooseViewModel : PageViewModel
 
     [ObservableProperty] private bool _rebootAfter = true;
 
+    /// <summary>Choices from the last run (possibly on another TV), offered at the top.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasLastChoices), nameof(LastChoicesText))]
+    private ChoiceSet? _lastChoices;
+
+    [ObservableProperty] private string _choicesStatus = "";
+
+    /// <summary>Preinstalled apps the catalog doesn't know, for the report to GitHub.</summary>
+    public List<string> UnknownApps { get; }
+
     public ChooseViewModel(MainViewModel main, TvDevice device) : base(main)
     {
         Device = device;
         Groups = Catalog.Build(device);
+        UnknownApps = Catalog.UnknownSystemApps(device);
+        LastChoices = ChoiceSet.LoadLast();
         foreach (var t in AllTweaks) t.PropertyChanged += OnTweakChanged;
     }
 
@@ -31,6 +48,8 @@ public sealed partial class ChooseViewModel : PageViewModel
 
     public string AndroidText => Loc.Format("Choose_Android", Device.AndroidVersion);
     public string RamText => Loc.Format("Choose_Ram", (Device.RamMb / 1024.0).ToString("0.#"));
+    public string StorageText => Loc.Format("Choose_Storage", (Device.StorageFreeMb / 1024.0).ToString("0.#"));
+    public bool HasStorage => Device.StorageTotalMb > 0;
     public string NetworkText => Loc.Get(Device.Network switch
     {
         NetworkKind.Ethernet => "Choose_NetEthernet",
@@ -39,6 +58,13 @@ public sealed partial class ChooseViewModel : PageViewModel
     });
     public string AlreadyOffText => Device.Disabled.Count == 1 ? Loc.Get("Choose_AlreadyOffOne") : Loc.Format("Choose_AlreadyOff", Device.Disabled.Count);
     public bool HasAlreadyOff => Device.Disabled.Count > 0;
+
+    public bool HasLastChoices => LastChoices is not null;
+    public string LastChoicesText => LastChoices is null ? ""
+        : Loc.Format("Choose_LastText", LastChoices.Choices.Count, LastChoices.Name, LastChoices.CreatedText);
+
+    public bool HasUnknownApps => UnknownApps.Count > 0;
+    public string UnknownText => Loc.Format("Choose_UnknownText", UnknownApps.Count);
 
     private void OnTweakChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -53,7 +79,11 @@ public sealed partial class ChooseViewModel : PageViewModel
     public override void OnLanguageChanged()
     {
         foreach (var g in Groups) g.RefreshTexts();
-        foreach (var name in new[] { nameof(SelectedText), nameof(ApplyText), nameof(AndroidText), nameof(RamText), nameof(NetworkText), nameof(AlreadyOffText) })
+        foreach (var name in new[]
+                 {
+                     nameof(SelectedText), nameof(ApplyText), nameof(AndroidText), nameof(RamText), nameof(StorageText),
+                     nameof(NetworkText), nameof(AlreadyOffText), nameof(LastChoicesText), nameof(UnknownText),
+                 })
             OnPropertyChanged(name);
     }
 
@@ -61,12 +91,93 @@ public sealed partial class ChooseViewModel : PageViewModel
     private void SelectRecommended()
     {
         foreach (var t in AllTweaks) t.IsSelected = t.Recommended;
+        ChoicesStatus = "";
     }
 
     [RelayCommand]
     private void SelectNone()
     {
         foreach (var t in AllTweaks) t.IsSelected = false;
+        ChoicesStatus = "";
+    }
+
+    [RelayCommand]
+    private void UseLastChoices()
+    {
+        if (LastChoices is null) return;
+        UseChoices(LastChoices);
+        LastChoices = null;
+    }
+
+    [RelayCommand]
+    private void DismissLastChoices() => LastChoices = null;
+
+    private void UseChoices(ChoiceSet set)
+    {
+        var found = set.ApplyTo(AllTweaks);
+        var missing = set.Choices.Count - found;
+        ChoicesStatus = missing == 0
+            ? Loc.Format("Choose_UsedAll", found)
+            : Loc.Format("Choose_UsedSome", found, missing);
+    }
+
+    private static TopLevel? Window =>
+        (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
+
+    private static readonly FilePickerFileType ChoicesFileType = new("Android TV Debloater")
+    {
+        Patterns = ["*.json"],
+        AppleUniformTypeIdentifiers = ["public.json"],
+        MimeTypes = ["application/json"],
+    };
+
+    [RelayCommand]
+    private async Task SaveChoicesAsync()
+    {
+        if (Window?.StorageProvider is not { } storage) return;
+        var file = await storage.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = Loc.Get("Choose_SaveChoices"),
+            SuggestedFileName = $"choices-{Device.DisplayName}.json",
+            DefaultExtension = "json",
+            FileTypeChoices = [ChoicesFileType],
+        });
+        if (file is null) return;
+        await using var s = await file.OpenWriteAsync();
+        ChoiceSet.From(Device.DisplayName, AllTweaks.Where(t => t.IsSelected)).Save(s);
+        ChoicesStatus = Loc.Format("Choose_Saved", file.Name);
+    }
+
+    [RelayCommand]
+    private async Task LoadChoicesAsync()
+    {
+        if (Window?.StorageProvider is not { } storage) return;
+        var files = await storage.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = Loc.Get("Choose_LoadChoices"),
+            FileTypeFilter = [ChoicesFileType],
+        });
+        if (files.Count == 0) return;
+        await using var s = await files[0].OpenReadAsync();
+        if (ChoiceSet.Load(s) is { } set) UseChoices(set);
+        else ChoicesStatus = Loc.Get("Choose_LoadFailed");
+    }
+
+    /// <summary>Open a pre-filled GitHub issue. Nothing is posted until the user submits it there.</summary>
+    [RelayCommand]
+    private async Task ReportUnknownAsync()
+    {
+        var (url, complete) = IssueReport.Build(Device, UnknownApps, Catalog.Version);
+        if (!complete && Window?.Clipboard is { } clipboard)
+            await clipboard.SetTextAsync(string.Join("\n", UnknownApps));
+        UpdateService.OpenInBrowser(url);
+    }
+
+    [RelayCommand]
+    private async Task CopyUnknownAsync()
+    {
+        if (Window?.Clipboard is { } clipboard)
+            await clipboard.SetTextAsync(string.Join("\n", UnknownApps));
     }
 
     [RelayCommand(CanExecute = nameof(CanApply))]

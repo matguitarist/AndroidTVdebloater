@@ -3,7 +3,7 @@
 <h1 align="center">Android TV Debloater</h1>
 
 <p align="center">
-  Turn off the ads, tracking and preinstalled apps on any Android TV or Google TV, from a Windows PC.<br>
+  Turn off the ads, tracking and preinstalled apps on any Android TV or Google TV, from Windows, macOS or Linux.<br>
   One window, plain-language choices, a one-click undo.
 </p>
 
@@ -25,6 +25,13 @@
   on the TV, makes it the home screen once installed, and can put the original one back.
 - **Turns debugging off for you** at the end, then **Start over** to clean the next TV. TVs you
   used before are listed on the Connect page.
+- **Same choices on the next TV**: the last run's choices are offered on the next TV, and choices
+  can be saved to a file and loaded on another computer (Windows and Mac read the same file).
+- **Frees up storage** by clearing app caches, and shows how much was freed.
+- **The list of apps updates itself**: new entries in [`shared/catalog.json`](shared/catalog.json)
+  reach every copy of the app without a new release.
+- **Help improve the list**: preinstalled apps the list doesn't know yet can be suggested on GitHub
+  in one click (only the TV model and app names; you see everything before posting).
 - **Updates itself**: when a new version is out, it shows what's new and installs it in a few
   seconds (the download is checked against the SHA-256 GitHub publishes). Can be turned off.
 - **English and French**, switchable at any time. Light and dark themes follow Windows.
@@ -34,14 +41,17 @@ brings everything back as well.
 
 ## Download and run
 
-1. Download `AndroidTVDebloater.exe` from the [latest release](../../releases/latest).
-2. Double-click it. There is nothing to install: no .NET, no Python, no drivers. The first time,
-   the app downloads Google's official ADB tools (about 7 MB from `dl.google.com`) into
-   `%LOCALAPPDATA%\AndroidTVDebloater`.
-3. Follow the four steps on screen.
+Get the file for your computer from the [latest release](../../releases/latest). There is nothing
+else to install: the first time, the app downloads Google's official ADB tools (about 7 MB from
+`dl.google.com`) into its own folder. Then follow the four steps on screen.
 
-Windows SmartScreen may warn about an unknown publisher because the app is not code-signed.
-Choose **More info → Run anyway**.
+| | File | First launch |
+|---|---|---|
+| **Windows** 10/11 | `AndroidTVDebloater.exe` | SmartScreen may warn about an unknown publisher (the app isn't code-signed): **More info → Run anyway**. |
+| **macOS** 14+ | `AndroidTVDebloater-mac.zip` | A native Mac app (SwiftUI), for Apple silicon and Intel. Unzip, move it to Applications and open it. macOS says it can't check the developer (the app isn't notarized): open **System Settings → Privacy & Security** and click **Open Anyway**. Allow it to find devices on the local network when asked. |
+| **Linux** x64 | `AndroidTVDebloater-linux-x64` | `chmod +x AndroidTVDebloater-linux-x64` and run it. |
+
+![The Mac app](docs/mac-welcome-en.png)
 
 ### On the TV, before you start
 
@@ -74,19 +84,20 @@ set-top boxes that many TV operators rent out. Fire TV works for the app list.
 
 ## How it stays safe
 
-- Only apps in a reviewed catalog ([`catalog.json`](src/AndroidTVDebloater/Data/catalog.json)) are
+- Only apps in a reviewed catalog ([`catalog.json`](shared/catalog.json)) are
   offered, plus apps installed on top of the system (always unticked).
 - Never offered, whatever the catalog says: any app that can act as the home screen, the keyboard,
   Settings, the Play Store, Google Play Services, WebView, Bluetooth and the core of Android.
 - Every change is written to a backup file with its original value *before* it is made, and the
   file is saved after each step, so even an interrupted run can be undone.
 - "Turn Wi-Fi off" is only offered when the TV is on an Ethernet cable.
-- Backups live in `%LOCALAPPDATA%\AndroidTVDebloater\backups\<TV>`, with a raw snapshot of all
-  packages and settings next to them.
+- Backups live in `%LOCALAPPDATA%\AndroidTVDebloater\backups\<TV>` (Mac:
+  `~/Library/Application Support/AndroidTVDebloater/backups`), with a raw snapshot of all packages
+  and settings next to them. The format is the same on every system.
 
 ## Build from source
 
-Requires the [.NET 10 SDK](https://dotnet.microsoft.com/download). Works on Windows, macOS or Linux.
+Windows and Linux app: requires the [.NET 10 SDK](https://dotnet.microsoft.com/download).
 
 ```sh
 # Run it (on macOS/Linux it runs too, handy for development)
@@ -99,14 +110,21 @@ dotnet publish src/AndroidTVDebloater -c Release -r win-x64 -o publish
 `tools/Screenshots` renders every page off-screen to PNG (light/dark, EN/FR) with a simulated TV:
 `dotnet run --project tools/Screenshots -- docs`.
 
-Pushing a tag like `v1.0.0` builds the exe on GitHub Actions and attaches it to a release.
+Mac app (`mac/`, Swift and SwiftUI): requires Xcode. `mac/build-app.sh` builds
+`mac/build/Android TV Debloater.app`. Its text comes from the Windows app's `Strings.cs`: after
+changing it, run `python3 tools/gen-mac-strings.py`.
+
+Pushing a tag like `v1.2.0` builds all three on GitHub Actions and publishes a release; the tag
+message becomes the release notes shown in the apps' update window.
 
 ## Adding apps to the catalog
 
-Edit [`src/AndroidTVDebloater/Data/catalog.json`](src/AndroidTVDebloater/Data/catalog.json). Each
-entry has a package `id` (or a `prefix`), a `group`, `recommended`, and `name` / `description`
-(plus an optional `warning`) in English and French. Only mark something `recommended` if
-disabling it changes nothing a viewer would notice, and test it on a real device.
+Edit [`shared/catalog.json`](shared/catalog.json), used by both apps. Each app entry has a
+package `id` (or a `prefix`), a `group`, `recommended`, and `name` / `description` (plus an
+optional `warning`) in English and French. Settings live in the same file. Only mark something
+`recommended` if disabling it changes nothing a viewer would notice, and test it on a real device.
+**Increase `version`** in the file: the apps download it from `main` and use it when it is newer
+than their own copy.
 
 ## Credits
 

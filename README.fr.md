@@ -4,7 +4,7 @@
 
 <p align="center">
   Désactivez les publicités, le pistage et les applications préinstallées de n'importe quel
-  Android TV ou Google TV, depuis un PC Windows.<br>
+  Android TV ou Google TV, depuis Windows, macOS ou Linux.<br>
   Une seule fenêtre, des choix expliqués simplement, une annulation en un clic.
 </p>
 
@@ -31,6 +31,14 @@
   Play Store du téléviseur, en fait l'écran d'accueil une fois installé, et peut remettre celui d'origine.
 - **Désactive le débogage pour vous** à la fin, puis **Recommencer** pour nettoyer le téléviseur
   suivant. Les téléviseurs déjà utilisés sont listés sur la page Connecter.
+- **Les mêmes choix sur le téléviseur suivant** : les choix de la dernière opération sont proposés,
+  et peuvent être enregistrés dans un fichier puis chargés sur un autre ordinateur (Windows et Mac
+  lisent le même fichier).
+- **Libère de l'espace** en vidant les caches des applications, et indique combien.
+- **La liste des applications se met à jour toute seule** : les nouvelles entrées de
+  [`shared/catalog.json`](shared/catalog.json) arrivent dans l'application sans nouvelle version.
+- **Aidez à améliorer la liste** : les applications préinstallées inconnues peuvent être proposées
+  sur GitHub en un clic (seulement le modèle et les noms d'applications ; vous voyez tout avant de publier).
 - **Se met à jour toute seule** : quand une nouvelle version sort, elle affiche les nouveautés et
   l'installe en quelques secondes (le téléchargement est vérifié avec le SHA-256 publié par GitHub).
   Désactivable.
@@ -41,14 +49,15 @@ et une réinitialisation d'usine remet aussi tout.
 
 ## Télécharger et lancer
 
-1. Téléchargez `AndroidTVDebloater.exe` depuis la [dernière version](../../releases/latest).
-2. Double-cliquez dessus. Rien à installer : ni .NET, ni Python, ni pilotes. La première fois,
-   l'application télécharge les outils ADB officiels de Google (environ 7 Mo depuis
-   `dl.google.com`) dans `%LOCALAPPDATA%\AndroidTVDebloater`.
-3. Suivez les quatre étapes à l'écran.
+Prenez le fichier de votre ordinateur dans la [dernière version](../../releases/latest). Rien
+d'autre à installer : la première fois, l'application télécharge les outils ADB officiels de Google
+(environ 7 Mo depuis `dl.google.com`) dans son propre dossier. Suivez ensuite les quatre étapes.
 
-Windows SmartScreen peut signaler un éditeur inconnu car l'application n'est pas signée.
-Choisissez **Informations complémentaires → Exécuter quand même**.
+| | Fichier | Premier lancement |
+|---|---|---|
+| **Windows** 10/11 | `AndroidTVDebloater.exe` | SmartScreen peut signaler un éditeur inconnu (application non signée) : **Informations complémentaires → Exécuter quand même**. |
+| **macOS** 14+ | `AndroidTVDebloater-mac.zip` | Une vraie application Mac (SwiftUI), pour Apple silicon et Intel. Décompressez, placez-la dans Applications et ouvrez-la. macOS indique qu'il ne peut pas vérifier le développeur (application non notariée) : ouvrez **Réglages Système → Confidentialité et sécurité** et cliquez sur **Ouvrir quand même**. Autorisez-la à trouver des appareils sur le réseau local. |
+| **Linux** x64 | `AndroidTVDebloater-linux-x64` | `chmod +x AndroidTVDebloater-linux-x64` puis lancez-le. |
 
 ### Sur le téléviseur, avant de commencer
 
@@ -76,7 +85,7 @@ d'applications.
 
 ## Sécurité
 
-- Seules les applications d'un catalogue vérifié ([`catalog.json`](src/AndroidTVDebloater/Data/catalog.json))
+- Seules les applications d'un catalogue vérifié ([`catalog.json`](shared/catalog.json))
   sont proposées, plus celles installées en plus du système (toujours décochées).
 - Jamais proposés, quoi que dise le catalogue : toute application pouvant servir d'écran
   d'accueil, le clavier, les Paramètres, le Play Store, les services Google Play, WebView,
@@ -90,14 +99,18 @@ d'applications.
 
 ## Compiler
 
-Nécessite le [SDK .NET 10](https://dotnet.microsoft.com/download), sous Windows, macOS ou Linux.
+Application Windows et Linux : nécessite le [SDK .NET 10](https://dotnet.microsoft.com/download).
 
 ```sh
 dotnet run --project src/AndroidTVDebloater
 dotnet publish src/AndroidTVDebloater -c Release -r win-x64 -o publish
 ```
 
-Pousser une étiquette comme `v1.0.0` compile l'exe sur GitHub Actions et le joint à une version.
+Application Mac (`mac/`, Swift et SwiftUI) : nécessite Xcode, puis `mac/build-app.sh`. Ses textes
+viennent de `Strings.cs` : après modification, lancez `python3 tools/gen-mac-strings.py`.
+
+Pousser une étiquette comme `v1.2.0` compile les trois sur GitHub Actions et publie une version ;
+le message de l'étiquette devient les notes affichées dans la fenêtre de mise à jour.
 
 ## Crédits
 

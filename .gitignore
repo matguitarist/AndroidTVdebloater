@@ -6,3 +6,6 @@ publish/
 .vscode/
 .idea/
 .DS_Store
+mac/.build/
+mac/build/
+swaptest/

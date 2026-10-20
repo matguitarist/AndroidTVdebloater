@@ -136,7 +136,7 @@ public sealed partial class ApplyViewModel(MainViewModel main, TvDevice device, 
             }
             if (step.State == StepState.Failed) ProblemCount++;
             else if (tweak is PackageTweak) AppsOff++;
-            else SettingsChanged++;
+            else if (tweak is not TrimCachesTweak) SettingsChanged++;
             backup.Save();
             Tick();
         }

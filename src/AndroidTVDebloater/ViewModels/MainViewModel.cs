@@ -112,6 +112,7 @@ public sealed partial class MainViewModel : ObservableObject
     public void GoApply(List<Tweak> selected, bool reboot)
     {
         if (Device is null) return;
+        ChoiceSet.From(Device.DisplayName, selected).SaveAsLast();
         var page = new ApplyViewModel(this, Device, selected, reboot);
         CurrentPage = page;
         _ = page.RunAsync();

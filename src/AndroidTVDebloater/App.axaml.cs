@@ -1,3 +1,4 @@
+using AndroidTVDebloater.Models;
 using AndroidTVDebloater.Services;
 using AndroidTVDebloater.ViewModels;
 using AndroidTVDebloater.Views;
@@ -19,6 +20,7 @@ public partial class App : Application
             var main = new MainViewModel(new AdbService());
             desktop.MainWindow = new MainWindow { DataContext = main };
             _ = main.Updater.CheckInBackgroundAsync();
+            _ = Catalog.RefreshFromGitHubAsync();
             // Leave no adb server running in the background once the app is closed.
             desktop.Exit += (_, _) => main.Adb.KillServer();
         }

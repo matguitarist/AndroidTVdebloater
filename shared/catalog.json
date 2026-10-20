@@ -1,4 +1,7 @@
 {
+  "// schema": "Bump 'version' on every change: apps download this file from GitHub and use it when it is newer than their own copy. Bump 'schema' only for changes older apps can't read.",
+  "schema": 1,
+  "version": 2,
   "groups": [
     {
       "id": "telemetry",
@@ -304,5 +307,82 @@
     { "id": "com.amazon.minitv.android.app", "group": "apps", "recommended": false,
       "name": { "en": "Amazon miniTV", "fr": "Amazon miniTV" },
       "description": { "en": "Free ad-supported videos.", "fr": "Vidéos gratuites avec publicité." } }
+  ],
+  "settings": [
+    { "id": "animations", "kind": "settings", "group": "performance", "recommended": true,
+      "name": { "en": "Faster animations", "fr": "Animations plus rapides" },
+      "description": { "en": "Menus open and close quicker. Nothing else changes.", "fr": "Les menus s'ouvrent et se ferment plus vite. Rien d'autre ne change." },
+      "options": [
+        { "label": { "en": "Twice as fast (recommended)", "fr": "Deux fois plus rapides (recommandé)" }, "value": "0.5" },
+        { "label": { "en": "Off, instant", "fr": "Désactivées, instantané" }, "value": "0" }
+      ],
+      "writes": [
+        { "namespace": "global", "key": "animator_duration_scale", "value": "{option}" },
+        { "namespace": "global", "key": "transition_animation_scale", "value": "{option}" },
+        { "namespace": "global", "key": "window_animation_scale", "value": "{option}" }
+      ] },
+    { "id": "screensaver", "kind": "settings", "group": "performance", "recommended": true,
+      "when": { "installed": "com.android.dreams.basic", "screensaverIsNot": "com.android.dreams.basic/com.android.dreams.basic.Colors" },
+      "name": { "en": "Simple screensaver", "fr": "Écran de veille simple" },
+      "description": { "en": "Slowly changing colours instead of a screensaver that downloads photos and suggestions. Still protects the screen.", "fr": "Des couleurs qui changent lentement au lieu d'un écran de veille qui télécharge photos et suggestions. Protège toujours l'écran." },
+      "writes": [ { "namespace": "secure", "key": "screensaver_components", "value": "com.android.dreams.basic/com.android.dreams.basic.Colors" } ] },
+    { "id": "bglimit", "kind": "backgroundLimit", "group": "performance", "recommended": false,
+      "name": { "en": "Keep fewer apps in memory", "fr": "Garder moins d'applications en mémoire" },
+      "description": { "en": "Limits how many closed apps Android keeps in the background, leaving more memory for what you watch.", "fr": "Limite le nombre d'applications fermées qu'Android garde en arrière-plan, pour laisser plus de mémoire à ce que vous regardez." },
+      "warning": { "en": "Apps you go back to may take a second longer to open.", "fr": "Les applications que vous rouvrez peuvent mettre une seconde de plus à s'ouvrir." },
+      "options": [
+        { "label": { "en": "16 apps", "fr": "16 applications" }, "value": "16" },
+        { "label": { "en": "24 apps", "fr": "24 applications" }, "value": "24" }
+      ] },
+    { "id": "trimcaches", "kind": "trimCaches", "group": "performance", "recommended": false,
+      "recommendedWhen": { "storageFreeBelowPercent": 20 },
+      "name": { "en": "Free up storage (clear app caches)", "fr": "Libérer de l'espace (vider les caches)" },
+      "description": { "en": "Deletes the temporary files apps keep, such as thumbnails and downloaded images. Your apps, accounts and settings stay. Storage now: {storage}.", "fr": "Supprime les fichiers temporaires gardés par les applications, comme les miniatures et images téléchargées. Vos applications, comptes et réglages restent. Stockage actuel : {storage}." },
+      "warning": { "en": "Can't be undone, and isn't needed: apps simply rebuild their caches.", "fr": "Ne peut pas être annulé, et n'en a pas besoin : les applications recréent simplement leurs caches." } },
+    { "id": "sleep", "kind": "settings", "group": "performance", "recommended": false,
+      "name": { "en": "Standby when nobody is watching", "fr": "Veille quand personne ne regarde" },
+      "description": { "en": "Puts the device to sleep after a long time without any remote button pressed, to save power.", "fr": "Met l'appareil en veille après un long moment sans appui sur la télécommande, pour économiser l'énergie." },
+      "warning": { "en": "A long film without touching the remote counts as idle.", "fr": "Un long film sans toucher la télécommande compte comme une inactivité." },
+      "options": [
+        { "label": { "en": "After 4 hours", "fr": "Après 4 heures" }, "value": "14400000" },
+        { "label": { "en": "After 2 hours", "fr": "Après 2 heures" }, "value": "7200000" },
+        { "label": { "en": "After 8 hours", "fr": "Après 8 heures" }, "value": "28800000" }
+      ],
+      "writes": [ { "namespace": "secure", "key": "sleep_timeout", "value": "{option}" } ] },
+    { "id": "wifiscan", "kind": "settings", "group": "privacy", "recommended": true,
+      "name": { "en": "Stop background Wi-Fi scanning", "fr": "Arrêter l'analyse Wi-Fi en arrière-plan" },
+      "description": { "en": "Stops the TV scanning for networks all the time and nagging about available Wi-Fi. Your connection is not affected.", "fr": "Le téléviseur arrête de chercher des réseaux en permanence et de signaler les Wi-Fi disponibles. Votre connexion n'est pas touchée." },
+      "writes": [
+        { "namespace": "global", "key": "wifi_scan_always_enabled", "value": "0" },
+        { "namespace": "global", "key": "wifi_wakeup_enabled", "value": "0" },
+        { "namespace": "global", "key": "wifi_networks_available_notification_on", "value": "0" }
+      ] },
+    { "id": "crashreports", "kind": "settings", "group": "privacy", "recommended": true,
+      "name": { "en": "Stop sending crash reports", "fr": "Arrêter l'envoi de rapports de plantage" },
+      "description": { "en": "Apps that crash no longer offer to send a report to Google.", "fr": "Les applications qui plantent ne proposent plus d'envoyer un rapport à Google." },
+      "writes": [
+        { "namespace": "global", "key": "send_action_app_error", "value": "0" },
+        { "namespace": "secure", "key": "send_action_app_error", "value": "0" }
+      ] },
+    { "id": "dns", "kind": "privateDns", "group": "privacy", "recommended": false,
+      "when": { "minSdk": 28 },
+      "name": { "en": "Block ads and trackers (DNS)", "fr": "Bloquer publicités et traqueurs (DNS)" },
+      "description": { "en": "Uses a filtering DNS service for the whole TV, so ad and tracking servers can't be reached. Tested right away: if the internet stops working, it is undone automatically.", "fr": "Utilise un service DNS filtrant pour tout le téléviseur : les serveurs de publicité et de pistage deviennent injoignables. Testé immédiatement : si internet ne fonctionne plus, c'est annulé automatiquement." },
+      "warning": { "en": "If an app stops loading something later, undo this first from the Restore page.", "fr": "Si une application n'affiche plus quelque chose plus tard, annulez d'abord ceci depuis la page Restaurer." },
+      "options": [
+        { "label": { "en": "AdGuard DNS: ads and trackers (recommended)", "fr": "AdGuard DNS : publicités et traqueurs (recommandé)" }, "value": "dns.adguard-dns.com" },
+        { "label": { "en": "AdGuard Family: also adult content", "fr": "AdGuard Famille : aussi le contenu adulte" }, "value": "family.adguard-dns.com" },
+        { "label": { "en": "Mullvad: ads and trackers", "fr": "Mullvad : publicités et traqueurs" }, "value": "adblock.dns.mullvad.net" }
+      ] },
+    { "id": "location", "kind": "settings", "group": "privacy", "recommended": false,
+      "name": { "en": "Turn off location", "fr": "Désactiver la localisation" },
+      "description": { "en": "A TV doesn't need to know where it is. Google network location is turned off.", "fr": "Un téléviseur n'a pas besoin de savoir où il est. La localisation réseau de Google est désactivée." },
+      "warning": { "en": "Weather or regional apps may ask for your city instead.", "fr": "Les applications météo ou régionales pourront vous demander votre ville." },
+      "writes": [ { "namespace": "secure", "key": "location_mode", "value": "0" } ] },
+    { "id": "wifioff", "kind": "wifiOff", "group": "privacy", "recommended": false,
+      "when": { "network": "ethernet" },
+      "name": { "en": "Turn Wi-Fi off (this TV uses a cable)", "fr": "Désactiver le Wi-Fi (ce téléviseur utilise un câble)" },
+      "description": { "en": "This TV is connected by Ethernet cable, so the Wi-Fi radio is doing nothing.", "fr": "Ce téléviseur est connecté par câble Ethernet, la puce Wi-Fi ne sert donc à rien." },
+      "warning": { "en": "If you unplug the cable one day, turn Wi-Fi back on in the TV settings first.", "fr": "Si vous débranchez le câble un jour, réactivez d'abord le Wi-Fi dans les réglages du téléviseur." } }
   ]
 }

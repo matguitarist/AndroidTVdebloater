@@ -25,6 +25,8 @@
                 <TextBlock Classes="muted" Text="{Binding AndroidText}" />
                 <TextBlock Classes="faint" Text="  ·  " VerticalAlignment="Center" />
                 <TextBlock Classes="muted" Text="{Binding RamText}" />
+                <TextBlock Classes="faint" Text="  ·  " VerticalAlignment="Center" IsVisible="{Binding HasStorage}" />
+                <TextBlock Classes="muted" Text="{Binding StorageText}" IsVisible="{Binding HasStorage}" />
                 <TextBlock Classes="faint" Text="  ·  " VerticalAlignment="Center" />
                 <TextBlock Classes="muted" Text="{Binding NetworkText}" />
                 <TextBlock Classes="faint" Text="  ·  " VerticalAlignment="Center" IsVisible="{Binding HasAlreadyOff}" />
@@ -34,13 +36,37 @@
           </DockPanel>
         </Border>
 
+        <!-- Same choices as last time, e.g. on the other TV -->
+        <Border Classes="card" BorderBrush="{DynamicResource SystemAccentColor}" BorderThickness="1.5" IsVisible="{Binding HasLastChoices}">
+          <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16">
+            <Border Width="40" Height="40" CornerRadius="10" Background="{DynamicResource AccentSoft}" VerticalAlignment="Top">
+              <Path Stroke="{DynamicResource AccentFg}" StrokeThickness="1.7" StrokeLineCap="Round" StrokeJoin="Round"
+                    Width="20" Height="20" Stretch="Uniform"
+                    Data="M8 4 H18 A2 2 0 0 1 20 6 V16 M4 8 H14 A2 2 0 0 1 16 10 V20 H6 A2 2 0 0 1 4 18 Z M7 14 L9 16 L13 12" />
+            </Border>
+            <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
+              <TextBlock Classes="h2" Text="{l:T Choose_LastTitle}" />
+              <TextBlock Classes="muted" Text="{Binding LastChoicesText}" />
+            </StackPanel>
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+              <Button Content="{l:T Choose_LastNo}" Command="{Binding DismissLastChoicesCommand}" />
+              <Button Classes="accent" Content="{l:T Choose_LastUse}" Command="{Binding UseLastChoicesCommand}" />
+            </StackPanel>
+          </Grid>
+        </Border>
+
         <StackPanel Spacing="8">
           <TextBlock Classes="h1" Text="{l:T Choose_Title}" />
           <TextBlock Classes="lead" Text="{l:T Choose_Lead}" />
-          <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,6,0,0">
-            <Button Content="{l:T Choose_Recommended}" Command="{Binding SelectRecommendedCommand}" />
-            <Button Content="{l:T Choose_None}" Command="{Binding SelectNoneCommand}" />
-          </StackPanel>
+          <WrapPanel Margin="0,6,0,0">
+            <Button Content="{l:T Choose_Recommended}" Command="{Binding SelectRecommendedCommand}" Margin="0,0,10,8" />
+            <Button Content="{l:T Choose_None}" Command="{Binding SelectNoneCommand}" Margin="0,0,24,8" />
+            <Button Content="{l:T Choose_SaveChoices}" Command="{Binding SaveChoicesCommand}" Margin="0,0,10,8" />
+            <Button Content="{l:T Choose_LoadChoices}" Command="{Binding LoadChoicesCommand}" Margin="0,0,10,8" />
+          </WrapPanel>
+          <Border Classes="note" IsVisible="{Binding ChoicesStatus, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+            <TextBlock Classes="muted" Text="{Binding ChoicesStatus}" Foreground="{DynamicResource TextMain}" />
+          </Border>
         </StackPanel>
 
         <ItemsControl ItemsSource="{Binding Groups}">
@@ -94,6 +120,25 @@
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
+
+        <!-- Help grow the catalog -->
+        <Border Classes="card" IsVisible="{Binding HasUnknownApps}">
+          <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+            <Border Width="40" Height="40" CornerRadius="10" Background="{DynamicResource AccentSoft}" VerticalAlignment="Top">
+              <Path Stroke="{DynamicResource AccentFg}" StrokeThickness="1.7" StrokeLineCap="Round" StrokeJoin="Round"
+                    Width="20" Height="20" Stretch="Uniform"
+                    Data="M12 3 A9 9 0 1 1 11.99 3 M9.5 9.5 A2.5 2.5 0 1 1 12 12 V13.5 M12 17 V17.2" />
+            </Border>
+            <StackPanel Grid.Column="1" Spacing="10">
+              <TextBlock Classes="h2" Text="{l:T Choose_UnknownTitle}" />
+              <TextBlock Classes="muted" Text="{Binding UnknownText}" />
+              <WrapPanel>
+                <Button Content="{l:T Choose_UnknownReport}" Command="{Binding ReportUnknownCommand}" Margin="0,0,10,0" />
+                <Button Classes="link" Content="{l:T Choose_UnknownCopy}" Command="{Binding CopyUnknownCommand}" VerticalAlignment="Center" />
+              </WrapPanel>
+            </StackPanel>
+          </Grid>
+        </Border>
       </StackPanel>
     </ScrollViewer>
 

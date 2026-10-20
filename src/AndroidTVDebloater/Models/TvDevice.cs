@@ -22,6 +22,8 @@ public sealed class TvDevice
     public string InputMethodPackage { get; init; } = "";
     public string ScreensaverComponent { get; init; } = "";
     public bool SetupComplete { get; init; }
+    public long StorageTotalMb { get; init; }
+    public long StorageFreeMb { get; init; }
 
     public HashSet<string> Enabled { get; init; } = [];
     public HashSet<string> Disabled { get; init; } = [];
@@ -89,6 +91,8 @@ public sealed class TvDevice
         var dream = await adb.ShellAsync(serial, "settings get secure screensaver_components");
         var setup = await adb.ShellAsync(serial, "settings get secure user_setup_complete");
 
+        var storage = await ReadStorageAsync(adb, serial);
+
         var net = await adb.ShellAsync(serial, "dumpsys connectivity | grep -E 'NetworkAgentInfo.*CONNECTED/CONNECTED'");
         var network = NetworkKind.Unknown;
         if (net.Output.Contains("type: Ethernet", StringComparison.OrdinalIgnoreCase)) network = NetworkKind.Ethernet;
@@ -110,10 +114,24 @@ public sealed class TvDevice
             InputMethodPackage = imePkg,
             ScreensaverComponent = dream.Output.Trim() is var d && d != "null" ? d : "",
             SetupComplete = setup.Output.Trim() == "1",
+            StorageTotalMb = storage.TotalMb,
+            StorageFreeMb = storage.FreeMb,
             Enabled = await ListPackagesAsync(adb, serial, "-e"),
             Disabled = await ListPackagesAsync(adb, serial, "-d"),
             ThirdParty = await ListPackagesAsync(adb, serial, "-3"),
         };
+    }
+
+    /// <summary>Size and free space of the app storage (/data), from "df -k". Zeros if unreadable.</summary>
+    public static async Task<(long TotalMb, long FreeMb)> ReadStorageAsync(AdbService adb, string serial)
+    {
+        var r = await adb.ShellAsync(serial, "df -k /data");
+        var last = r.Output.Split('\n', StringSplitOptions.RemoveEmptyEntries).LastOrDefault() ?? "";
+        var cols = last.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        // Filesystem 1K-blocks Used Available Use% Mounted-on
+        return cols.Length >= 4 && long.TryParse(cols[1], out var total) && long.TryParse(cols[3], out var free)
+            ? (total / 1024, free / 1024)
+            : (0, 0);
     }
 
     private static async Task<HashSet<string>> ListPackagesAsync(AdbService adb, string serial, string flag)
