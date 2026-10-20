@@ -12,6 +12,8 @@ public abstract class PageViewModel(MainViewModel main) : ObservableObject
     protected MainViewModel Main { get; } = main;
     public abstract int StepIndex { get; }
     public virtual void OnLanguageChanged() { }
+    /// <summary>The page is being replaced: stop anything running in the background.</summary>
+    public virtual void OnLeave() { }
 }
 
 public sealed partial class StepInfo(int number, string titleKey) : ObservableObject
@@ -61,7 +63,11 @@ public sealed partial class MainViewModel : ObservableObject
         };
     }
 
-    partial void OnCurrentPageChanged(PageViewModel value) => RefreshSteps();
+    partial void OnCurrentPageChanged(PageViewModel? oldValue, PageViewModel newValue)
+    {
+        oldValue?.OnLeave();
+        RefreshSteps();
+    }
 
     /// <summary>Changes are being made to the TV: don't let the user leave the page.</summary>
     public bool IsBusy => CurrentPage is ApplyViewModel { IsFinished: false } or RestoreViewModel { IsBusy: true };
@@ -121,12 +127,33 @@ public sealed partial class MainViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(HasDevice))]
     private void GoRestore()
     {
-        if (Device is not null) CurrentPage = new RestoreViewModel(this, Device);
+        if (Device is not null && !IsBusy) CurrentPage = new RestoreViewModel(this, Device);
+    }
+
+    [RelayCommand(CanExecute = nameof(HasDevice))]
+    private void GoHealth()
+    {
+        if (Device is not null && !IsBusy) CurrentPage = new HealthViewModel(this, Device);
+    }
+
+    [RelayCommand(CanExecute = nameof(HasDevice))]
+    private void GoInstall()
+    {
+        if (Device is not null && !IsBusy) CurrentPage = new InstallViewModel(this, Device);
+    }
+
+    [RelayCommand(CanExecute = nameof(HasDevice))]
+    private void GoRemote()
+    {
+        if (Device is not null && !IsBusy) CurrentPage = new RemoteViewModel(this, Device);
     }
 
     partial void OnDeviceChanged(TvDevice? value)
     {
         GoRestoreCommand.NotifyCanExecuteChanged();
+        GoHealthCommand.NotifyCanExecuteChanged();
+        GoInstallCommand.NotifyCanExecuteChanged();
+        GoRemoteCommand.NotifyCanExecuteChanged();
         RefreshSteps();
     }
 }

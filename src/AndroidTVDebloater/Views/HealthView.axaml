@@ -1,0 +1,96 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="using:AndroidTVDebloater.Localization"
+             xmlns:vm="using:AndroidTVDebloater.ViewModels"
+             x:Class="AndroidTVDebloater.Views.HealthView">
+  <ScrollViewer>
+    <StackPanel Margin="44,38,44,40" MaxWidth="860" HorizontalAlignment="Left" Spacing="22">
+      <DockPanel>
+        <Button DockPanel.Dock="Right" VerticalAlignment="Top" Content="{l:T Health_Refresh}"
+                Command="{Binding RefreshCommand}" IsEnabled="{Binding !IsLoading}" />
+        <StackPanel Spacing="8">
+          <TextBlock Classes="h1" Text="{l:T Health_Title}" />
+          <TextBlock Classes="lead" Text="{l:T Health_Lead}" />
+        </StackPanel>
+      </DockPanel>
+
+      <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsLoading}" />
+      <Border Classes="err" IsVisible="{Binding Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+        <TextBlock Text="{Binding Error}" Foreground="{DynamicResource ErrFg}" TextWrapping="Wrap" />
+      </Border>
+
+      <StackPanel Spacing="22" IsVisible="{Binding HasReport}">
+        <!-- Advice first -->
+        <ItemsControl ItemsSource="{Binding Tips}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate><StackPanel Spacing="8" /></ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="vm:HealthTip">
+              <Panel>
+                <Border Classes="ok" IsVisible="{Binding IsOk}">
+                  <TextBlock Text="{Binding Text}" Foreground="{DynamicResource OkFg}" TextWrapping="Wrap" />
+                </Border>
+                <Border Classes="warn" IsVisible="{Binding IsWarn}">
+                  <TextBlock Text="{Binding Text}" Foreground="{DynamicResource WarnFg}" TextWrapping="Wrap" />
+                </Border>
+                <Border Classes="note" IsVisible="{Binding IsInfo}">
+                  <TextBlock Text="{Binding Text}" TextWrapping="Wrap" />
+                </Border>
+              </Panel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <UniformGrid Columns="3">
+          <Border Classes="tile" Margin="0,0,8,0">
+            <StackPanel Spacing="8">
+              <TextBlock Classes="label" Text="{l:T Health_Memory}" />
+              <ProgressBar Value="{Binding MemoryUsedPercent}" Maximum="100" />
+              <TextBlock Classes="muted" Text="{Binding MemoryText}" />
+            </StackPanel>
+          </Border>
+          <Border Classes="tile" Margin="4,0,4,0">
+            <StackPanel Spacing="8">
+              <TextBlock Classes="label" Text="{l:T Health_Storage}" />
+              <ProgressBar Value="{Binding StorageUsedPercent}" Maximum="100" />
+              <TextBlock Classes="muted" Text="{Binding StorageText}" />
+            </StackPanel>
+          </Border>
+          <Border Classes="tile" Margin="8,0,0,0">
+            <StackPanel Spacing="8">
+              <TextBlock Classes="label" Text="{l:T Health_Cpu}" />
+              <TextBlock Classes="muted" Text="{Binding CpuText}" />
+            </StackPanel>
+          </Border>
+        </UniformGrid>
+
+        <StackPanel Spacing="10">
+          <StackPanel Spacing="3">
+            <TextBlock Classes="h2" Text="{l:T Health_TopTitle}" />
+            <TextBlock Classes="muted" Text="{l:T Health_TopText}" />
+          </StackPanel>
+          <Border Classes="card" Padding="0">
+            <ItemsControl Classes="rows" ItemsSource="{Binding TopMemory}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="vm:ProcessRow">
+                  <Border Classes="row" Padding="18,10">
+                    <DockPanel>
+                      <TextBlock DockPanel.Dock="Right" Text="{Binding Size}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                      <StackPanel Spacing="1">
+                        <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Classes="faint mono" Text="{Binding Package}" IsVisible="{Binding HasFriendlyName}" />
+                      </StackPanel>
+                    </DockPanel>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </Border>
+        </StackPanel>
+
+        <Button Content="{l:T Health_GoChoose}" Command="{Binding GoChooseCommand}" />
+      </StackPanel>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

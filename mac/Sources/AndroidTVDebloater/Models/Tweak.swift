@@ -69,6 +69,17 @@ final class Tweak: Identifiable {
     }
     var packageName: String? { if case .package(let p) = kind { return p }; return nil }
 
+    /// Settings this choice writes, to recognise it when an update changed them back.
+    var settingKeys: [String] {
+        switch kind {
+        case .settings(let writes): writes.map(\.key)
+        case .backgroundLimit: ["max_cached_processes", "activity_manager_constants"]
+        case .privateDns: ["private_dns_mode", "private_dns_specifier"]
+        case .wifiOff: ["wifi_on"]
+        default: []
+        }
+    }
+
     /// Apps the chosen option needs, which must not be turned off in the same run.
     var keptPackages: [String] {
         guard isSelected else { return [] }

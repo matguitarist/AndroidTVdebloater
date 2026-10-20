@@ -47,6 +47,9 @@ public abstract partial class Tweak : ObservableObject
     /// <summary>Small technical line under the description (package name, setting key).</summary>
     public abstract string Technical { get; }
 
+    /// <summary>Settings this choice writes, to recognise it when an update changed them back.</summary>
+    public virtual IEnumerable<string> SettingKeys => [];
+
     public abstract Task<TweakResult> ApplyAsync(ApplyContext ctx);
 
     public void RefreshTexts()
@@ -92,6 +95,7 @@ public sealed class SettingsTweak : Tweak
     public required IReadOnlyList<SettingWrite> Writes { get; init; }
 
     public override string Technical => string.Join(" · ", Writes.Select(w => w.Key).Distinct());
+    public override IEnumerable<string> SettingKeys => Writes.Select(w => w.Key);
 
     public override async Task<TweakResult> ApplyAsync(ApplyContext ctx)
     {
@@ -116,6 +120,7 @@ public sealed class SettingsTweak : Tweak
 public sealed class BackgroundLimitTweak : Tweak
 {
     public override string Technical => "max_cached_processes";
+    public override IEnumerable<string> SettingKeys => ["max_cached_processes", "activity_manager_constants"];
 
     public override async Task<TweakResult> ApplyAsync(ApplyContext ctx)
     {
@@ -132,6 +137,7 @@ public sealed class BackgroundLimitTweak : Tweak
 public sealed class WifiOffTweak : Tweak
 {
     public override string Technical => "svc wifi disable";
+    public override IEnumerable<string> SettingKeys => ["wifi_on"];
 
     public override async Task<TweakResult> ApplyAsync(ApplyContext ctx)
     {
@@ -150,6 +156,7 @@ public sealed class WifiOffTweak : Tweak
 public sealed class PrivateDnsTweak : Tweak
 {
     public override string Technical => "private_dns_mode · private_dns_specifier";
+    public override IEnumerable<string> SettingKeys => ["private_dns_mode", "private_dns_specifier"];
 
     public override async Task<TweakResult> ApplyAsync(ApplyContext ctx)
     {

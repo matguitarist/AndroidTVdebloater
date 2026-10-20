@@ -49,6 +49,9 @@ struct ContentView: View {
                 case .choose: if let c = model.choose { ChooseView(choose: c) }
                 case .apply: if let a = model.apply { ApplyView(apply: a) }
                 case .restore: if let r = model.restore { RestoreView(restore: r) }
+                case .health: if let h = model.health { HealthView(health: h) }
+                case .install: if let i = model.install { InstallView(install: i) }
+                case .remote: if let r = model.remote { RemoteView(remote: r) }
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -86,10 +89,12 @@ struct Sidebar: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(.tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
 
-                    Button { model.goRestore() } label: {
-                        Label(L("Side_Restore"), systemImage: "arrow.uturn.backward")
+                    VStack(alignment: .leading, spacing: 8) {
+                        toolLink("Side_Health", "waveform.path.ecg") { model.goHealth() }
+                        toolLink("Side_Remote", "appletvremote.gen4") { model.goRemote() }
+                        toolLink("Side_Install", "square.and.arrow.down") { model.goInstall() }
+                        toolLink("Side_Restore", "arrow.uturn.backward") { model.goRestore() }
                     }
-                    .buttonStyle(.link)
                     .disabled(model.isBusy)
                 }
                 Divider()
@@ -104,6 +109,12 @@ struct Sidebar: View {
             }
             .padding(12)
         }
+    }
+}
+
+extension Sidebar {
+    func toolLink(_ key: String, _ icon: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) { Label(L(key), systemImage: icon) }.buttonStyle(.link)
     }
 }
 

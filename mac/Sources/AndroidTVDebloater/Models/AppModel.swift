@@ -2,7 +2,7 @@ import AppKit
 import Foundation
 import Observation
 
-enum Page { case welcome, connect, choose, apply, restore }
+enum Page { case welcome, connect, choose, apply, restore, health, install, remote }
 
 /// The whole app's state: which page is showing, the connected TV, and each page's model.
 @MainActor @Observable
@@ -16,6 +16,9 @@ final class AppModel {
     var choose: ChooseModel?
     var apply: ApplyModel?
     var restore: RestoreModel?
+    var health: HealthModel?
+    var install: InstallModel?
+    var remote: RemoteModel?
 
     init() {
         connect = ConnectModel(app: self)
@@ -27,7 +30,7 @@ final class AppModel {
         switch page {
         case .welcome: 0
         case .connect: 1
-        case .choose, .restore: 2
+        case .choose, .restore, .health, .install, .remote: 2
         case .apply: apply?.isFinished == true ? 4 : 3
         }
     }
@@ -76,9 +79,27 @@ final class AppModel {
     }
 
     func goRestore() {
-        guard let dev = device else { return }
+        guard let dev = device, !isBusy else { return }
         restore = RestoreModel(app: self, device: dev)
         page = .restore
+    }
+
+    func goHealth() {
+        guard let dev = device, !isBusy else { return }
+        health = HealthModel(device: dev)
+        page = .health
+    }
+
+    func goInstall() {
+        guard let dev = device, !isBusy else { return }
+        install = InstallModel(device: dev)
+        page = .install
+    }
+
+    func goRemote() {
+        guard let dev = device, !isBusy else { return }
+        remote = RemoteModel(device: dev)
+        page = .remote
     }
 
     /// Back to the first page with no TV connected, e.g. to clean another one.
@@ -225,6 +246,12 @@ final class ConnectModel {
         RecentTvs.remember(address: target, name: dev.displayName)
         app.device = dev
         await app.goChoose()
+        // Development aid, with ATVD_CONNECT: ATVD_PAGE=health|remote opens a tool page (read-only).
+        switch ProcessInfo.processInfo.environment["ATVD_PAGE"] {
+        case "health": app.goHealth()
+        case "remote": app.goRemote()
+        default: break
+        }
     }
 
     func pair() async {
@@ -271,6 +298,8 @@ final class ChooseModel {
     var rebootAfter = true
     var lastChoices: ChoiceSet?
     var choicesStatus = ""
+    /// Things earlier runs changed that are back (usually after a system update).
+    var returned: ReturnedItems?
 
     init(app: AppModel, device: TvDevice) {
         self.app = app
@@ -278,6 +307,42 @@ final class ChooseModel {
         groups = Catalog.build(device)
         unknownApps = Catalog.unknownSystemApps(device)
         lastChoices = ChoiceSet.loadLast()
+        Task { await checkReturned() }
+    }
+
+    private func checkReturned() async {
+        guard let r = await ReturnedItems.find(Adb.shared, device: device), !matchingTweaks(r).isEmpty else { return }
+        returned = r
+        lastChoices = nil // one suggestion at a time
+    }
+
+    private func matchingTweaks(_ r: ReturnedItems) -> [(Tweak, SettingChange?)] {
+        allTweaks.compactMap { t in
+            if let p = t.packageName, r.packages.contains(p) { return (t, nil) }
+            if let s = r.settings.first(where: { t.settingKeys.contains($0.key) }) { return (t, s) }
+            return nil
+        }
+    }
+
+    var returnedText: String {
+        guard let r = returned else { return "" }
+        return L("Choose_ReturnedText", DateText.display(r.since), r.packages.count, r.settings.count)
+    }
+
+    /// Tick exactly what came back, with the values chosen last time.
+    func tickReturned() {
+        guard let r = returned else { return }
+        let matches = matchingTweaks(r)
+        for t in allTweaks { t.isSelected = false }
+        for (t, setting) in matches {
+            t.isSelected = true
+            // Pick the option that gives the value set last time ("16" or "max_cached_processes=16").
+            if let s = setting, let o = t.options.first(where: { s.newValue == $0.value || s.newValue.hasSuffix("=" + $0.value) }) {
+                t.selectedOption = o.value
+            }
+        }
+        choicesStatus = L("Choose_ReturnedTicked", matches.count)
+        returned = nil
     }
 
     var allTweaks: [Tweak] { groups.flatMap(\.tweaks) }

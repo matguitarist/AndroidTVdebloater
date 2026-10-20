@@ -71,6 +71,35 @@ final class Adb: @unchecked Sendable {
         catch { return AdbResult(exitCode: -1, output: "", error: error.localizedDescription) }
     }
 
+    /// Raw bytes from stdout, e.g. "exec-out screencap -p". Nil on failure or timeout.
+    func runBinary(_ args: [String], timeout: TimeInterval = 10) async -> Data? {
+        await startServerIfNeeded()
+        let path = adbURL
+        return await withCheckedContinuation { (cont: CheckedContinuation<Data?, Never>) in
+            let p = Process()
+            p.executableURL = path
+            p.arguments = args
+            let out = Pipe()
+            let buf = Shell.Buffer()
+            p.standardOutput = out
+            p.standardError = FileHandle.nullDevice
+            out.fileHandleForReading.readabilityHandler = { h in buf.append(h.availableData) }
+            let once = Once()
+            p.terminationHandler = { proc in
+                out.fileHandleForReading.readabilityHandler = nil
+                buf.append(out.fileHandleForReading.readDataToEndOfFile())
+                let data = buf.bytes
+                once.run { cont.resume(returning: proc.terminationStatus == 0 && !data.isEmpty ? data : nil) }
+            }
+            do { try p.run() } catch { once.run { cont.resume(returning: nil) }; return }
+            DispatchQueue.global().asyncAfter(deadline: .now() + timeout) {
+                guard p.isRunning else { return }
+                p.terminate()
+                once.run { cont.resume(returning: nil) }
+            }
+        }
+    }
+
     func shell(_ serial: String, _ command: String, timeout: TimeInterval = 20) async -> AdbResult {
         await run(["-s", serial, "shell", command], timeout: timeout)
     }
@@ -149,6 +178,7 @@ enum Shell {
         private var data = Data()
         private let lock = NSLock()
         func append(_ d: Data) { lock.withLock { data.append(d) } }
+        var bytes: Data { lock.withLock { data } }
         var string: String {
             lock.withLock { String(decoding: data, as: UTF8.self).replacingOccurrences(of: "\r", with: "") }
         }

@@ -30,6 +30,14 @@
 - **Frees up storage** by clearing app caches, and shows how much was freed.
 - **The list of apps updates itself**: new entries in [`shared/catalog.json`](shared/catalog.json)
   reach every copy of the app without a new release.
+- **Notices when updates undo your cleanup**: system updates and Google Play services sometimes
+  turn apps back on or reset settings. When you reconnect, the app shows what came back and ticks
+  it again in one click.
+- **Health check**: memory, storage, processor, the apps using the most memory, and apps stuck in a
+  crash loop, with plain advice. Read-only.
+- **Screen and remote**: see the TV screen live and control it from the computer (arrows, OK, Back,
+  Home, volume, and typing text into search or password fields).
+- **Install an app**: drop an `.apk` on the window to install it, handy on TVs without the Play Store.
 - **Help improve the list**: preinstalled apps the list doesn't know yet can be suggested on GitHub
   in one click (only the TV model and app names; you see everything before posting).
 - **Updates itself**: when a new version is out, it shows what's new and installs it in a few
@@ -73,6 +81,7 @@ When you are done, turn USB debugging off again. The last screen has a button th
 | ![Prepare](docs/welcome-light-en.png) | ![Connect](docs/connect-light-en.png) |
 | ![Choisir, in French and dark mode](docs/choose-dark-fr.png) | ![Done](docs/apply-dark-en.png) |
 | ![Terminé, in French](docs/apply-light-fr.png) | ![Restore](docs/restore-light-en.png) |
+| ![Health check](docs/health-light-en.png) | ![Screen and remote](docs/remote-dark-en.png) |
 
 ## Supported devices
 

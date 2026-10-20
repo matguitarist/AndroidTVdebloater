@@ -168,6 +168,17 @@ public static class Catalog
 
     private static LocText L(Text t) => new(t.En, t.Fr);
 
+    public static bool IsKeep(string pkg) => _current.Keep.Any(k => k.Id == pkg);
+
+    /// <summary>The catalog's name for an app, in the current language, if it has one.</summary>
+    public static string? NameOf(string pkg) =>
+        _current.Packages.FirstOrDefault(p => p.Id == pkg) is { } def ? L(def.Name).ToString() : null;
+
+    /// <summary>Whether the Choose page would offer to turn this app off on this TV.</summary>
+    public static bool IsOffered(TvDevice dev, string pkg) =>
+        dev.Enabled.Contains(pkg) && !dev.IsProtected(pkg) && !IsKeep(pkg) &&
+        _current.Packages.Any(p => p.Id == pkg || (p.Prefix is { Length: > 0 } pre && pkg.StartsWith(pre)));
+
     private static bool IsKnown(CatalogFile c, string pkg) =>
         c.Keep.Any(k => k.Id == pkg) ||
         c.Packages.Any(p => p.Id == pkg || (p.Prefix is { Length: > 0 } pre && pkg.StartsWith(pre)));

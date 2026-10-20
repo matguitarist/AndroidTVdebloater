@@ -16,6 +16,9 @@
     <DataTemplate DataType="vm:ChooseViewModel"><v:ChooseView /></DataTemplate>
     <DataTemplate DataType="vm:ApplyViewModel"><v:ApplyView /></DataTemplate>
     <DataTemplate DataType="vm:RestoreViewModel"><v:RestoreView /></DataTemplate>
+    <DataTemplate DataType="vm:HealthViewModel"><v:HealthView /></DataTemplate>
+    <DataTemplate DataType="vm:InstallViewModel"><v:InstallView /></DataTemplate>
+    <DataTemplate DataType="vm:RemoteViewModel"><v:RemoteView /></DataTemplate>
   </Window.DataTemplates>
 
   <Window.Styles>
@@ -52,6 +55,19 @@
     <Style Selector="TextBlock.steptitle.active">
       <Setter Property="Foreground" Value="{DynamicResource TextMain}" />
       <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="Button.tool Path">
+      <Setter Property="Stroke" Value="{DynamicResource AccentFg}" />
+      <Setter Property="StrokeThickness" Value="1.6" />
+      <Setter Property="StrokeLineCap" Value="Round" />
+      <Setter Property="StrokeJoin" Value="Round" />
+      <Setter Property="Width" Value="15" />
+      <Setter Property="Height" Value="15" />
+      <Setter Property="Stretch" Value="Uniform" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.tool TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource AccentFg}" />
     </Style>
     <Style Selector="RadioButton.lang">
       <Setter Property="Padding" Value="0" />
@@ -118,12 +134,32 @@
             </StackPanel>
           </Border>
 
-          <Button Classes="link" Command="{Binding GoRestoreCommand}" IsVisible="{Binding HasDevice}">
-            <StackPanel Orientation="Horizontal" Spacing="8">
-              <TextBlock Text="↺" Foreground="{DynamicResource AccentFg}" />
-              <TextBlock Text="{l:T Side_Restore}" Foreground="{DynamicResource AccentFg}" />
-            </StackPanel>
-          </Button>
+          <StackPanel Spacing="10" IsVisible="{Binding HasDevice}">
+            <Button Classes="link tool" Command="{Binding GoHealthCommand}">
+              <StackPanel Orientation="Horizontal" Spacing="9">
+                <Path Data="M3 12 H7 L10 5 L14 19 L17 12 H21" />
+                <TextBlock Text="{l:T Side_Health}" />
+              </StackPanel>
+            </Button>
+            <Button Classes="link tool" Command="{Binding GoRemoteCommand}">
+              <StackPanel Orientation="Horizontal" Spacing="9">
+                <Path Data="M3 5 H21 V16 H3 Z M8 20 H16 M12 16 V20" />
+                <TextBlock Text="{l:T Side_Remote}" />
+              </StackPanel>
+            </Button>
+            <Button Classes="link tool" Command="{Binding GoInstallCommand}">
+              <StackPanel Orientation="Horizontal" Spacing="9">
+                <Path Data="M12 4 V15 M7 10 L12 15 L17 10 M5 20 H19" />
+                <TextBlock Text="{l:T Side_Install}" />
+              </StackPanel>
+            </Button>
+            <Button Classes="link tool" Command="{Binding GoRestoreCommand}">
+              <StackPanel Orientation="Horizontal" Spacing="9">
+                <Path Data="M4 12 A8 8 0 1 0 6.5 6.2 M4 4 V8 H8" />
+                <TextBlock Text="{l:T Side_Restore}" />
+              </StackPanel>
+            </Button>
+          </StackPanel>
 
           <Border Height="1" Background="{DynamicResource Divider}" />
 

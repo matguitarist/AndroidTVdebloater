@@ -1,0 +1,37 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="using:AndroidTVDebloater.Localization"
+             x:Class="AndroidTVDebloater.Views.InstallView"
+             DragDrop.AllowDrop="True">
+  <ScrollViewer>
+    <StackPanel Margin="44,38,44,40" MaxWidth="860" HorizontalAlignment="Left" Spacing="22">
+      <StackPanel Spacing="8">
+        <TextBlock Classes="h1" Text="{l:T Install_Title}" />
+        <TextBlock Classes="lead" Text="{l:T Install_Lead}" />
+      </StackPanel>
+
+      <!-- Drop zone -->
+      <Border Name="DropZone" Classes="card" Padding="30" BorderThickness="2" BorderBrush="{DynamicResource CardBorder}">
+        <StackPanel Spacing="14" HorizontalAlignment="Center">
+          <Border Width="56" Height="56" CornerRadius="14" Background="{DynamicResource AccentSoft}" HorizontalAlignment="Center">
+            <Path Stroke="{DynamicResource AccentFg}" StrokeThickness="1.8" StrokeLineCap="Round" StrokeJoin="Round"
+                  Width="26" Height="26" Stretch="Uniform" Data="M12 4 V15 M7 10 L12 15 L17 10 M5 20 H19" />
+          </Border>
+          <TextBlock Classes="h2" HorizontalAlignment="Center" Text="{l:T Install_Drop}" />
+          <Button Classes="accent" HorizontalAlignment="Center" Content="{l:T Install_Pick}"
+                  Command="{Binding PickCommand}" IsEnabled="{Binding !IsInstalling}" />
+        </StackPanel>
+      </Border>
+
+      <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsInstalling}" />
+      <Border Classes="note" IsVisible="{Binding Status, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+              Classes.err="{Binding StatusIsError}">
+        <SelectableTextBlock Text="{Binding Status}" TextWrapping="Wrap" />
+      </Border>
+
+      <Border Classes="warn">
+        <TextBlock Text="{l:T Install_Warning}" Foreground="{DynamicResource WarnFg}" TextWrapping="Wrap" />
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

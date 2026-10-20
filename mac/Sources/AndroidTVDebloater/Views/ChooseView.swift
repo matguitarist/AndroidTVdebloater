@@ -23,6 +23,23 @@ struct ChooseView: View {
                 .padding(.vertical, 4)
             }
 
+            // Things an update turned back on
+            if choose.returned != nil {
+                Section {
+                    HStack(spacing: 14) {
+                        Image(systemName: "clock.arrow.circlepath").font(.title2).foregroundStyle(.orange).frame(width: 40)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(L("Choose_ReturnedTitle")).font(.headline)
+                            Text(choose.returnedText).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                        }
+                        Spacer()
+                        Button(L("Choose_LastNo")) { choose.returned = nil }
+                        Button(L("Choose_ReturnedTick")) { choose.tickReturned() }.buttonStyle(.borderedProminent)
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
+
             // Same choices as last time, e.g. on the other TV
             if let last = choose.lastChoices {
                 Section {

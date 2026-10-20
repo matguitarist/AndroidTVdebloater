@@ -95,6 +95,17 @@ enum Catalog {
 
     private static func isKeep(_ c: File, _ pkg: String) -> Bool { (c.keep ?? []).contains { $0.id == pkg } }
 
+    @MainActor static func isKeep(_ pkg: String) -> Bool { isKeep(current, pkg) }
+
+    /// The catalog's name for an app, in the current language, if it has one.
+    @MainActor static func name(of pkg: String) -> String? { current.packages.first { $0.id == pkg }?.name.text }
+
+    /// Whether the Choose page would offer to turn this app off on this TV.
+    @MainActor static func isOffered(_ dev: TvDevice, _ pkg: String) -> Bool {
+        dev.enabled.contains(pkg) && !dev.isProtected(pkg) && !isKeep(current, pkg) &&
+            current.packages.contains { $0.id == pkg || ($0.prefix.map { !$0.isEmpty && pkg.hasPrefix($0) } ?? false) }
+    }
+
     private static func isKnown(_ c: File, _ pkg: String) -> Bool {
         isKeep(c, pkg) || c.packages.contains { $0.id == pkg || ($0.prefix.map { !$0.isEmpty && pkg.hasPrefix($0) } ?? false) }
     }

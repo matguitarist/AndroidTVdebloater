@@ -118,6 +118,36 @@ public sealed class AdbService
         return new AdbResult(p.ExitCode, (await stdout).Replace("\r", ""), (await stderr).Replace("\r", ""));
     }
 
+    /// <summary>Raw bytes from stdout, e.g. "exec-out screencap -p". Null on failure or timeout.</summary>
+    public async Task<byte[]?> RunBinaryAsync(IEnumerable<string> args, int timeoutMs = 10000)
+    {
+        await StartServerAsync();
+        var psi = new ProcessStartInfo(AdbPath)
+        {
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
+        foreach (var a in args) psi.ArgumentList.Add(a);
+        using var p = Process.Start(psi)!;
+        using var cts = new CancellationTokenSource(timeoutMs);
+        try
+        {
+            using var ms = new MemoryStream();
+            var stderr = p.StandardError.ReadToEndAsync(cts.Token);
+            await p.StandardOutput.BaseStream.CopyToAsync(ms, cts.Token);
+            await p.WaitForExitAsync(cts.Token);
+            await stderr;
+            return p.ExitCode == 0 && ms.Length > 0 ? ms.ToArray() : null;
+        }
+        catch (OperationCanceledException)
+        {
+            try { p.Kill(true); } catch { }
+            return null;
+        }
+    }
+
     public Task<AdbResult> ShellAsync(string serial, string command, int timeoutMs = 20000) =>
         RunAsync(["-s", serial, "shell", command], timeoutMs);
 

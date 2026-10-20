@@ -26,6 +26,14 @@ if (args.Length >= 3 && args[1] == "--live")
     Console.WriteLine($"unknown: {unknown.Count}: {string.Join(", ", unknown)}");
     var (url, complete) = IssueReport.Build(dev, unknown, Catalog.Version);
     Console.WriteLine($"issue url {url.Length} chars, complete={complete}");
+    var h = await TvHealth.ReadAsync(adb, args[2]);
+    Console.WriteLine($"health: mem {h.MemAvailableMb}/{h.MemTotalMb} MB, storage {h.StorageFreeMb}/{h.StorageTotalMb} MB, load {h.Load} on {h.Cores}, up {h.UptimeHours:0.0} h");
+    foreach (var p in h.TopMemory) Console.WriteLine($"  {p.Mb,5} MB {p.Name}");
+    foreach (var c in h.Crashing) Console.WriteLine($"  crashing: {c.Package} x{c.Restarts} keep={Catalog.IsKeep(c.Package)}");
+    var back = await ReturnCheck.FindAsync(adb, dev);
+    Console.WriteLine(back is null ? "returned: nothing" : $"returned since {back.Since}: apps [{string.Join(", ", back.Packages)}] settings [{string.Join(", ", back.Settings.Select(x => x.Key + "=" + x.NewValue))}]");
+    var shot = await adb.RunBinaryAsync(["-s", args[2], "exec-out", "screencap", "-p"]);
+    Console.WriteLine($"screenshot: {shot?.Length ?? 0} bytes");
     return;
 }
 Directory.CreateDirectory(outDir);
@@ -140,6 +148,48 @@ Shot("apply-working-light-fr", ThemeVariant.Light, "fr", m =>
     return a;
 });
 Shot("restore-light-en", ThemeVariant.Light, "en", m => new RestoreViewModel(m, tv));
+
+// Tool pages, with made-up readings.
+var demoHealth = new HealthReport
+{
+    MemTotalMb = 2875, MemAvailableMb = 610, StorageTotalMb = 8180, StorageFreeMb = 4870,
+    Load = 2.4, Cores = 4, UptimeHours = 51,
+    TopMemory =
+    [
+        new("com.google.android.youtube.tv", 212), new("com.google.android.gms", 179),
+        new("com.google.android.katniss", 151), new("system", 99), new("com.example.launcher", 64),
+        new("com.google.android.apps.mediashell", 46),
+    ],
+    Crashing = [new("tv.samba.ssm", 12)],
+};
+Shot("health-light-en", ThemeVariant.Light, "en", m => new HealthViewModel(m, tv, read: false) { Report = demoHealth }, 1000);
+Shot("health-dark-fr", ThemeVariant.Dark, "fr", m => new HealthViewModel(m, tv, read: false) { Report = demoHealth }, 1000);
+Shot("install-light-en", ThemeVariant.Light, "en", m => new InstallViewModel(m, tv));
+Shot("remote-dark-en", ThemeVariant.Dark, "en", m =>
+{
+    // A stand-in for the TV picture: a dark home screen with a few tiles.
+    var screen = new Avalonia.Controls.Canvas { Width = 1280, Height = 720, Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#14161B")) };
+    var colors = new[] { "#3B72F0", "#E0533D", "#2DA36B", "#8E5BD9", "#E2A33A" };
+    for (var i = 0; i < 5; i++)
+    {
+        var tile = new Avalonia.Controls.Border { Width = 210, Height = 120, CornerRadius = new CornerRadius(12), Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse(colors[i])) };
+        Avalonia.Controls.Canvas.SetLeft(tile, 80 + i * 230);
+        Avalonia.Controls.Canvas.SetTop(tile, 300);
+        screen.Children.Add(tile);
+    }
+    screen.Measure(new Size(1280, 720));
+    screen.Arrange(new Rect(0, 0, 1280, 720));
+    var bmp = new Avalonia.Media.Imaging.RenderTargetBitmap(new PixelSize(1280, 720));
+    bmp.Render(screen);
+    return new RemoteViewModel(m, tv, live: false) { Screen = bmp };
+});
+Shot("choose-returned-light-en", ThemeVariant.Light, "en", m =>
+{
+    var c = new ChooseViewModel(m, tv) { LastChoices = null };
+    c.Returned = new ReturnedItems(new DateTime(2026, 10, 12, 20, 15, 0), ["com.google.android.feedback"],
+        [new SettingChange { Namespace = "device_config:activity_manager", Key = "max_cached_processes", NewValue = "16" }]);
+    return c;
+});
 
 // Update dialog with made-up notes, and a real check against GitHub.
 void UpdateShot(string name, ThemeVariant theme, string lang)

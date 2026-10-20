@@ -37,6 +37,15 @@
 - **Libère de l'espace** en vidant les caches des applications, et indique combien.
 - **La liste des applications se met à jour toute seule** : les nouvelles entrées de
   [`shared/catalog.json`](shared/catalog.json) arrivent dans l'application sans nouvelle version.
+- **Repère quand une mise à jour annule le nettoyage** : les mises à jour du système et les services
+  Google Play réactivent parfois des applications ou réinitialisent des réglages. À la reconnexion,
+  l'application montre ce qui est revenu et le recoche en un clic.
+- **Bilan de santé** : mémoire, stockage, processeur, applications qui utilisent le plus de mémoire
+  et applications qui plantent en boucle, avec des conseils simples. Lecture seule.
+- **Écran et télécommande** : voyez l'écran du téléviseur en direct et pilotez-le depuis l'ordinateur
+  (flèches, OK, Retour, Accueil, volume, et saisie de texte dans les champs de recherche ou de mot de passe).
+- **Installer une application** : déposez un `.apk` sur la fenêtre pour l'installer, pratique sur les
+  téléviseurs sans Play Store.
 - **Aidez à améliorer la liste** : les applications préinstallées inconnues peuvent être proposées
   sur GitHub en un clic (seulement le modèle et les noms d'applications ; vous voyez tout avant de publier).
 - **Se met à jour toute seule** : quand une nouvelle version sort, elle affiche les nouveautés et

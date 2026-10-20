@@ -1,0 +1,75 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="using:AndroidTVDebloater.Localization"
+             x:Class="AndroidTVDebloater.Views.RemoteView"
+             Focusable="True">
+  <UserControl.Styles>
+    <Style Selector="Button.key">
+      <Setter Property="Width" Value="64" />
+      <Setter Property="Height" Value="48" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="CornerRadius" Value="12" />
+      <Setter Property="FontSize" Value="16" />
+    </Style>
+    <Style Selector="Button.key.ok">
+      <Setter Property="CornerRadius" Value="24" />
+    </Style>
+    <Style Selector="Button.wide">
+      <Setter Property="MinWidth" Value="64" />
+      <Setter Property="Height" Value="38" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+    </Style>
+  </UserControl.Styles>
+
+  <Grid ColumnDefinitions="*,Auto" Margin="36,32,36,32" ColumnSpacing="28">
+    <!-- The TV screen -->
+    <StackPanel Spacing="12">
+      <StackPanel Spacing="8" Margin="0,0,0,4">
+        <TextBlock Classes="h1" Text="{l:T Remote_Title}" />
+        <TextBlock Classes="lead" Text="{l:T Remote_Lead}" />
+      </StackPanel>
+      <Border Background="Black" CornerRadius="10" ClipToBounds="True" MinHeight="240">
+        <Panel>
+          <Image Source="{Binding Screen}" Stretch="Uniform" />
+          <TextBlock Text="{l:T Remote_Loading}" Foreground="#99FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center"
+                     IsVisible="{Binding Screen, Converter={x:Static ObjectConverters.IsNull}}" />
+        </Panel>
+      </Border>
+      <StackPanel Orientation="Horizontal" Spacing="14">
+        <CheckBox Content="{l:T Remote_Live}" IsChecked="{Binding IsLive}" VerticalAlignment="Center" />
+        <Button Content="{l:T Health_Refresh}" Command="{Binding RefreshOnceCommand}" IsVisible="{Binding !IsLive}" />
+      </StackPanel>
+      <TextBlock Classes="faint" Text="{l:T Remote_Protected}" TextWrapping="Wrap" />
+    </StackPanel>
+
+    <!-- The remote -->
+    <Border Grid.Column="1" Classes="card" VerticalAlignment="Top" Margin="0,92,0,0" Padding="22">
+      <StackPanel Spacing="16" Width="230">
+        <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto" HorizontalAlignment="Center" ColumnSpacing="8" RowSpacing="8">
+          <Button Grid.Column="1" Classes="key" Content="▲" Command="{Binding KeyCommand}" CommandParameter="19" />
+          <Button Grid.Row="1" Classes="key" Content="◀" Command="{Binding KeyCommand}" CommandParameter="21" />
+          <Button Grid.Row="1" Grid.Column="1" Classes="key ok accent" Content="OK" Command="{Binding KeyCommand}" CommandParameter="23" />
+          <Button Grid.Row="1" Grid.Column="2" Classes="key" Content="▶" Command="{Binding KeyCommand}" CommandParameter="22" />
+          <Button Grid.Row="2" Grid.Column="1" Classes="key" Content="▼" Command="{Binding KeyCommand}" CommandParameter="20" />
+        </Grid>
+        <UniformGrid Columns="3">
+          <Button Classes="wide" Margin="2" Content="{l:T Remote_Back}" Command="{Binding KeyCommand}" CommandParameter="4" />
+          <Button Classes="wide" Margin="2" Content="{l:T Remote_Home}" Command="{Binding KeyCommand}" CommandParameter="3" />
+          <Button Classes="wide" Margin="2" Content="{l:T Remote_Menu}" Command="{Binding KeyCommand}" CommandParameter="82" />
+          <Button Classes="wide" Margin="2" Content="{l:T Remote_Play}" Command="{Binding KeyCommand}" CommandParameter="85" />
+          <Button Classes="wide" Margin="2" Content="{l:T Remote_VolDown}" Command="{Binding KeyCommand}" CommandParameter="25" />
+          <Button Classes="wide" Margin="2" Content="{l:T Remote_VolUp}" Command="{Binding KeyCommand}" CommandParameter="24" />
+        </UniformGrid>
+        <StackPanel Spacing="6">
+          <TextBlock Classes="label" Text="{l:T Remote_TypeLabel}" />
+          <DockPanel>
+            <Button DockPanel.Dock="Right" Margin="6,0,0,0" Content="{l:T Remote_Send}" Command="{Binding SendTextCommand}" />
+            <TextBox Name="TypeBox" Text="{Binding TextToSend}" Watermark="{l:T Remote_TypeHint}" />
+          </DockPanel>
+        </StackPanel>
+        <TextBlock Classes="faint" TextWrapping="Wrap" Text="{l:T Remote_Keys}" />
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>
