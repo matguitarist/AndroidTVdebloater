@@ -62,6 +62,8 @@ public static class Catalog
         public Text Description { get; set; } = new();
         public Text? Warning { get; set; }
     }
+    /// <summary>A known system part that must stay on: never offered, never reported as unknown.</summary>
+    private sealed class KeepDef { public string Id { get; set; } = ""; }
     private sealed class OptionDef { public Text Label { get; set; } = new(); public string Value { get; set; } = ""; }
     private sealed class WriteDef { public string Namespace { get; set; } = ""; public string Key { get; set; } = ""; public string Value { get; set; } = ""; }
     private sealed class WhenDef
@@ -93,6 +95,7 @@ public static class Catalog
         public List<GroupDef> Groups { get; set; } = [];
         public List<PackageDef> Packages { get; set; } = [];
         public List<SettingDef> Settings { get; set; } = [];
+        public List<KeepDef> Keep { get; set; } = [];
     }
 
     private static readonly JsonSerializerOptions Json = new()
@@ -159,6 +162,7 @@ public static class Catalog
     private static LocText L(Text t) => new(t.En, t.Fr);
 
     private static bool IsKnown(CatalogFile c, string pkg) =>
+        c.Keep.Any(k => k.Id == pkg) ||
         c.Packages.Any(p => p.Id == pkg || (p.Prefix is { Length: > 0 } pre && pkg.StartsWith(pre)));
 
     public static List<TweakGroup> Build(TvDevice dev)
@@ -194,7 +198,7 @@ public static class Catalog
         // Apps installed on top of the system that the catalog doesn't know.
         foreach (var pkg in dev.ThirdParty.Where(dev.Enabled.Contains).OrderBy(p => p))
         {
-            if (used.Contains(pkg) || dev.IsProtected(pkg)) continue;
+            if (used.Contains(pkg) || dev.IsProtected(pkg) || c.Keep.Any(k => k.Id == pkg)) continue;
             groups["other"].Tweaks.Add(new PackageTweak
             {
                 Id = "pkg:" + pkg, GroupId = "other", Package = pkg, Recommended = false,

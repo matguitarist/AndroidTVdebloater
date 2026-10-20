@@ -21,6 +21,8 @@ enum Catalog {
         var warning: LocText?
     }
     struct OptionDef: Codable { var label: LocText; var value: String }
+    /// A known system part that must stay on: never offered, never reported as unknown.
+    struct KeepDef: Codable { var id: String }
     struct WhenDef: Codable {
         var minSdk: Int?
         var network: String?
@@ -47,6 +49,7 @@ enum Catalog {
         var groups: [GroupDef]
         var packages: [PackageDef]
         var settings: [SettingDef]?
+        var keep: [KeepDef]?
     }
 
     /// Nil if the data isn't a catalog this version can use.
@@ -84,8 +87,10 @@ enum Catalog {
         current = remote
     }
 
+    private static func isKeep(_ c: File, _ pkg: String) -> Bool { (c.keep ?? []).contains { $0.id == pkg } }
+
     private static func isKnown(_ c: File, _ pkg: String) -> Bool {
-        c.packages.contains { $0.id == pkg || ($0.prefix.map { !$0.isEmpty && pkg.hasPrefix($0) } ?? false) }
+        isKeep(c, pkg) || c.packages.contains { $0.id == pkg || ($0.prefix.map { !$0.isEmpty && pkg.hasPrefix($0) } ?? false) }
     }
 
     @MainActor static func build(_ dev: TvDevice) -> [TweakGroup] {
@@ -109,7 +114,7 @@ enum Catalog {
 
         // Apps installed on top of the system that the catalog doesn't know.
         for pkg in dev.thirdParty.filter({ dev.enabled.contains($0) }).sorted()
-        where !used.contains(pkg) && !dev.isProtected(pkg) {
+        where !used.contains(pkg) && !dev.isProtected(pkg) && !isKeep(c, pkg) {
             let name = friendlyName(pkg)
             groups["other"]?.tweaks.append(Tweak(
                 id: "pkg:" + pkg, groupId: "other", recommended: false,
