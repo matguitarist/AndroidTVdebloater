@@ -96,7 +96,8 @@ set-top boxes that many TV operators rent out.
 **Fire TV** (tested on a Fire TV Stick 4K Max, Fire OS 7.6) connects the same way. Fire OS refuses
 to switch off Amazon's own apps, so the app doesn't offer them. It shows which of Amazon's tracking
 switches are still on and opens the TV's menu to turn them off, and the speed and DNS settings work
-as usual.
+as usual. Another home screen can't fully replace Amazon's: tested with Projectivy, it takes over the
+Home button only after Android's 5-second delay, so Amazon's home screen still shows first.
 
 **Not supported:** Samsung (Tizen), LG (webOS), Roku and Apple TV run other systems. On a Samsung
 TV, turn off tracking in **Settings → General → Terms & Privacy** (Viewing Information Services,

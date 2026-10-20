@@ -106,7 +106,9 @@ décodeurs Android TV loués par de nombreux opérateurs.
 **Fire TV** (testé sur une Fire TV Stick 4K Max, Fire OS 7.6) : se connecte de la même façon. Fire OS refuse de désactiver les applications d'Amazon :
 l'application ne les propose donc pas. Elle indique quelles options de pistage d'Amazon sont encore
 actives et ouvre le menu du téléviseur pour les désactiver ; les réglages de vitesse et le DNS
-fonctionnent comme d'habitude.
+fonctionnent comme d'habitude. Un autre écran d'accueil ne peut pas remplacer complètement
+celui d'Amazon : testé avec Projectivy, il ne prend la main sur le bouton Accueil qu'après le délai
+de 5 secondes d'Android, et l'accueil d'Amazon s'affiche donc d'abord.
 
 **Non pris en charge :** Samsung (Tizen), LG (webOS), Roku et Apple TV utilisent d'autres systèmes.
 Sur un téléviseur Samsung, désactivez le pistage dans **Paramètres → Général → Conditions et
