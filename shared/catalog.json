@@ -1,7 +1,7 @@
 {
   "// schema": "Bump 'version' on every change: apps download this file from GitHub and use it when it is newer than their own copy. Bump 'schema' only for changes older apps can't read.",
   "schema": 1,
-  "version": 7,
+  "version": 8,
   "groups": [
     {
       "id": "telemetry",
@@ -208,6 +208,10 @@
     { "id": "com.android.printspooler", "group": "extras", "recommended": true,
       "name": { "en": "Print service", "fr": "Service d'impression" },
       "description": { "en": "Printing support. A TV doesn't print.", "fr": "Prise en charge de l'impression. Un téléviseur n'imprime pas." } },
+    { "id": "com.svox.pico", "group": "extras", "recommended": false,
+      "name": { "en": "Pico text-to-speech", "fr": "Synthèse vocale Pico" },
+      "description": { "en": "Android's basic voice that reads text aloud. Most TVs use their own voice instead, or none.", "fr": "La voix de base d'Android qui lit le texte à voix haute. La plupart des téléviseurs utilisent leur propre voix, ou aucune." },
+      "warning": { "en": "Leave it on if someone uses a screen reader (TalkBack or VoiceView) that reads with this voice.", "fr": "Laissez-la active si quelqu'un utilise un lecteur d'écran (TalkBack ou VoiceView) qui lit avec cette voix." } },
     { "id": "com.google.android.syncadapters.calendar", "group": "extras", "recommended": true,
       "name": { "en": "Calendar sync", "fr": "Synchronisation de l'agenda" },
       "description": { "en": "Syncs a Google calendar nobody looks at on the TV.", "fr": "Synchronise un agenda Google que personne ne consulte sur le téléviseur." } },
