@@ -111,6 +111,29 @@ Shot("apply-working-light-fr", ThemeVariant.Light, "fr", m =>
 });
 Shot("restore-light-en", ThemeVariant.Light, "en", m => new RestoreViewModel(m, tv));
 
+// Update dialog with made-up notes, and a real check against GitHub.
+void UpdateShot(string name, ThemeVariant theme, string lang)
+{
+    Application.Current!.RequestedThemeVariant = theme;
+    Loc.Instance.Language = lang;
+    var main = new MainViewModel(new AdbService());
+    main.Updater.Update = new UpdateInfo(new Version(1, 2, 0),
+        "• Remembers the TVs you used before\n• Turns debugging off for you at the end\n• Suggests a home screen without ads",
+        "", 0, "", "");
+    main.Updater.Dialog = UpdateDialog.Available;
+    var w = new MainWindow { DataContext = main, Width = 1140, Height = 800 };
+    w.Show();
+    Dispatcher.UIThread.RunJobs();
+    w.CaptureRenderedFrame()?.Save(Path.Combine(outDir, name + ".png"));
+    w.Close();
+    Console.WriteLine(name);
+}
+UpdateShot("update-light-en", ThemeVariant.Light, "en");
+UpdateShot("update-dark-fr", ThemeVariant.Dark, "fr");
+// Off the UI thread: awaiting on it here would wait for a dispatcher nobody is running.
+Console.WriteLine($"current {UpdateService.Current}; check: {Task.Run(() => UpdateService.CheckAsync()).Result}");
+Console.WriteLine($"check as 0.9.0: {Task.Run(() => UpdateService.CheckAsync(new Version(0, 9, 0))).Result}");
+
 // App icon: the sidebar logo at Windows icon sizes (packed into Assets/app.ico by tools/make-ico.py).
 foreach (var size in new[] { 16, 24, 32, 48, 64, 256 })
 {

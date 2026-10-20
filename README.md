@@ -25,6 +25,8 @@
   on the TV, makes it the home screen once installed, and can put the original one back.
 - **Turns debugging off for you** at the end, then **Start over** to clean the next TV. TVs you
   used before are listed on the Connect page.
+- **Updates itself**: when a new version is out, it shows what's new and installs it in a few
+  seconds (the download is checked against the SHA-256 GitHub publishes). Can be turned off.
 - **English and French**, switchable at any time. Light and dark themes follow Windows.
 
 Nothing is uninstalled. Apps are disabled with Android's own `pm disable-user`, and a factory reset

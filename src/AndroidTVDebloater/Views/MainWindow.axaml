@@ -138,7 +138,17 @@
                            IsChecked="{Binding Loc.IsFrench, Mode=TwoWay}" />
             </StackPanel>
           </DockPanel>
-          <TextBlock Classes="faint" Text="{Binding Version}" />
+          <DockPanel>
+            <TextBlock Classes="faint" Text="{Binding Version}" VerticalAlignment="Center" />
+            <Button Classes="link" HorizontalAlignment="Right" FontSize="12"
+                    Command="{Binding Updater.CheckNowCommand}" IsEnabled="{Binding !Updater.IsChecking}">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <Ellipse Width="7" Height="7" Fill="{DynamicResource SystemAccentColor}" VerticalAlignment="Center"
+                         IsVisible="{Binding Updater.HasUpdate}" />
+                <TextBlock Text="{Binding Updater.SidebarText}" Foreground="{DynamicResource AccentFg}" FontSize="12" />
+              </StackPanel>
+            </Button>
+          </DockPanel>
         </StackPanel>
         <Panel />
       </DockPanel>
@@ -146,5 +156,8 @@
 
     <!-- Current page -->
     <ContentControl Grid.Column="1" Content="{Binding CurrentPage}" />
+
+    <!-- Update dialog, over everything -->
+    <v:UpdatePanel Grid.ColumnSpan="2" DataContext="{Binding Updater}" IsVisible="{Binding IsOpen}" />
   </Grid>
 </Window>

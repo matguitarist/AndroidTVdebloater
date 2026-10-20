@@ -1,0 +1,70 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="using:AndroidTVDebloater.Localization"
+             x:Class="AndroidTVDebloater.Views.UpdatePanel">
+  <!-- Dimmed backdrop with a dialog in the middle, like Sparkle on macOS -->
+  <Panel Background="#99000000">
+    <Border Classes="card" Width="560" Padding="26,24" HorizontalAlignment="Center" VerticalAlignment="Center"
+            BoxShadow="0 12 40 0 #40000000">
+      <StackPanel Spacing="16">
+        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+          <Border Width="52" Height="52" CornerRadius="13" Background="{DynamicResource SystemAccentColor}" VerticalAlignment="Top">
+            <Path Stroke="White" StrokeThickness="2" StrokeLineCap="Round" StrokeJoin="Round"
+                  Width="26" Height="26" Stretch="Uniform"
+                  Data="M12 4 V15 M7 10 L12 15 L17 10 M5 20 H19" />
+          </Border>
+
+          <!-- New version -->
+          <StackPanel Grid.Column="1" Spacing="6" IsVisible="{Binding ShowAvailable}">
+            <TextBlock Classes="h2" Text="{l:T Update_Title}" />
+            <TextBlock Classes="muted" Text="{Binding AvailableText}" />
+          </StackPanel>
+          <!-- Nothing new -->
+          <StackPanel Grid.Column="1" Spacing="6" IsVisible="{Binding ShowUpToDate}">
+            <TextBlock Classes="h2" Text="{l:T Update_UpToDateTitle}" />
+            <TextBlock Classes="muted" Text="{Binding UpToDateText}" />
+          </StackPanel>
+          <!-- Offline or GitHub unreachable -->
+          <StackPanel Grid.Column="1" Spacing="6" IsVisible="{Binding ShowFailed}">
+            <TextBlock Classes="h2" Text="{l:T Update_FailedTitle}" />
+            <TextBlock Classes="muted" Text="{l:T Update_FailedText}" />
+          </StackPanel>
+        </Grid>
+
+        <StackPanel Spacing="8" IsVisible="{Binding ShowAvailable}">
+          <DockPanel>
+            <Button DockPanel.Dock="Right" Classes="link" FontSize="12" Content="{l:T Update_OnGitHub}" Command="{Binding OpenReleasePageCommand}" />
+            <TextBlock Classes="label" Text="{l:T Update_Notes}" />
+          </DockPanel>
+          <Border Background="{DynamicResource AppBg}" CornerRadius="8" Padding="14,12">
+            <ScrollViewer MaxHeight="220">
+              <SelectableTextBlock Text="{Binding Notes}" TextWrapping="Wrap" LineHeight="20" Foreground="{DynamicResource TextMain}" />
+            </ScrollViewer>
+          </Border>
+        </StackPanel>
+
+        <StackPanel Spacing="6" IsVisible="{Binding IsDownloading}">
+          <TextBlock Classes="faint" Text="{l:T Update_Downloading}" />
+          <ProgressBar Value="{Binding Progress}" Maximum="100" />
+        </StackPanel>
+
+        <Border Classes="err" IsVisible="{Binding Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+          <TextBlock Text="{Binding Error}" Foreground="{DynamicResource ErrFg}" TextWrapping="Wrap" />
+        </Border>
+
+        <CheckBox Content="{l:T Update_Auto}" IsChecked="{Binding AutoCheck}" />
+
+        <!-- Buttons -->
+        <DockPanel IsVisible="{Binding ShowAvailable}" IsEnabled="{Binding !IsDownloading}">
+          <Button DockPanel.Dock="Left" Content="{l:T Update_Skip}" Command="{Binding SkipCommand}" />
+          <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
+            <Button Content="{l:T Update_Later}" Command="{Binding LaterCommand}" />
+            <Button Classes="accent" Content="{Binding InstallText}" Command="{Binding InstallCommand}" />
+          </StackPanel>
+        </DockPanel>
+        <Button Classes="accent" HorizontalAlignment="Right" MinWidth="90" HorizontalContentAlignment="Center"
+                Content="{l:T Update_Ok}" Command="{Binding LaterCommand}" IsVisible="{Binding !ShowAvailable}" />
+      </StackPanel>
+    </Border>
+  </Panel>
+</UserControl>

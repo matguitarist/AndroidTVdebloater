@@ -30,7 +30,8 @@ public sealed partial class MainViewModel : ObservableObject
 {
     public AdbService Adb { get; }
     public Loc Loc => Loc.Instance;
-    public string Version => "v" + (typeof(MainViewModel).Assembly.GetName().Version?.ToString(3) ?? "1.0.0");
+    public string Version => "v" + UpdateService.Current;
+    public UpdaterViewModel Updater { get; }
 
     public ObservableCollection<StepInfo> Steps { get; } =
     [
@@ -50,18 +51,20 @@ public sealed partial class MainViewModel : ObservableObject
     {
         Adb = adb;
         _currentPage = new WelcomeViewModel(this);
+        Updater = new UpdaterViewModel(this);
         RefreshSteps();
         Loc.Instance.LanguageChanged += () =>
         {
             foreach (var s in Steps) s.Refresh();
             CurrentPage.OnLanguageChanged();
+            Updater.OnLanguageChanged();
         };
     }
 
     partial void OnCurrentPageChanged(PageViewModel value) => RefreshSteps();
 
     /// <summary>Changes are being made to the TV: don't let the user leave the page.</summary>
-    private bool IsBusy => CurrentPage is ApplyViewModel { IsFinished: false } or RestoreViewModel { IsBusy: true };
+    public bool IsBusy => CurrentPage is ApplyViewModel { IsFinished: false } or RestoreViewModel { IsBusy: true };
 
     public void RefreshSteps()
     {

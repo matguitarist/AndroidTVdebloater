@@ -31,6 +31,9 @@
   Play Store du téléviseur, en fait l'écran d'accueil une fois installé, et peut remettre celui d'origine.
 - **Désactive le débogage pour vous** à la fin, puis **Recommencer** pour nettoyer le téléviseur
   suivant. Les téléviseurs déjà utilisés sont listés sur la page Connecter.
+- **Se met à jour toute seule** : quand une nouvelle version sort, elle affiche les nouveautés et
+  l'installe en quelques secondes (le téléchargement est vérifié avec le SHA-256 publié par GitHub).
+  Désactivable.
 - **Français et anglais**, modifiable à tout moment. Thèmes clair et sombre selon Windows.
 
 Rien n'est désinstallé. Les applications sont désactivées avec la commande Android `pm disable-user`,

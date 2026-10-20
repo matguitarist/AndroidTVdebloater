@@ -1,6 +1,5 @@
 using System.ComponentModel;
 using System.Globalization;
-using System.Text.Json;
 using Avalonia.Data;
 using Avalonia.Markup.Xaml;
 
@@ -18,8 +17,9 @@ public sealed class Loc : INotifyPropertyChanged
 
     private Loc()
     {
-        _language = LoadSavedLanguage()
-                    ?? (CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "fr" ? "fr" : "en");
+        _language = Services.AppSettings.Current.Language is "en" or "fr"
+            ? Services.AppSettings.Current.Language
+            : (CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "fr" ? "fr" : "en");
     }
 
     public string Language
@@ -29,7 +29,8 @@ public sealed class Loc : INotifyPropertyChanged
         {
             if (value == _language || (value != "en" && value != "fr")) return;
             _language = value;
-            SaveLanguage(value);
+            Services.AppSettings.Current.Language = value;
+            Services.AppSettings.Current.Save();
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Language)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsFrench)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsEnglish)));
@@ -53,30 +54,6 @@ public sealed class Loc : INotifyPropertyChanged
 
     public static string Format(string key, params object[] args) =>
         string.Format(CultureInfo.CurrentCulture, Get(key), args);
-
-    private static string SettingsPath =>
-        Path.Combine(Services.AdbService.DataDir, "settings.json");
-
-    private static string? LoadSavedLanguage()
-    {
-        try
-        {
-            if (!File.Exists(SettingsPath)) return null;
-            using var doc = JsonDocument.Parse(File.ReadAllText(SettingsPath));
-            return doc.RootElement.TryGetProperty("language", out var l) ? l.GetString() : null;
-        }
-        catch { return null; }
-    }
-
-    private static void SaveLanguage(string lang)
-    {
-        try
-        {
-            Directory.CreateDirectory(Services.AdbService.DataDir);
-            File.WriteAllText(SettingsPath, JsonSerializer.Serialize(new { language = lang }));
-        }
-        catch { /* the choice just won't be remembered */ }
-    }
 }
 
 /// <summary>Text in both languages, for catalog entries.</summary>

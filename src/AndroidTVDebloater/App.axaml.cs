@@ -15,8 +15,10 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            UpdateService.CleanUpAfterUpdate();
             var main = new MainViewModel(new AdbService());
             desktop.MainWindow = new MainWindow { DataContext = main };
+            _ = main.Updater.CheckInBackgroundAsync();
             // Leave no adb server running in the background once the app is closed.
             desktop.Exit += (_, _) => main.Adb.KillServer();
         }
