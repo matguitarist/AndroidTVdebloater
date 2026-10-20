@@ -17,7 +17,14 @@ public static partial class UpdateService
 {
     private const string Repo = "matguitarist/AndroidTVdebloater";
     /// <summary>The release file for this system. The Mac app is a separate Swift app with its own updater.</summary>
-    private static string AssetName => OperatingSystem.IsWindows() ? "AndroidTVDebloater.exe" : "AndroidTVDebloater-linux-x64";
+    private static string AssetName =>
+        OperatingSystem.IsWindows() ? "AndroidTVDebloater.exe"
+        : AppImagePath is not null ? "AndroidTVDebloater-x86_64.AppImage"
+        : "AndroidTVDebloater-linux-x64";
+
+    /// <summary>Set by the AppImage runtime: the .AppImage file this copy was started from.</summary>
+    private static string? AppImagePath =>
+        OperatingSystem.IsLinux() && Environment.GetEnvironmentVariable("APPIMAGE") is { Length: > 0 } p ? p : null;
     public const string ReleasesPage = $"https://github.com/{Repo}/releases/latest";
 
     public static Version Current => Normalize(typeof(UpdateService).Assembly.GetName().Version ?? new Version(1, 0, 0));
@@ -77,7 +84,9 @@ public static partial class UpdateService
     [GeneratedRegex(@"^\s*[-*]\s+", RegexOptions.Multiline)] private static partial Regex BulletRegex();
     [GeneratedRegex(@"\[([^\]]+)\]\([^)]+\)")] private static partial Regex LinkRegex();
 
-    private static string? ExePath => Environment.ProcessPath;
+    /// <summary>The file to replace: the .AppImage itself (the program inside runs from a read-only
+    /// mount), otherwise the running program.</summary>
+    private static string? ExePath => AppImagePath ?? Environment.ProcessPath;
 
     /// <summary>
     /// Only the published Windows or Linux build can replace itself, and only where it is allowed to write.

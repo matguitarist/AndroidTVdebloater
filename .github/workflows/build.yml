@@ -25,20 +25,34 @@ jobs:
           path: publish/AndroidTVDebloater.exe
 
   linux:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
-      - name: Publish single-file program
+      - name: Build the AppImage
+        run: linux/build-appimage.sh
+      - name: Plain program too (older copies update from it)
+        run: cp linux/build/publish/AndroidTVDebloater linux/build/AndroidTVDebloater-linux-x64
+      # Start it on a virtual screen: still running after 15 s means it launched.
+      - name: Check that the AppImage starts
         run: |
-          dotnet publish src/AndroidTVDebloater -c Release -r linux-x64 -o publish
-          mv publish/AndroidTVDebloater publish/AndroidTVDebloater-linux-x64
+          sudo apt-get install -y -qq xvfb libfuse2 > /dev/null
+          set +e
+          xvfb-run -a timeout 15 linux/build/AndroidTVDebloater-x86_64.AppImage
+          code=$?
+          set -e
+          echo "exit code $code"
+          test "$code" -eq 124
       - uses: actions/upload-artifact@v4
         with:
           name: linux
-          path: publish/AndroidTVDebloater-linux-x64
+          path: |
+            linux/build/AndroidTVDebloater-x86_64.AppImage
+            linux/build/AndroidTVDebloater-x86_64.AppImage.zsync
+            linux/build/AndroidTVDebloater-linux-x64
+          if-no-files-found: error
 
   # Native SwiftUI app, universal (Apple silicon and Intel). On version tags it is signed with the
   # Developer ID certificate, notarized, stapled, and an appcast.xml is written for Sparkle.
@@ -134,12 +148,14 @@ jobs:
         run: |
           git fetch --force origin "refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}"
           git tag -l --format='%(contents:body)' "${GITHUB_REF_NAME}" > notes.md
-          chmod +x dist/AndroidTVDebloater-linux-x64
+          chmod +x dist/AndroidTVDebloater-linux-x64 dist/AndroidTVDebloater-x86_64.AppImage
       - uses: softprops/action-gh-release@v2
         with:
           body_path: notes.md
           files: |
             dist/AndroidTVDebloater.exe
             dist/AndroidTVDebloater-linux-x64
+            dist/AndroidTVDebloater-x86_64.AppImage
+            dist/AndroidTVDebloater-x86_64.AppImage.zsync
             dist/AndroidTVDebloater-mac.zip
             dist/appcast.xml

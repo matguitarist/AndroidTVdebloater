@@ -49,7 +49,7 @@ else to install: the first time, the app downloads Google's official ADB tools (
 |---|---|---|
 | **Windows** 10/11 | `AndroidTVDebloater.exe` | SmartScreen may warn about an unknown publisher (the app isn't code-signed): **More info → Run anyway**. |
 | **macOS** 14+ | `AndroidTVDebloater-mac.zip` | A native Mac app (SwiftUI), for Apple silicon and Intel, signed and notarized by Apple. Unzip, move it to Applications and open it. Allow it to find devices on the local network when asked. Updates arrive through Sparkle. |
-| **Linux** x64 | `AndroidTVDebloater-linux-x64` | `chmod +x AndroidTVDebloater-linux-x64` and run it. |
+| **Linux** x64 | `AndroidTVDebloater-x86_64.AppImage` | Runs on most distributions (Ubuntu 22.04 and newer, Fedora, Debian, Mint…). Make it executable (`chmod +x`, or Properties → Allow executing) and open it. It updates itself; AppImage managers such as Gear Lever can update it too. A plain `AndroidTVDebloater-linux-x64` program is also attached. |
 
 ![The Mac app](docs/mac-welcome-en.png)
 
@@ -98,6 +98,7 @@ set-top boxes that many TV operators rent out. Fire TV works for the app list.
 ## Build from source
 
 Windows and Linux app: requires the [.NET 10 SDK](https://dotnet.microsoft.com/download).
+`linux/build-appimage.sh` builds the AppImage on Linux.
 
 ```sh
 # Run it (on macOS/Linux it runs too, handy for development)

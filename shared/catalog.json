@@ -1,7 +1,7 @@
 {
   "// schema": "Bump 'version' on every change: apps download this file from GitHub and use it when it is newer than their own copy. Bump 'schema' only for changes older apps can't read.",
   "schema": 1,
-  "version": 4,
+  "version": 5,
   "groups": [
     {
       "id": "telemetry",
@@ -199,10 +199,6 @@
     { "id": "com.google.android.tungsten.setupwraith", "group": "extras", "recommended": true, "requiresSetupComplete": true,
       "name": { "en": "Setup wizard", "fr": "Assistant de configuration" },
       "description": { "en": "Only used the first time the TV is set up, yet stays in memory.", "fr": "Sert uniquement à la première configuration, mais reste en mémoire." } },
-    { "id": "com.omni.simplesetup", "group": "extras", "recommended": false, "requiresSetupComplete": true,
-      "name": { "en": "Set-top box setup wizard", "fr": "Assistant de configuration du décodeur" },
-      "description": { "en": "The operator's first-run setup, which stays in memory afterwards.", "fr": "La configuration initiale de l'opérateur, qui reste en mémoire ensuite." },
-      "warning": { "en": "Turn it back on from Restore before a factory reset or if the operator asks you to set the box up again.", "fr": "Réactivez-le depuis Restaurer avant une réinitialisation ou si l'opérateur vous demande de reconfigurer le décodeur." } },
     { "id": "com.google.android.partnersetup", "group": "extras", "recommended": true,
       "name": { "en": "Partner setup", "fr": "Configuration partenaire" },
       "description": { "en": "First-run partner customisation.", "fr": "Personnalisation partenaire au premier démarrage." } },
@@ -321,6 +317,7 @@
     { "id": "com.sagemcom.stb.led", "why": "Front light (on, standby). Tiny, and the light can get stuck without it." },
     { "id": "com.sagemcom.apkupgrade", "why": "Keeps the operator's apps up to date." },
     { "id": "com.sagemcom.factorysetup", "why": "Factory tools and reset; doesn't run normally." },
+    { "id": "com.omni.simplesetup", "why": "The operator's setup wizard; needed again after a reset or a new setup." },
     { "id": "com.omni.ota", "why": "Firmware and security updates." },
     { "id": "com.realsil.ota.sample", "why": "Firmware updates for the Bluetooth remote." }
   ],
