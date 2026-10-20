@@ -25,4 +25,7 @@ fi
 ARCH=x86_64 "$TOOL" --appimage-extract-and-run -n \
   -u "gh-releases-zsync|matguitarist|AndroidTVdebloater|latest|AndroidTVDebloater-x86_64.AppImage.zsync" \
   "$APPDIR" build/AndroidTVDebloater-x86_64.AppImage
+# appimagetool writes the .zsync into the current folder.
+mv -f AndroidTVDebloater-x86_64.AppImage.zsync build/ 2>/dev/null || true
+test -f build/AndroidTVDebloater-x86_64.AppImage.zsync
 echo "Built linux/build/AndroidTVDebloater-x86_64.AppImage"

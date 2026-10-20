@@ -127,6 +127,8 @@ jobs:
       - name: Publish test exe
         run: dotnet publish tools/UpdateSwapTest -c Release -r win-x64 -o swaptest
       - name: Update itself from the latest release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: .\swaptest\UpdateSwapTest.exe
       - name: Close the copy the update started
         if: always()

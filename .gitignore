@@ -11,3 +11,4 @@ mac/build/
 swaptest/
 mac/.tools/
 linux/build/
+linux/*.zsync

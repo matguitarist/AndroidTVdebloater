@@ -36,6 +36,9 @@ public static partial class UpdateService
     {
         var http = new HttpClient { Timeout = timeout };
         http.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("AndroidTVDebloater", Current.ToString()));
+        // CI only: shared build machines hit GitHub's anonymous rate limit, so tests use their token.
+        if (Environment.GetEnvironmentVariable("GITHUB_TOKEN") is { Length: > 0 } token)
+            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         return http;
     }
 
