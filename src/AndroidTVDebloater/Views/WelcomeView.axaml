@@ -84,6 +84,7 @@
             <Border Grid.Row="3" Classes="num"><TextBlock Text="4" /></Border>
             <TextBlock Grid.Row="3" Grid.Column="1" Classes="muted" Text="{l:T Welcome_Step4}" />
           </Grid>
+          <TextBlock Classes="muted" Text="{l:T Welcome_StepFire}" />
           <Border Classes="note">
             <TextBlock Classes="muted" Text="{l:T Welcome_Supported}" />
           </Border>

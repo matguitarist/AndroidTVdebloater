@@ -262,6 +262,8 @@ public static class Catalog
             .Where(o => o.Installed is null || dev.IsInstalled(o.Installed))
             .Select(o => new TweakOption(L(o.Label), o.Value, o.Keeps)).ToList();
         var recommended = def.Recommended || (def.RecommendedWhen is not null && Matches(def.RecommendedWhen, dev));
+        // Not yet tested on Fire OS, whose own screensaver may ignore the setting.
+        if (dev.IsFireTv && def.Kind == "screensaver") recommended = false;
         var title = L(def.Name);
         var warning = def.Warning is null ? null : L(def.Warning);
 

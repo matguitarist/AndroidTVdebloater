@@ -3,12 +3,13 @@
 <h1 align="center">Android TV Debloater</h1>
 
 <p align="center">
-  Turn off the ads, tracking and preinstalled apps on any Android TV or Google TV.<br>
+  Turn off the ads, tracking and preinstalled apps on any Android TV, Google TV or Fire TV.<br>
   For Windows, macOS and Linux. Plain-language choices, a backup of everything, one-click undo.
 </p>
 
 <p align="center">
   <a href="../../releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/matguitarist/AndroidTVdebloater?label=download"></a>
+  <img alt="Android TV, Google TV, Fire TV" src="https://img.shields.io/badge/Android%20TV%20%C2%B7%20Google%20TV%20%C2%B7%20Fire%20TV-green">
   <img alt="Windows, macOS, Linux" src="https://img.shields.io/badge/Windows%20%C2%B7%20macOS%20%C2%B7%20Linux-blue">
   <a href="LICENSE"><img alt="MIT licence" src="https://img.shields.io/github/license/matguitarist/AndroidTVdebloater"></a>
   <br><a href="README.fr.md">Version française</a>
@@ -70,6 +71,7 @@ reset brings everything back too. English and French; light and dark themes foll
 | ![Some changes were undone](docs/choose-returned-light-en.png) | ![Done](docs/apply-dark-en.png) |
 | ![Health check](docs/health-light-en.png) | ![Screen and remote](docs/remote-dark-en.png) |
 | ![Choisir, in French and dark mode](docs/choose-dark-fr.png) | ![The Mac app](docs/mac-welcome-en.png) |
+| ![Fire TV](docs/choose-firetv-light-en.png) | ![Install an app](docs/install-light-en.png) |
 
 ## Before you start, on the TV
 
@@ -78,6 +80,9 @@ reset brings everything back too. English and French; light and dark themes foll
 3. Back one screen: **Developer options → USB debugging** on. If there is a **Network debugging**
    or **ADB over network** switch, turn it on too.
 4. When the app connects, accept **Allow USB debugging?** on the TV and tick *Always allow*.
+
+On a **Fire TV**: Settings → My Fire TV → About, press OK on the device name 7 times, then
+Developer options → **ADB debugging** on.
 
 Newer Google TV devices that only offer **Wireless debugging** with a pairing code are supported
 from the Connect page. When you are done, the last screen turns debugging off again.
@@ -88,9 +93,14 @@ Anything running **Android TV** or **Google TV**: TVs (Sony, TCL, Xiaomi, Philip
 streaming boxes and sticks (Chromecast with Google TV, NVIDIA Shield, Mi Box…) and the Android TV
 set-top boxes that many TV operators rent out.
 
-**Fire TV** should connect and its tracking services can be switched off, but recent Fire OS
-versions block turning off many Amazon apps (not yet tested on a real Fire TV). **Not supported:** Samsung (Tizen), LG (webOS), Roku and Apple TV run
-other systems.
+**Fire TV** (tested on a Fire TV Stick 4K Max, Fire OS 7.6) connects the same way. Fire OS refuses
+to switch off Amazon's own apps, so the app doesn't offer them. It shows which of Amazon's tracking
+switches are still on and opens the TV's menu to turn them off, and the speed and DNS settings work
+as usual.
+
+**Not supported:** Samsung (Tizen), LG (webOS), Roku and Apple TV run other systems. On a Samsung
+TV, turn off tracking in **Settings → General → Terms & Privacy** (Viewing Information Services,
+Interest-Based Advertisement, Voice Recognition).
 
 ## How it stays safe
 

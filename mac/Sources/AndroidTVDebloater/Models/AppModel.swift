@@ -300,6 +300,8 @@ final class ChooseModel {
     var choicesStatus = ""
     /// Things earlier runs changed that are back (usually after a system update).
     var returned: ReturnedItems?
+    /// Fire TV only: Amazon's tracking switches that are on (string keys of their names).
+    var firePrivacyOn: [String]?
 
     init(app: AppModel, device: TvDevice) {
         self.app = app
@@ -308,6 +310,19 @@ final class ChooseModel {
         unknownApps = Catalog.unknownSystemApps(device)
         lastChoices = ChoiceSet.loadLast()
         Task { await checkReturned() }
+        if device.isFireTv { Task { await checkFirePrivacy() } }
+    }
+
+    func checkFirePrivacy() async {
+        firePrivacyOn = await FirePrivacy.readOn(Adb.shared, serial: device.serial)
+    }
+
+    var firePrivacyText: String {
+        switch firePrivacyOn {
+        case nil: ""
+        case let on? where on.isEmpty: L("Fire_PrivacyAllOff")
+        case let on?: L("Fire_PrivacyOn", on.map { L($0) }.joined(separator: ", "))
+        }
     }
 
     private func checkReturned() async {
@@ -351,7 +366,8 @@ final class ChooseModel {
     var selectedText: String { selectedCount == 1 ? L("Choose_SelectedOne") : L("Choose_Selected", selectedCount) }
 
     var infoLine: String {
-        var parts = [L("Choose_Android", device.androidVersion),
+        var parts = [device.fireOsVersion.isEmpty ? L("Choose_Android", device.androidVersion)
+                        : device.fireOsVersion.components(separatedBy: " (")[0],
                      L("Choose_Ram", Self.oneDecimal(Double(device.ramMb) / 1024))]
         if device.storageTotalMb > 0 { parts.append(L("Choose_Storage", Self.oneDecimal(Double(device.storageFreeMb) / 1024))) }
         parts.append(L(device.network == .ethernet ? "Choose_NetEthernet" : device.network == .wifi ? "Choose_NetWifi" : "Choose_NetUnknown"))

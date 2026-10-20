@@ -22,6 +22,7 @@ if (args.Length >= 3 && args[1] == "--live")
     foreach (var g in Catalog.Build(dev))
         foreach (var t in g.Tweaks)
             Console.WriteLine($"  [{(t.IsSelected ? "x" : " ")}] {g.Id,-12} {t.Id,-50} {t.Description[..Math.Min(70, t.Description.Length)]}");
+    if (dev.IsFireTv) Console.WriteLine($"{dev.FireOsVersion}; tracking on: [{string.Join(", ", await FirePrivacy.ReadOnAsync(adb, args[2]))}]");
     var unknown = Catalog.UnknownSystemApps(dev);
     Console.WriteLine($"unknown: {unknown.Count}: {string.Join(", ", unknown)}");
     var (url, complete) = IssueReport.Build(dev, unknown, Catalog.Version);
@@ -66,11 +67,11 @@ var tv = new TvDevice
     ThirdParty = ["org.example.speedtest", "com.netflix.ninja"],
 };
 
-void Shot(string name, ThemeVariant theme, string lang, Func<MainViewModel, PageViewModel> page, int height = 800)
+void Shot(string name, ThemeVariant theme, string lang, Func<MainViewModel, PageViewModel> page, int height = 800, TvDevice? device = null)
 {
     Application.Current!.RequestedThemeVariant = theme;
     Loc.Instance.Language = lang;
-    var main = new MainViewModel(new AdbService()) { Device = tv };
+    var main = new MainViewModel(new AdbService()) { Device = device ?? tv };
     main.CurrentPage = page(main);
     var w = new MainWindow { DataContext = main, Width = 1140, Height = height };
     w.Show();
@@ -190,6 +191,21 @@ Shot("choose-returned-light-en", ThemeVariant.Light, "en", m =>
         [new SettingChange { Namespace = "device_config:activity_manager", Key = "max_cached_processes", NewValue = "16" }]);
     return c;
 });
+
+// A made-up Fire TV: Amazon's apps are hidden, its tracking switches are shown instead.
+var fire = new TvDevice
+{
+    Serial = "192.168.1.43:5555", Manufacturer = "Amazon", Brand = "Amazon", Model = "AFTKA",
+    AndroidVersion = "9", Sdk = 28, FireOsVersion = "Fire OS 7.6.8.8 (PS7688/4591)", RamMb = 1680,
+    Network = NetworkKind.WiFi, HomePackage = "com.amazon.tv.launcher", SetupComplete = true,
+    StorageTotalMb = 5087, StorageFreeMb = 2830,
+    Enabled = ["com.amazon.tv.launcher", "com.amazon.device.logmanager", "com.amazon.tv.fw.metrics",
+               "com.android.printspooler", "com.netflix.ninja", "com.android.dreams.basic"],
+    ThirdParty = ["com.netflix.ninja"],
+};
+Shot("choose-firetv-light-en", ThemeVariant.Light, "en", m =>
+    new ChooseViewModel(m, fire) { LastChoices = null, FirePrivacyOn = ["Fire_IbAds", "Fire_DeviceUsage", "Fire_AppUsage"] },
+    1100, fire);
 
 // Update dialog with made-up notes, and a real check against GitHub.
 void UpdateShot(string name, ThemeVariant theme, string lang)

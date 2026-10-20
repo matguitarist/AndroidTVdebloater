@@ -24,6 +24,7 @@
 "Apply_OpenFolder" = "Open folder";
 "Apply_OptimizeDone" = "Done in %1$@ min";
 "Apply_ProblemsSub" = "%1$@ step(s) didn't work; see below. Everything else was applied, and you can undo it from Restore.";
+"Apply_ProtectedPackage" = "The TV's maker doesn't allow switching this off.";
 "Apply_Reboot" = "Restarting the TV";
 "Apply_RebootSettle" = "Back on, letting it settle…";
 "Apply_RebootTimeout" = "The TV didn't come back within 4 minutes. It may have turned debugging off; your changes are still applied.";
@@ -101,6 +102,14 @@
 "Connect_Scan" = "Search the network";
 "Connect_Tips" = "Check that the TV is on, that USB debugging is still on, and that the address is right. Some TVs turn debugging off after a restart.";
 "Connect_Title" = "Connect to your TV";
+"Fire_AppUsage" = "Collect App Usage Data";
+"Fire_DeviceUsage" = "Device Usage Data";
+"Fire_IbAds" = "Interest-based Ads";
+"Fire_Open" = "Open on the TV";
+"Fire_PrivacyAllOff" = "Amazon's tracking switches are all off.";
+"Fire_PrivacyOn" = "Still on: %1$@. On the TV, open Settings → Preferences → Privacy Settings and turn them off.";
+"Fire_Text" = "Fire OS doesn't let a computer switch off Amazon's apps, so they aren't listed below. You can still use the settings below, and turn off Amazon's tracking in the TV's own menu.";
+"Fire_Title" = "Fire TV: Amazon's own apps stay on";
 "Health_Cpu" = "PROCESSOR";
 "Health_CpuText" = "Load %1$@ on %2$@ cores. On for %3$@.";
 "Health_Days" = "%1$@ days";
@@ -223,7 +232,8 @@
 "Welcome_Step2" = "Scroll to “Build” (or “Android TV OS build”) and press OK on it 7 times, until the TV says you are a developer.";
 "Welcome_Step3" = "Go back one screen, open Developer options and turn on USB debugging. If you also see “Network debugging” or “ADB over network”, turn that on too.";
 "Welcome_Step4" = "Leave the TV on, connected to the same home network as this Mac.";
-"Welcome_Supported" = "Works with Android TV and Google TV: TVs, streaming boxes, sticks and operator set-top boxes. Samsung (Tizen), LG (webOS), Roku and Apple TV run other systems and are not supported.";
+"Welcome_StepFire" = "On a Fire TV: Settings → My Fire TV → About, press OK on the device name 7 times, then go back to Developer options and turn on ADB debugging.";
+"Welcome_Supported" = "Works with Android TV and Google TV (TVs, streaming boxes, sticks and operator set-top boxes) and with Fire TV, where Amazon's own apps can't be switched off. Samsung (Tizen), LG (webOS), Roku and Apple TV run other systems and are not supported.";
 "Welcome_Title" = "Make your Android TV quick and private again";
 "Welcome_ToolsMissing" = "The app will download Google's official Android tools (ADB, about 7 MB) when you press Continue. They stay inside this app's folder; nothing is installed on the system.";
 "Welcome_ToolsPill" = "Ready";

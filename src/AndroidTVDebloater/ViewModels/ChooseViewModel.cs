@@ -32,6 +32,11 @@ public sealed partial class ChooseViewModel : PageViewModel
     [NotifyPropertyChangedFor(nameof(HasReturned), nameof(ReturnedText))]
     private ReturnedItems? _returned;
 
+    /// <summary>Fire TV only: Amazon's tracking switches that are on (string keys of their names).</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FirePrivacyText), nameof(FirePrivacyAllOff))]
+    private List<string>? _firePrivacyOn;
+
     /// <summary>Preinstalled apps the catalog doesn't know, for the report to GitHub.</summary>
     public List<string> UnknownApps { get; }
 
@@ -43,6 +48,7 @@ public sealed partial class ChooseViewModel : PageViewModel
         LastChoices = ChoiceSet.LoadLast();
         foreach (var t in AllTweaks) t.PropertyChanged += OnTweakChanged;
         _ = CheckReturnedAsync();
+        if (device.IsFireTv) _ = CheckFirePrivacyAsync();
     }
 
     private async Task CheckReturnedAsync()
@@ -76,7 +82,9 @@ public sealed partial class ChooseViewModel : PageViewModel
     public string ApplyText => Loc.Format("Choose_Apply", SelectedCount);
     public bool CanApply => SelectedCount > 0;
 
-    public string AndroidText => Loc.Format("Choose_Android", Device.AndroidVersion);
+    public string AndroidText => Device.FireOsVersion.Length > 0
+        ? Device.FireOsVersion.Split(" (")[0]
+        : Loc.Format("Choose_Android", Device.AndroidVersion);
     public string RamText => Loc.Format("Choose_Ram", (Device.RamMb / 1024.0).ToString("0.#"));
     public string StorageText => Loc.Format("Choose_Storage", (Device.StorageFreeMb / 1024.0).ToString("0.#"));
     public bool HasStorage => Device.StorageTotalMb > 0;
@@ -96,6 +104,15 @@ public sealed partial class ChooseViewModel : PageViewModel
     public bool HasReturned => Returned is not null;
     public string ReturnedText => Returned is null ? "" : Loc.Format("Choose_ReturnedText",
         Returned.Since.ToString("g"), Returned.Packages.Count, Returned.Settings.Count);
+
+    public bool IsFireTv => Device.IsFireTv;
+    public bool FirePrivacyAllOff => FirePrivacyOn is [];
+    public string FirePrivacyText => FirePrivacyOn switch
+    {
+        null => "",
+        [] => Loc.Get("Fire_PrivacyAllOff"),
+        var on => Loc.Format("Fire_PrivacyOn", string.Join(", ", on.Select(Loc.Get))),
+    };
 
     public bool HasUnknownApps => UnknownApps.Count > 0;
     public string UnknownText => Loc.Format("Choose_UnknownText", UnknownApps.Count);
@@ -121,6 +138,7 @@ public sealed partial class ChooseViewModel : PageViewModel
                  {
                      nameof(SelectedText), nameof(ApplyText), nameof(AndroidText), nameof(RamText), nameof(StorageText),
                      nameof(NetworkText), nameof(AlreadyOffText), nameof(LastChoicesText), nameof(UnknownText), nameof(ReturnedText),
+                     nameof(FirePrivacyText),
                  })
             OnPropertyChanged(name);
     }
@@ -171,6 +189,16 @@ public sealed partial class ChooseViewModel : PageViewModel
 
     [RelayCommand]
     private void DismissReturned() => Returned = null;
+
+    [RelayCommand]
+    private async Task CheckFirePrivacyAsync()
+    {
+        try { FirePrivacyOn = await FirePrivacy.ReadOnAsync(Main.Adb, Device.Serial); }
+        catch { /* only advice */ }
+    }
+
+    [RelayCommand]
+    private Task OpenFirePrivacyAsync() => FirePrivacy.OpenOnTvAsync(Main.Adb, Device.Serial);
 
     private void UseChoices(ChoiceSet set)
     {

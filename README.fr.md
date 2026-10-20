@@ -3,12 +3,13 @@
 <h1 align="center">Android TV Debloater</h1>
 
 <p align="center">
-  Désactivez les publicités, le pistage et les applications préinstallées de n'importe quel Android TV ou Google TV.<br>
+  Désactivez les publicités, le pistage et les applications préinstallées de n'importe quel Android TV, Google TV ou Fire TV.<br>
   Pour Windows, macOS et Linux. Des choix expliqués simplement, une sauvegarde de tout, une annulation en un clic.
 </p>
 
 <p align="center">
   <a href="../../releases/latest"><img alt="Dernière version" src="https://img.shields.io/github/v/release/matguitarist/AndroidTVdebloater?label=t%C3%A9l%C3%A9charger"></a>
+  <img alt="Android TV, Google TV, Fire TV" src="https://img.shields.io/badge/Android%20TV%20%C2%B7%20Google%20TV%20%C2%B7%20Fire%20TV-green">
   <img alt="Windows, macOS, Linux" src="https://img.shields.io/badge/Windows%20%C2%B7%20macOS%20%C2%B7%20Linux-blue">
   <a href="LICENSE"><img alt="Licence MIT" src="https://img.shields.io/github/license/matguitarist/AndroidTVdebloater"></a>
   <br><a href="README.md">English version</a>
@@ -77,6 +78,7 @@ clair et sombre selon votre système.
 |---|---|
 | ![Terminé](docs/apply-light-fr.png) | ![Bilan de santé, en anglais](docs/health-light-en.png) |
 | ![Écran et télécommande, en anglais](docs/remote-dark-en.png) | ![L'application Mac, en anglais](docs/mac-welcome-en.png) |
+| ![Fire TV, en anglais](docs/choose-firetv-light-en.png) | ![Choisir](docs/choose-dark-fr.png) |
 
 ## Avant de commencer, sur le téléviseur
 
@@ -88,6 +90,9 @@ clair et sombre selon votre système.
 4. Quand l'application se connecte, acceptez **Autoriser le débogage USB ?** sur le téléviseur et
    cochez *Toujours autoriser*.
 
+Sur un **Fire TV** : Paramètres → Ma Fire TV → À propos, appuyez 7 fois sur OK sur le nom de
+l'appareil, puis Options pour les développeurs → **Débogage ADB** activé.
+
 Les appareils Google TV récents qui proposent seulement le **Débogage sans fil** avec un code
 d'association sont pris en charge depuis la page Connecter. À la fin, le dernier écran désactive de
 nouveau le débogage.
@@ -98,10 +103,14 @@ Tout ce qui fonctionne sous **Android TV** ou **Google TV** : téléviseurs (Son
 Philips, Hisense…), boîtiers et clés (Chromecast avec Google TV, NVIDIA Shield, Mi Box…) et les
 décodeurs Android TV loués par de nombreux opérateurs.
 
-**Fire TV** devrait se connecter et ses services de pistage peuvent être désactivés, mais les
-versions récentes de Fire OS empêchent de désactiver beaucoup d'applications Amazon (pas encore testé
-sur un vrai Fire TV). **Non pris en charge :** Samsung (Tizen), LG (webOS), Roku et Apple TV
-utilisent d'autres systèmes.
+**Fire TV** (testé sur une Fire TV Stick 4K Max, Fire OS 7.6) : se connecte de la même façon. Fire OS refuse de désactiver les applications d'Amazon :
+l'application ne les propose donc pas. Elle indique quelles options de pistage d'Amazon sont encore
+actives et ouvre le menu du téléviseur pour les désactiver ; les réglages de vitesse et le DNS
+fonctionnent comme d'habitude.
+
+**Non pris en charge :** Samsung (Tizen), LG (webOS), Roku et Apple TV utilisent d'autres systèmes.
+Sur un téléviseur Samsung, désactivez le pistage dans **Paramètres → Général → Conditions et
+confidentialité** (Services d'informations de visionnage, Publicité ciblée, Reconnaissance vocale).
 
 ## Sécurité
 

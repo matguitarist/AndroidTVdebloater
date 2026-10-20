@@ -13,6 +13,8 @@ public sealed class TvDevice
     public string Model { get; init; } = "";
     public string SerialNo { get; init; } = "";
     public string AndroidVersion { get; init; } = "";
+    /// <summary>"Fire OS 7.6.8.8 (PS7688/4591)" on Fire TV, empty elsewhere.</summary>
+    public string FireOsVersion { get; init; } = "";
     public int Sdk { get; init; }
     public long RamMb { get; init; }
     public NetworkKind Network { get; init; }
@@ -29,12 +31,16 @@ public sealed class TvDevice
     public HashSet<string> Disabled { get; init; } = [];
     public HashSet<string> ThirdParty { get; init; } = [];
 
+    /// <summary>Amazon Fire TV: Fire OS refuses to switch off Amazon's own apps.</summary>
+    public bool IsFireTv => Manufacturer.Equals("Amazon", StringComparison.OrdinalIgnoreCase);
+
     public bool IsInstalled(string pkg) => Enabled.Contains(pkg) || Disabled.Contains(pkg);
 
     public string DisplayName
     {
         get
         {
+            if (IsFireTv) return FireModels.GetValueOrDefault(Model, "Fire TV " + Model);
             var maker = string.IsNullOrWhiteSpace(Brand) ? Manufacturer : Brand;
             return Model.StartsWith(maker, StringComparison.OrdinalIgnoreCase) || maker.Length == 0
                 ? Model
@@ -42,11 +48,24 @@ public sealed class TvDevice
         }
     }
 
+    /// <summary>Fire TV model codes are not shown anywhere on the device.</summary>
+    private static readonly Dictionary<string, string> FireModels = new()
+    {
+        ["AFTKA"] = "Fire TV Stick 4K Max", ["AFTKRT"] = "Fire TV Stick 4K Max (2nd gen)",
+        ["AFTMM"] = "Fire TV Stick 4K", ["AFTKM"] = "Fire TV Stick 4K (2nd gen)",
+        ["AFTSSS"] = "Fire TV Stick (3rd gen)", ["AFTSS"] = "Fire TV Stick Lite",
+        ["AFTR"] = "Fire TV Cube (2nd gen)", ["AFTGAZL"] = "Fire TV Cube (3rd gen)",
+    };
+
     public string IpAddress => Serial.Contains(':') ? Serial[..Serial.LastIndexOf(':')] : Serial;
 
     /// <summary>Packages that must never be disabled, whatever the catalog says.</summary>
     public bool IsProtected(string pkg) =>
-        pkg == HomePackage || HomeCapable.Contains(pkg) || pkg == InputMethodPackage || ProtectedPackages.Contains(pkg);
+        pkg == HomePackage || HomeCapable.Contains(pkg) || pkg == InputMethodPackage || ProtectedPackages.Contains(pkg) ||
+        (IsFireTv && FireProtectedPrefixes.Any(pkg.StartsWith));
+
+    /// <summary>Fire OS answers "Cannot disable a protected package" for Amazon's apps.</summary>
+    private static readonly string[] FireProtectedPrefixes = ["com.amazon.", "amazon.", "android.amazon.", "com.fireos.", "com.ivona."];
 
     private static readonly HashSet<string> ProtectedPackages =
     [
@@ -64,7 +83,7 @@ public sealed class TvDevice
     {
         var props = await adb.ShellAsync(serial,
             "getprop ro.product.manufacturer; getprop ro.product.brand; getprop ro.product.model; " +
-            "getprop ro.serialno; getprop ro.build.version.release; getprop ro.build.version.sdk");
+            "getprop ro.serialno; getprop ro.build.version.release; getprop ro.build.version.sdk; getprop ro.build.version.name");
         var p = props.Output.Split('\n');
         string Prop(int i) => i < p.Length ? p[i].Trim() : "";
 
@@ -107,6 +126,7 @@ public sealed class TvDevice
             SerialNo = Prop(3),
             AndroidVersion = Prop(4),
             Sdk = int.TryParse(Prop(5), out var sdk) ? sdk : 0,
+            FireOsVersion = Prop(6).StartsWith("Fire OS") ? Prop(6) : "",
             RamMb = ramKb / 1024,
             Network = network,
             HomePackage = homePkg,

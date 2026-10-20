@@ -19,6 +19,7 @@ struct WelcomeView: View {
                         Text(L("Welcome_Step\(i)")).fixedSize(horizontal: false, vertical: true)
                     }
                 }
+                Text(L("Welcome_StepFire")).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                 Note(text: L("Welcome_Supported"))
             }
 

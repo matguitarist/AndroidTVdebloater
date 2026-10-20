@@ -23,6 +23,32 @@ struct ChooseView: View {
                 .padding(.vertical, 4)
             }
 
+            // Fire TV: Amazon's apps can't be turned off; its tracking is in the TV's menu
+            if choose.device.isFireTv {
+                Section {
+                    HStack(alignment: .top, spacing: 14) {
+                        Image(systemName: "exclamationmark.shield").font(.title2).foregroundStyle(.tint).frame(width: 40)
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(L("Fire_Title")).font(.headline)
+                            Text(L("Fire_Text")).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                            if let on = choose.firePrivacyOn {
+                                Text(choose.firePrivacyText)
+                                    .fontWeight(on.isEmpty ? .regular : .semibold)
+                                    .foregroundStyle(on.isEmpty ? .green : .orange)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                HStack {
+                                    if !on.isEmpty {
+                                        Button(L("Fire_Open")) { Task { await FirePrivacy.openOnTv(Adb.shared, serial: choose.device.serial) } }
+                                    }
+                                    Button(L("Home_CheckAgain")) { Task { await choose.checkFirePrivacy() } }
+                                }
+                            }
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
+
             // Things an update turned back on
             if choose.returned != nil {
                 Section {

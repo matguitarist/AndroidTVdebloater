@@ -110,6 +110,10 @@ final class Tweak: Identifiable {
                 ctx.backup.disabledPackages.append(pkg)
                 return TweakResult(success: true)
             }
+            // Fire OS (and some makers) refuse for their own apps; say so instead of a Java error.
+            if r.all.range(of: "protected package", options: .caseInsensitive) != nil {
+                return TweakResult(success: false, detail: L("Apply_ProtectedPackage"))
+            }
             return TweakResult(success: false, detail: Self.firstLine(r.all))
 
         case .settings(let writes):

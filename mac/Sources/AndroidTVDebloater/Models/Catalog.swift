@@ -167,7 +167,9 @@ enum Catalog {
         let options = (def.options ?? [])
             .filter { $0.installed.map(dev.isInstalled) ?? true }
             .map { TweakOption(label: $0.label, value: $0.value, keeps: $0.keeps ?? []) }
-        let recommended = (def.recommended ?? false) || (def.recommendedWhen.map { matches($0, dev) } ?? false)
+        // The screensaver is not yet tested on Fire OS, whose own screensaver may ignore the setting.
+        let recommended = ((def.recommended ?? false) || (def.recommendedWhen.map { matches($0, dev) } ?? false))
+            && !(dev.isFireTv && def.kind == "screensaver")
         let kind: Tweak.Kind
         switch def.kind ?? "settings" {
         case "settings":

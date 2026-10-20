@@ -24,6 +24,7 @@
 "Apply_OpenFolder" = "Ouvrir le dossier";
 "Apply_OptimizeDone" = "Terminé en %1$@ min";
 "Apply_ProblemsSub" = "%1$@ étape(s) n'ont pas fonctionné ; voir ci-dessous. Le reste a été appliqué, et vous pouvez l'annuler depuis Restaurer.";
+"Apply_ProtectedPackage" = "Le fabricant du téléviseur ne permet pas de désactiver ceci.";
 "Apply_Reboot" = "Redémarrage du téléviseur";
 "Apply_RebootSettle" = "Rallumé, on le laisse se stabiliser…";
 "Apply_RebootTimeout" = "Le téléviseur n'est pas revenu en 4 minutes. Il a peut-être désactivé le débogage ; vos changements restent appliqués.";
@@ -101,6 +102,14 @@
 "Connect_Scan" = "Rechercher sur le réseau";
 "Connect_Tips" = "Vérifiez que le téléviseur est allumé, que le Débogage USB est toujours activé et que l'adresse est correcte. Certains téléviseurs désactivent le débogage après un redémarrage.";
 "Connect_Title" = "Connectez votre téléviseur";
+"Fire_AppUsage" = "Collecter les données d'utilisation des applications";
+"Fire_DeviceUsage" = "Données d'utilisation de l'appareil";
+"Fire_IbAds" = "Publicités ciblées par centres d'intérêt";
+"Fire_Open" = "Ouvrir sur le téléviseur";
+"Fire_PrivacyAllOff" = "Les options de pistage d'Amazon sont toutes désactivées.";
+"Fire_PrivacyOn" = "Encore actifs : %1$@. Sur le téléviseur, ouvrez Paramètres → Préférences → Paramètres de confidentialité et désactivez-les.";
+"Fire_Text" = "Fire OS ne permet pas à un ordinateur de désactiver les applications d'Amazon : elles ne sont donc pas listées. Vous pouvez toujours utiliser les réglages ci-dessous, et désactiver le pistage d'Amazon dans le menu du téléviseur.";
+"Fire_Title" = "Fire TV : les applications d'Amazon restent actives";
 "Health_Cpu" = "PROCESSEUR";
 "Health_CpuText" = "Charge %1$@ sur %2$@ cœurs. Allumé depuis %3$@.";
 "Health_Days" = "%1$@ jours";
@@ -223,7 +232,8 @@
 "Welcome_Step2" = "Descendez jusqu'à « Build » (ou « Build de l'OS Android TV ») et appuyez 7 fois sur OK, jusqu'à ce que le téléviseur dise que vous êtes développeur.";
 "Welcome_Step3" = "Revenez d'un écran, ouvrez Options pour les développeurs et activez Débogage USB. Si vous voyez aussi « Débogage réseau » ou « ADB sur le réseau », activez-le également.";
 "Welcome_Step4" = "Laissez le téléviseur allumé, sur le même réseau que ce Mac.";
-"Welcome_Supported" = "Fonctionne avec Android TV et Google TV : téléviseurs, boîtiers, clés et décodeurs d'opérateur. Samsung (Tizen), LG (webOS), Roku et Apple TV utilisent d'autres systèmes et ne sont pas pris en charge.";
+"Welcome_StepFire" = "Sur un Fire TV : Paramètres → Ma Fire TV → À propos, appuyez 7 fois sur OK sur le nom de l'appareil, puis revenez à Options pour les développeurs et activez Débogage ADB.";
+"Welcome_Supported" = "Fonctionne avec Android TV et Google TV (téléviseurs, boîtiers, clés et décodeurs d'opérateur) et avec Fire TV, où les applications d'Amazon ne peuvent pas être désactivées. Samsung (Tizen), LG (webOS), Roku et Apple TV utilisent d'autres systèmes et ne sont pas pris en charge.";
 "Welcome_Title" = "Rendez votre Android TV rapide et discret";
 "Welcome_ToolsMissing" = "L'application téléchargera les outils Android officiels de Google (ADB, environ 7 Mo) quand vous appuierez sur Continuer. Ils restent dans le dossier de l'application ; rien n'est installé sur le système.";
 "Welcome_ToolsPill" = "Prêts";

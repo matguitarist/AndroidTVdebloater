@@ -81,6 +81,9 @@ public sealed class PackageTweak : Tweak
             ctx.Backup.DisabledPackages.Add(Package);
             return new TweakResult(true);
         }
+        // Fire OS (and some makers) refuse for their own apps; say so instead of a Java error.
+        if (r.All.Contains("protected package", StringComparison.OrdinalIgnoreCase))
+            return new TweakResult(false, Loc.Get("Apply_ProtectedPackage"));
         return new TweakResult(false, FirstLine(r.All));
     }
 
