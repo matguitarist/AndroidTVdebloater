@@ -56,7 +56,10 @@ enum Catalog {
         var packages: [PackageDef]
         var settings: [SettingDef]?
         var keep: [KeepDef]?
+        var names: [NameDef]?
     }
+    /// A readable name for a system part (Health page). Never offered.
+    struct NameDef: Codable { var id: String; var name: LocText }
 
     /// Nil if the data isn't a catalog this version can use.
     static func parse(_ data: Data) -> File? {
@@ -98,7 +101,14 @@ enum Catalog {
     @MainActor static func isKeep(_ pkg: String) -> Bool { isKeep(current, pkg) }
 
     /// The catalog's name for an app, in the current language, if it has one.
-    @MainActor static func name(of pkg: String) -> String? { current.packages.first { $0.id == pkg }?.name.text }
+    /// A readable name for an app or process ("com.google.android.gms:snet" counts as its app).
+    @MainActor static func name(of pkg: String) -> String? {
+        for id in [pkg, String(pkg.split(separator: ":").first ?? "")] {
+            if let def = current.packages.first(where: { $0.id == id }) { return def.name.text }
+            if let n = current.names?.first(where: { $0.id == id }) { return n.name.text }
+        }
+        return nil
+    }
 
     /// Whether the Choose page would offer to turn this app off on this TV.
     @MainActor static func isOffered(_ dev: TvDevice, _ pkg: String) -> Bool {
@@ -167,9 +177,7 @@ enum Catalog {
         let options = (def.options ?? [])
             .filter { $0.installed.map(dev.isInstalled) ?? true }
             .map { TweakOption(label: $0.label, value: $0.value, keeps: $0.keeps ?? []) }
-        // The screensaver is not yet tested on Fire OS, whose own screensaver may ignore the setting.
-        let recommended = ((def.recommended ?? false) || (def.recommendedWhen.map { matches($0, dev) } ?? false))
-            && !(dev.isFireTv && def.kind == "screensaver")
+        let recommended = (def.recommended ?? false) || (def.recommendedWhen.map { matches($0, dev) } ?? false)
         let kind: Tweak.Kind
         switch def.kind ?? "settings" {
         case "settings":

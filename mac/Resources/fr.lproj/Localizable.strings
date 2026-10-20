@@ -119,6 +119,7 @@
 "Health_Mb" = "%1$@ Mo";
 "Health_Memory" = "MÉMOIRE";
 "Health_MemoryText" = "%1$@ Go libres sur %2$@ Go";
+"Health_OneHour" = "une heure";
 "Health_Refresh" = "Actualiser";
 "Health_Storage" = "STOCKAGE";
 "Health_StorageText" = "%1$@ Go libres sur %2$@ Go";
@@ -132,6 +133,7 @@
 "Health_Title" = "Bilan de santé";
 "Health_TopText" = "Les applications et composants système qui occupent le plus de mémoire en ce moment.";
 "Health_TopTitle" = "Ce qui utilise le plus de mémoire";
+"Health_UnderHour" = "moins d'une heure";
 "Home_CheckAgain" = "Vérifier de nouveau";
 "Home_CurrentPill" = "Écran d'accueil actuel";
 "Home_GoogleTvNote" = "Sur Google TV, le bouton Accueil continue d'ouvrir l'accueil de Google. Projectivy peut prendre le contrôle du bouton : dans ses réglages, activez l'option « Override current launcher ».";
@@ -160,6 +162,7 @@
 "Mac_CheckForUpdatesMenu" = "Rechercher les mises à jour…";
 "Mac_ShowInFinder" = "Afficher dans le Finder";
 "Mac_Steps" = "Étapes";
+"Mac_Tools" = "Outils";
 "Remote_Back" = "Retour";
 "Remote_Home" = "Accueil";
 "Remote_Keys" = "Clavier : flèches, Entrée = OK, Retour arrière = Retour, H = Accueil.";
@@ -171,7 +174,7 @@
 "Remote_Protected" = "Les films et séries des applications de streaming apparaissent en noir : ils sont protégés contre les captures.";
 "Remote_Send" = "Envoyer";
 "Remote_Title" = "Écran et télécommande";
-"Remote_TypeHint" = "Recherche, mot de passe…";
+"Remote_TypeHint" = "Recherche, mot de passe";
 "Remote_TypeLabel" = "ÉCRIRE SUR LE TÉLÉVISEUR";
 "Remote_VolDown" = "Vol −";
 "Remote_VolUp" = "Vol +";
@@ -183,7 +186,7 @@
 "Restore_Lead" = "Annulez une opération précédente sur ce téléviseur. Les applications reviennent et chaque réglage retrouve sa valeur d'avant.";
 "Restore_None" = "Aucune opération enregistrée pour ce téléviseur sur ce Mac.";
 "Restore_RunsTitle" = "Opérations précédentes sur ce téléviseur";
-"Restore_Summary" = "%1$@ applications désactivées, %2$@ réglages modifiés";
+"Restore_Summary" = "Applications désactivées : %1$@ · réglages modifiés : %2$@";
 "Restore_Title" = "Restaurer";
 "Restore_Undo" = "Annuler cette opération";
 "Side_CheckUpdates" = "Mises à jour";

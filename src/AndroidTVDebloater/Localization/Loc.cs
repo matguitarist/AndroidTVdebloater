@@ -52,8 +52,11 @@ public sealed class Loc : INotifyPropertyChanged
         return Strings.En.TryGetValue(key, out var en) ? en : key;
     }
 
+    /// <summary>Numbers and dates follow the app's language, not the computer's region.</summary>
+    public static CultureInfo Culture => CultureInfo.GetCultureInfo(Instance._language == "fr" ? "fr-FR" : "en-US");
+
     public static string Format(string key, params object[] args) =>
-        string.Format(CultureInfo.CurrentCulture, Get(key), args);
+        string.Format(Culture, Get(key), args);
 }
 
 /// <summary>Text in both languages, for catalog entries.</summary>

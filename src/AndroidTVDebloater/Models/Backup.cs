@@ -1,3 +1,4 @@
+using AndroidTVDebloater.Localization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using AndroidTVDebloater.Services;
@@ -29,7 +30,7 @@ public sealed class Backup
 
     [JsonIgnore] public string FilePath { get; set; } = "";
     [JsonIgnore] public int ChangeCount => DisabledPackages.Count + EnabledPackages.Count + Settings.Count + (WifiWasOn == true ? 1 : 0);
-    [JsonIgnore] public string CreatedText => Created.ToString("g");
+    [JsonIgnore] public string CreatedText => Created.ToString("g", Loc.Culture);
 
     private static readonly JsonSerializerOptions Json = new() { WriteIndented = true };
 

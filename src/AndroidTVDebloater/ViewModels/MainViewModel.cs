@@ -67,7 +67,15 @@ public sealed partial class MainViewModel : ObservableObject
     {
         oldValue?.OnLeave();
         RefreshSteps();
+        foreach (var name in new[] { nameof(OnHealth), nameof(OnRemote), nameof(OnInstall), nameof(OnRestore) })
+            OnPropertyChanged(name);
     }
+
+    // Which sidebar tool is open, to mark it.
+    public bool OnHealth => CurrentPage is HealthViewModel;
+    public bool OnRemote => CurrentPage is RemoteViewModel;
+    public bool OnInstall => CurrentPage is InstallViewModel;
+    public bool OnRestore => CurrentPage is RestoreViewModel;
 
     /// <summary>Changes are being made to the TV: don't let the user leave the page.</summary>
     public bool IsBusy => CurrentPage is ApplyViewModel { IsFinished: false } or RestoreViewModel { IsBusy: true };
@@ -78,7 +86,9 @@ public sealed partial class MainViewModel : ObservableObject
         {
             s.IsActive = s.Number - 1 == CurrentPage.StepIndex;
             s.IsDone = s.Number - 1 < CurrentPage.StepIndex;
-            s.CanNavigate = s.IsDone && !IsBusy && s.Number < 4 && (s.Number != 3 || HasDevice);
+            // From a tool page (also step 3), "Choose" leads back to the list.
+            var onTool = CurrentPage is HealthViewModel or InstallViewModel or RemoteViewModel or RestoreViewModel;
+            s.CanNavigate = (s.IsDone || (s.Number == 3 && onTool)) && !IsBusy && s.Number < 4 && (s.Number != 3 || HasDevice);
         }
     }
 

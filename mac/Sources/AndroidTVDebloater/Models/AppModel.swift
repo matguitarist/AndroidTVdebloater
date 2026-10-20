@@ -41,7 +41,9 @@ final class AppModel {
     }
 
     func canNavigate(toStep n: Int) -> Bool {
-        n < stepIndex && !isBusy && n < 3 && (n != 2 || device != nil)
+        // From a tool page (step 3 too), "Choose" leads back to the list.
+        let onTool = [.restore, .health, .install, .remote].contains(page)
+        return (n < stepIndex || (n == 2 && onTool)) && !isBusy && n < 3 && (n != 2 || device != nil)
     }
 
     func go(toStep n: Int) {
@@ -246,10 +248,12 @@ final class ConnectModel {
         RecentTvs.remember(address: target, name: dev.displayName)
         app.device = dev
         await app.goChoose()
-        // Development aid, with ATVD_CONNECT: ATVD_PAGE=health|remote opens a tool page (read-only).
+        // Development aid, with ATVD_CONNECT: ATVD_PAGE=health|remote|install|restore opens a tool page (read-only).
         switch ProcessInfo.processInfo.environment["ATVD_PAGE"] {
         case "health": app.goHealth()
         case "remote": app.goRemote()
+        case "install": app.goInstall()
+        case "restore": app.goRestore()
         default: break
         }
     }

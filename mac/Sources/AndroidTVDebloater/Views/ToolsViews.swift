@@ -7,11 +7,7 @@ struct HealthView: View {
 
     var body: some View {
         PageLayout(title: L("Health_Title"), subtitle: L("Health_Lead")) {
-            HStack {
-                if health.isLoading { ProgressView().controlSize(.small) }
-                Spacer()
-                Button(L("Health_Refresh")) { Task { await health.refresh() } }.disabled(health.isLoading)
-            }
+            if health.isLoading { ProgressView().controlSize(.small) }
 
             if let r = health.report {
                 ForEach(health.tips) { tip in
@@ -27,9 +23,10 @@ struct HealthView: View {
                             Text(health.cpuText).fixedSize(horizontal: false, vertical: true)
                         }
                         .padding(6)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                     }
                 }
+                .fixedSize(horizontal: false, vertical: true) // the three tiles share one height
 
                 Card(title: L("Health_TopTitle"), systemImage: "memorychip") {
                     Text(L("Health_TopText")).foregroundStyle(.secondary)
@@ -53,6 +50,11 @@ struct HealthView: View {
                 Button(L("Health_GoChoose")) { Task { await app.goChoose(reload: true) } }
             }
         }
+        .toolbar {
+            Button { Task { await health.refresh() } } label: { Label(L("Health_Refresh"), systemImage: "arrow.clockwise") }
+                .help(L("Health_Refresh"))
+                .disabled(health.isLoading)
+        }
     }
 
     private func gauge(_ title: String, _ used: Double, _ text: String) -> some View {
@@ -63,7 +65,7 @@ struct HealthView: View {
                 Text(text).foregroundStyle(.secondary)
             }
             .padding(6)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
     }
 }
@@ -160,7 +162,7 @@ struct RemoteView: View {
                     Text(L("Remote_Keys")).font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(10)
-                .frame(width: 250)
+                .frame(width: 290)
             }
             .padding(.top, 70)
         }

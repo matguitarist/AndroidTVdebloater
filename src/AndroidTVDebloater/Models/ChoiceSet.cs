@@ -1,3 +1,4 @@
+using AndroidTVDebloater.Localization;
 using System.Globalization;
 using System.Text.Json;
 using AndroidTVDebloater.Services;
@@ -26,7 +27,7 @@ public sealed class ChoiceSet
 
     public string CreatedText =>
         DateTime.TryParse(Created, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var d)
-            ? d.ToLocalTime().ToString("g") : Created;
+            ? d.ToLocalTime().ToString("g", Loc.Culture) : Created;
 
     private static readonly JsonSerializerOptions Json = new()
     {

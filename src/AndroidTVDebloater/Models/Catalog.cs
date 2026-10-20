@@ -64,6 +64,8 @@ public static class Catalog
     }
     /// <summary>A known system part that must stay on: never offered, never reported as unknown.</summary>
     private sealed class KeepDef { public string Id { get; set; } = ""; }
+    /// <summary>A readable name for a system part (Health page). Never offered.</summary>
+    private sealed class NameDef { public string Id { get; set; } = ""; public Text Name { get; set; } = new(); }
     private sealed class OptionDef
     {
         public Text Label { get; set; } = new();
@@ -103,6 +105,7 @@ public static class Catalog
         public List<PackageDef> Packages { get; set; } = [];
         public List<SettingDef> Settings { get; set; } = [];
         public List<KeepDef> Keep { get; set; } = [];
+        public List<NameDef> Names { get; set; } = [];
     }
 
     private static readonly JsonSerializerOptions Json = new()
@@ -171,8 +174,17 @@ public static class Catalog
     public static bool IsKeep(string pkg) => _current.Keep.Any(k => k.Id == pkg);
 
     /// <summary>The catalog's name for an app, in the current language, if it has one.</summary>
-    public static string? NameOf(string pkg) =>
-        _current.Packages.FirstOrDefault(p => p.Id == pkg) is { } def ? L(def.Name).ToString() : null;
+    /// <summary>A readable name for an app or process ("com.google.android.gms:snet" counts as its app).</summary>
+    public static string? NameOf(string pkg)
+    {
+        var app = pkg.Split(':')[0];
+        foreach (var id in new[] { pkg, app })
+        {
+            if (_current.Packages.FirstOrDefault(p => p.Id == id) is { } def) return L(def.Name).ToString();
+            if (_current.Names.FirstOrDefault(n => n.Id == id) is { } n) return L(n.Name).ToString();
+        }
+        return null;
+    }
 
     /// <summary>Whether the Choose page would offer to turn this app off on this TV.</summary>
     public static bool IsOffered(TvDevice dev, string pkg) =>
@@ -262,8 +274,6 @@ public static class Catalog
             .Where(o => o.Installed is null || dev.IsInstalled(o.Installed))
             .Select(o => new TweakOption(L(o.Label), o.Value, o.Keeps)).ToList();
         var recommended = def.Recommended || (def.RecommendedWhen is not null && Matches(def.RecommendedWhen, dev));
-        // Not yet tested on Fire OS, whose own screensaver may ignore the setting.
-        if (dev.IsFireTv && def.Kind == "screensaver") recommended = false;
         var title = L(def.Name);
         var warning = def.Warning is null ? null : L(def.Warning);
 

@@ -36,8 +36,10 @@ final class HealthModel {
 
     var cpuText: String {
         guard let r = report else { return "" }
-        let up = r.uptimeHours < 48 ? L("Health_Hours", Int(r.uptimeHours.rounded())) : L("Health_Days", Int((r.uptimeHours / 24).rounded()))
-        return L("Health_CpuText", String(format: "%.1f", r.load), r.cores, up)
+        let h = r.uptimeHours
+        let up = h < 0.5 ? L("Health_UnderHour") : h < 1.5 ? L("Health_OneHour")
+            : h < 48 ? L("Health_Hours", Int(h.rounded())) : L("Health_Days", Int((h / 24).rounded()))
+        return L("Health_CpuText", ChooseModel.oneDecimal(r.load), r.cores, up)
     }
 
     var tips: [HealthTip] {

@@ -63,7 +63,7 @@ struct Sidebar: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {
-        List(selection: Binding(get: { min(model.stepIndex, 3) }, set: { if let n = $0 { model.go(toStep: n) } })) {
+        List(selection: selection) {
             Section(L("Mac_Steps")) {
                 ForEach(0..<4, id: \.self) { i in
                     Label {
@@ -74,6 +74,16 @@ struct Sidebar: View {
                     }
                     .tag(i)
                     .selectionDisabled(!(i == min(model.stepIndex, 3) || model.canNavigate(toStep: i)))
+                }
+            }
+            // Tools for the connected TV. In the list, so icons share one column and the open one is highlighted.
+            if model.device != nil {
+                Section(L("Mac_Tools")) {
+                    ForEach(Self.tools, id: \.tag) { tool in
+                        Label(L(tool.key), systemImage: tool.icon)
+                            .tag(tool.tag)
+                            .selectionDisabled(model.isBusy)
+                    }
                 }
             }
         }
@@ -88,14 +98,6 @@ struct Sidebar: View {
                     .padding(10)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(.tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
-
-                    VStack(alignment: .leading, spacing: 8) {
-                        toolLink("Side_Health", "waveform.path.ecg") { model.goHealth() }
-                        toolLink("Side_Remote", "appletvremote.gen4") { model.goRemote() }
-                        toolLink("Side_Install", "square.and.arrow.down") { model.goInstall() }
-                        toolLink("Side_Restore", "arrow.uturn.backward") { model.goRestore() }
-                    }
-                    .disabled(model.isBusy)
                 }
                 Divider()
                 HStack {
@@ -113,8 +115,27 @@ struct Sidebar: View {
 }
 
 extension Sidebar {
-    func toolLink(_ key: String, _ icon: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) { Label(L(key), systemImage: icon) }.buttonStyle(.link)
+    private static let tools: [(tag: Int, key: String, icon: String, page: Page)] = [
+        (10, "Side_Health", "waveform.path.ecg", .health),
+        (11, "Side_Remote", "appletvremote.gen4", .remote),
+        (12, "Side_Install", "square.and.arrow.down", .install),
+        (13, "Side_Restore", "arrow.uturn.backward", .restore),
+    ]
+
+    /// Steps are tagged 0-3, tools 10 and up.
+    private var selection: Binding<Int?> {
+        Binding(
+            get: { Self.tools.first { $0.page == model.page }?.tag ?? min(model.stepIndex, 3) },
+            set: { tag in
+                guard let tag else { return }
+                switch Self.tools.first(where: { $0.tag == tag })?.page {
+                case .health: model.goHealth()
+                case .remote: model.goRemote()
+                case .install: model.goInstall()
+                case .restore: model.goRestore()
+                default: model.go(toStep: tag)
+                }
+            })
     }
 }
 

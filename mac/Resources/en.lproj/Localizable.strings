@@ -119,6 +119,7 @@
 "Health_Mb" = "%1$@ MB";
 "Health_Memory" = "MEMORY";
 "Health_MemoryText" = "%1$@ GB free of %2$@ GB";
+"Health_OneHour" = "an hour";
 "Health_Refresh" = "Refresh";
 "Health_Storage" = "STORAGE";
 "Health_StorageText" = "%1$@ GB free of %2$@ GB";
@@ -132,6 +133,7 @@
 "Health_Title" = "Health check";
 "Health_TopText" = "The apps and system parts holding the most memory right now.";
 "Health_TopTitle" = "Using the most memory";
+"Health_UnderHour" = "less than an hour";
 "Home_CheckAgain" = "Check again";
 "Home_CurrentPill" = "Current home screen";
 "Home_GoogleTvNote" = "On Google TV the Home button keeps opening Google's home screen. Projectivy can take over the button: in its settings, turn on “Override current launcher”.";
@@ -160,6 +162,7 @@
 "Mac_CheckForUpdatesMenu" = "Check for Updates…";
 "Mac_ShowInFinder" = "Show in Finder";
 "Mac_Steps" = "Steps";
+"Mac_Tools" = "Tools";
 "Remote_Back" = "Back";
 "Remote_Home" = "Home";
 "Remote_Keys" = "Keyboard: arrows, Enter = OK, Backspace = Back, H = Home.";
@@ -171,7 +174,7 @@
 "Remote_Protected" = "Films and series from streaming apps show as black: they are protected from screenshots.";
 "Remote_Send" = "Send";
 "Remote_Title" = "Screen and remote";
-"Remote_TypeHint" = "Search, password…";
+"Remote_TypeHint" = "Search, password";
 "Remote_TypeLabel" = "TYPE ON THE TV";
 "Remote_VolDown" = "Vol −";
 "Remote_VolUp" = "Vol +";
@@ -183,7 +186,7 @@
 "Restore_Lead" = "Undo a previous run on this TV. Apps come back and every setting returns to what it was before.";
 "Restore_None" = "No saved runs for this TV on this Mac.";
 "Restore_RunsTitle" = "Previous runs on this TV";
-"Restore_Summary" = "%1$@ apps turned off, %2$@ settings changed";
+"Restore_Summary" = "Apps turned off: %1$@ · settings changed: %2$@";
 "Restore_Title" = "Restore";
 "Restore_Undo" = "Undo this run";
 "Side_CheckUpdates" = "Check for updates";

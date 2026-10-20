@@ -51,10 +51,17 @@ public sealed partial class HealthViewModel : PageViewModel
     public double StorageUsedPercent => Report is { StorageTotalMb: > 0 } r ? 100.0 * (r.StorageTotalMb - r.StorageFreeMb) / r.StorageTotalMb : 0;
     public string MemoryText => Report is null ? "" : Loc.Format("Health_MemoryText", Gb(Report.MemAvailableMb), Gb(Report.MemTotalMb));
     public string StorageText => Report is null ? "" : Loc.Format("Health_StorageText", Gb(Report.StorageFreeMb), Gb(Report.StorageTotalMb));
-    public string CpuText => Report is null ? "" : Loc.Format("Health_CpuText", Report.Load.ToString("0.0"), Report.Cores,
-        Report.UptimeHours < 48 ? Loc.Format("Health_Hours", Math.Round(Report.UptimeHours)) : Loc.Format("Health_Days", Math.Round(Report.UptimeHours / 24)));
+    public string CpuText => Report is null ? "" : Loc.Format("Health_CpuText", Report.Load.ToString("0.#", Loc.Culture), Report.Cores, Uptime(Report.UptimeHours));
 
-    private static string Gb(long mb) => (mb / 1024.0).ToString("0.0");
+    private static string Uptime(double hours) => hours switch
+    {
+        < 0.5 => Loc.Get("Health_UnderHour"),
+        < 1.5 => Loc.Get("Health_OneHour"),
+        < 48 => Loc.Format("Health_Hours", Math.Round(hours)),
+        _ => Loc.Format("Health_Days", Math.Round(hours / 24)),
+    };
+
+    private static string Gb(long mb) => (mb / 1024.0).ToString("0.#", Loc.Culture);
 
     partial void OnReportChanged(HealthReport? value)
     {

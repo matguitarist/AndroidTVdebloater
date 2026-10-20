@@ -85,8 +85,8 @@ public sealed partial class ChooseViewModel : PageViewModel
     public string AndroidText => Device.FireOsVersion.Length > 0
         ? Device.FireOsVersion.Split(" (")[0]
         : Loc.Format("Choose_Android", Device.AndroidVersion);
-    public string RamText => Loc.Format("Choose_Ram", (Device.RamMb / 1024.0).ToString("0.#"));
-    public string StorageText => Loc.Format("Choose_Storage", (Device.StorageFreeMb / 1024.0).ToString("0.#"));
+    public string RamText => Loc.Format("Choose_Ram", (Device.RamMb / 1024.0).ToString("0.#", Loc.Culture));
+    public string StorageText => Loc.Format("Choose_Storage", (Device.StorageFreeMb / 1024.0).ToString("0.#", Loc.Culture));
     public bool HasStorage => Device.StorageTotalMb > 0;
     public string NetworkText => Loc.Get(Device.Network switch
     {
@@ -103,7 +103,7 @@ public sealed partial class ChooseViewModel : PageViewModel
 
     public bool HasReturned => Returned is not null;
     public string ReturnedText => Returned is null ? "" : Loc.Format("Choose_ReturnedText",
-        Returned.Since.ToString("g"), Returned.Packages.Count, Returned.Settings.Count);
+        Returned.Since.ToString("g", Loc.Culture), Returned.Packages.Count, Returned.Settings.Count);
 
     public bool IsFireTv => Device.IsFireTv;
     public bool FirePrivacyAllOff => FirePrivacyOn is [];

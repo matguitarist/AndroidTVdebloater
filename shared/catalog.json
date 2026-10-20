@@ -1,7 +1,7 @@
 {
   "// schema": "Bump 'version' on every change: apps download this file from GitHub and use it when it is newer than their own copy. Bump 'schema' only for changes older apps can't read.",
   "schema": 1,
-  "version": 8,
+  "version": 9,
   "groups": [
     {
       "id": "telemetry",
@@ -311,6 +311,27 @@
     { "id": "com.amazon.minitv.android.app", "group": "apps", "recommended": false,
       "name": { "en": "Amazon miniTV", "fr": "Amazon miniTV" },
       "description": { "en": "Free ad-supported videos.", "fr": "Vidéos gratuites avec publicité." } }
+  ],
+  "// names": "Readable names for system parts shown on the Health page. Never offered.",
+  "names": [
+    { "id": "system", "name": { "en": "Android system", "fr": "Système Android" } },
+    { "id": "surfaceflinger", "name": { "en": "Screen drawing (system)", "fr": "Affichage à l'écran (système)" } },
+    { "id": "com.android.systemui", "name": { "en": "System interface", "fr": "Interface du système" } },
+    { "id": "com.google.android.gms", "name": { "en": "Google Play services", "fr": "Services Google Play" } },
+    { "id": "com.google.android.gms.persistent", "name": { "en": "Google Play services", "fr": "Services Google Play" } },
+    { "id": "com.android.vending", "name": { "en": "Play Store", "fr": "Play Store" } },
+    { "id": "com.google.android.tvlauncher", "name": { "en": "Android TV home screen", "fr": "Écran d'accueil Android TV" } },
+    { "id": "com.google.android.apps.tv.launcherx", "name": { "en": "Google TV home screen", "fr": "Écran d'accueil Google TV" } },
+    { "id": "com.amazon.tv.launcher", "name": { "en": "Amazon home screen", "fr": "Écran d'accueil Amazon" } },
+    { "id": "com.amazon.ftv.screensaver", "name": { "en": "Amazon screensaver", "fr": "Économiseur d'écran Amazon" } },
+    { "id": "com.amazon.avod", "name": { "en": "Prime Video", "fr": "Prime Video" } },
+    { "id": "com.amazon.venezia", "name": { "en": "Amazon Appstore", "fr": "Amazon Appstore" } },
+    { "id": "com.amazon.vizzini", "name": { "en": "Alexa", "fr": "Alexa" } },
+    { "id": "com.amazon.tv.livetv", "name": { "en": "Amazon live TV", "fr": "Télé en direct Amazon" } },
+    { "id": "com.amazon.tv.devicecontrol", "name": { "en": "TV and remote control (Amazon)", "fr": "Contrôle du téléviseur et de la télécommande (Amazon)" } },
+    { "id": "com.amazon.tv.settings.v2", "name": { "en": "Fire TV settings", "fr": "Paramètres Fire TV" } },
+    { "id": "com.android.dreams.basic", "name": { "en": "Simple screensaver", "fr": "Économiseur d'écran simple" } },
+    { "id": "com.amazon.tv.ime", "name": { "en": "Fire TV keyboard", "fr": "Clavier Fire TV" } }
   ],
   "// keep": "Known system parts that must stay on. Never offered, and not reported as unknown.",
   "keep": [

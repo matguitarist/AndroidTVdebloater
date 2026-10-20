@@ -16,11 +16,13 @@ MAC_ONLY = {
     "en": {
         "Mac_CheckForUpdatesMenu": "Check for Updates…",
         "Mac_Steps": "Steps",
+        "Mac_Tools": "Tools",
         "Mac_ShowInFinder": "Show in Finder",
     },
     "fr": {
         "Mac_CheckForUpdatesMenu": "Rechercher les mises à jour…",
         "Mac_Steps": "Étapes",
+        "Mac_Tools": "Outils",
         "Mac_ShowInFinder": "Afficher dans le Finder",
     },
 }

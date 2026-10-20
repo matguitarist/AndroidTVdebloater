@@ -69,6 +69,9 @@
     <Style Selector="Button.tool TextBlock">
       <Setter Property="Foreground" Value="{DynamicResource AccentFg}" />
     </Style>
+    <Style Selector="Button.tool.current TextBlock">
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
     <Style Selector="RadioButton.lang">
       <Setter Property="Padding" Value="0" />
       <Setter Property="Width" Value="48" />
@@ -135,25 +138,25 @@
           </Border>
 
           <StackPanel Spacing="10" IsVisible="{Binding HasDevice}">
-            <Button Classes="link tool" Command="{Binding GoHealthCommand}">
+            <Button Classes="link tool" Classes.current="{Binding OnHealth}" Command="{Binding GoHealthCommand}">
               <StackPanel Orientation="Horizontal" Spacing="9">
                 <Path Data="M3 12 H7 L10 5 L14 19 L17 12 H21" />
                 <TextBlock Text="{l:T Side_Health}" />
               </StackPanel>
             </Button>
-            <Button Classes="link tool" Command="{Binding GoRemoteCommand}">
+            <Button Classes="link tool" Classes.current="{Binding OnRemote}" Command="{Binding GoRemoteCommand}">
               <StackPanel Orientation="Horizontal" Spacing="9">
                 <Path Data="M3 5 H21 V16 H3 Z M8 20 H16 M12 16 V20" />
                 <TextBlock Text="{l:T Side_Remote}" />
               </StackPanel>
             </Button>
-            <Button Classes="link tool" Command="{Binding GoInstallCommand}">
+            <Button Classes="link tool" Classes.current="{Binding OnInstall}" Command="{Binding GoInstallCommand}">
               <StackPanel Orientation="Horizontal" Spacing="9">
                 <Path Data="M12 4 V15 M7 10 L12 15 L17 10 M5 20 H19" />
                 <TextBlock Text="{l:T Side_Install}" />
               </StackPanel>
             </Button>
-            <Button Classes="link tool" Command="{Binding GoRestoreCommand}">
+            <Button Classes="link tool" Classes.current="{Binding OnRestore}" Command="{Binding GoRestoreCommand}">
               <StackPanel Orientation="Horizontal" Spacing="9">
                 <Path Data="M4 12 A8 8 0 1 0 6.5 6.2 M4 4 V8 H8" />
                 <TextBlock Text="{l:T Side_Restore}" />
