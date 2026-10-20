@@ -55,9 +55,8 @@ jobs:
         env:
           MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
           MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
-          NOTARY_KEY_P8: ${{ secrets.NOTARY_KEY_P8 }}
-          NOTARY_KEY_ID: ${{ secrets.NOTARY_KEY_ID }}
-          NOTARY_ISSUER: ${{ secrets.NOTARY_ISSUER }}
+          NOTARY_APPLE_ID: ${{ secrets.NOTARY_APPLE_ID }}
+          NOTARY_PASSWORD: ${{ secrets.NOTARY_PASSWORD }}
           SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
         run: |
           # A throwaway keychain holding only the Developer ID certificate.
@@ -75,10 +74,12 @@ jobs:
           test -n "$IDENTITY"
           echo "SIGN_IDENTITY=$IDENTITY" >> "$GITHUB_ENV"
 
-          echo "$NOTARY_KEY_P8" | base64 --decode > "$RUNNER_TEMP/AuthKey.p8"
-          echo "NOTARY_KEY=$RUNNER_TEMP/AuthKey.p8" >> "$GITHUB_ENV"
-          echo "NOTARY_KEY_ID=$NOTARY_KEY_ID" >> "$GITHUB_ENV"
-          echo "NOTARY_ISSUER=$NOTARY_ISSUER" >> "$GITHUB_ENV"
+          # Notarization with the Apple ID and an app-specific password (no App Store involved).
+          test -n "$NOTARY_APPLE_ID" && test -n "$NOTARY_PASSWORD"
+          echo "::add-mask::$NOTARY_PASSWORD"
+          echo "NOTARY_APPLE_ID=$NOTARY_APPLE_ID" >> "$GITHUB_ENV"
+          echo "NOTARY_PASSWORD=$NOTARY_PASSWORD" >> "$GITHUB_ENV"
+          echo "NOTARY_TEAM_ID=$(echo "$IDENTITY" | sed -E 's/.*\(([A-Z0-9]+)\)$/\1/')" >> "$GITHUB_ENV"
 
           printf '%s' "$SPARKLE_PRIVATE_KEY" > "$RUNNER_TEMP/sparkle.key"
           echo "SPARKLE_KEY_FILE=$RUNNER_TEMP/sparkle.key" >> "$GITHUB_ENV"
@@ -91,7 +92,7 @@ jobs:
       - name: Remove keys
         if: always()
         run: |
-          rm -f "$RUNNER_TEMP/AuthKey.p8" "$RUNNER_TEMP/sparkle.key"
+          rm -f "$RUNNER_TEMP/sparkle.key"
           security delete-keychain "$RUNNER_TEMP/signing.keychain-db" 2>/dev/null || true
       - uses: actions/upload-artifact@v4
         with:

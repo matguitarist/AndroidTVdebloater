@@ -6,7 +6,8 @@
 #
 # Release builds (GitHub Actions sets these):
 #   SIGN_IDENTITY="Developer ID Application: …"   sign with hardened runtime
-#   NOTARY_KEY=AuthKey.p8 NOTARY_KEY_ID=… NOTARY_ISSUER=…   notarize and staple
+#   NOTARY_APPLE_ID=… NOTARY_PASSWORD=… NOTARY_TEAM_ID=…  notarize and staple (Apple ID with an
+#                                                         app-specific password; not the App Store)
 #   SPARKLE_KEY_FILE=…  [NOTES_FILE=notes.md]      also write build/appcast.xml for Sparkle
 #
 # The version comes from the Windows project, so all builds always match.
@@ -52,8 +53,9 @@ codesign --verify --deep --strict "$APP"
 
 ditto -c -k --keepParent "$APP" "$ZIP"
 
-if [ -n "${NOTARY_KEY:-}" ]; then
-  xcrun notarytool submit "$ZIP" --key "$NOTARY_KEY" --key-id "$NOTARY_KEY_ID" --issuer "$NOTARY_ISSUER" --wait --timeout 30m
+if [ -n "${NOTARY_APPLE_ID:-}" ]; then
+  xcrun notarytool submit "$ZIP" --apple-id "$NOTARY_APPLE_ID" --password "$NOTARY_PASSWORD" \
+    --team-id "$NOTARY_TEAM_ID" --wait --timeout 30m
   xcrun stapler staple "$APP"
   rm "$ZIP"
   ditto -c -k --keepParent "$APP" "$ZIP"
