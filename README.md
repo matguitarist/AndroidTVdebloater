@@ -51,7 +51,7 @@ Every version updates itself: it shows what's new and installs the update in a f
   turn apps back on or reset settings. The app shows what came back and ticks it again in one click.
 - **Same choices on the next TV**, and choices can be saved to a file to reuse anywhere.
 - **Undo any run exactly** from Restore, or turn every app back on in one click.
-- **Suggests a home screen without ads** (Projectivy Launcher, FLauncher) and can put the original back.
+- **Suggests a home screen without ads** (Projectivy Launcher, FLauncher, AT4K Launcher, which it can also install straight from GitHub) and can put the original back.
 - **Turns debugging off for you** when you are done, then **Start over** for the next TV.
 
 **Tools**

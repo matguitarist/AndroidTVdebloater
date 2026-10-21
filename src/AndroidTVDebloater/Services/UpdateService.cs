@@ -35,7 +35,7 @@ public static partial class UpdateService
     /// <summary>1.2 and 1.2.0.0 both become 1.2.0, so they compare equal.</summary>
     private static Version Normalize(Version v) => new(v.Major, Math.Max(v.Minor, 0), Math.Max(v.Build, 0));
 
-    private static HttpClient NewClient(TimeSpan timeout)
+    internal static HttpClient NewClient(TimeSpan timeout)
     {
         var http = new HttpClient { Timeout = timeout };
         http.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("UnbloatMyTV", Current.ToString()));

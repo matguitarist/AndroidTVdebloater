@@ -713,18 +713,21 @@ final class LauncherOption: Identifiable {
     let package: String
     let name: String
     let description: LocText
+    /// "owner/name" when the .apk is also published on GitHub, so it can be installed without the Play Store.
+    let gitHubRepo: String?
     var isInstalled = false
     var isCurrent = false
     var id: String { package }
-    init(package: String, name: String, description: LocText) {
-        self.package = package; self.name = name; self.description = description
+    init(package: String, name: String, description: LocText, gitHubRepo: String? = nil) {
+        self.package = package; self.name = name; self.description = description; self.gitHubRepo = gitHubRepo
     }
     var canInstall: Bool { !isInstalled }
+    var canInstallFromGitHub: Bool { !isInstalled && gitHubRepo != nil }
     var canMakeHome: Bool { isInstalled && !isCurrent }
 }
 
-/// Suggests a home screen without ads, opens it in the Play Store on the TV, and makes it the
-/// default. The original home screen is remembered on this Mac so it can be put back.
+/// Suggests a home screen without ads, opens it in the Play Store on the TV (or installs it from
+/// GitHub), and makes it the default. The original home screen is remembered on this Mac so it can be put back.
 @MainActor @Observable
 final class HomeScreenModel {
     let device: TvDevice
@@ -735,6 +738,10 @@ final class HomeScreenModel {
         LauncherOption(package: "me.efesser.flauncher", name: "FLauncher", description: LocText(
             en: "Simple and open source: just your apps, in rows you arrange. No ads, no tracking.",
             fr: "Simple et open source : juste vos applications, en rangées que vous organisez. Sans publicité ni pistage.")),
+        LauncherOption(package: "com.overdevs.at4k", name: "AT4K Launcher", description: LocText(
+            en: "Simple and clean, inspired by Apple TV: your favourite apps with what to watch next. No ads, no tracking.",
+            fr: "Simple et épuré, inspiré de l'Apple TV : vos applications favorites et ce qu'il y a à regarder ensuite. Sans publicité ni pistage."),
+            gitHubRepo: "avadhesh18/at4k"),
     ]
     var isBusy = false
     var status = ""
@@ -768,6 +775,23 @@ final class HomeScreenModel {
         await busy {
             let r = await Adb.shared.shell(self.device.serial, "am start -a android.intent.action.VIEW -d market://details?id=\(l.package)")
             return r.all.localizedCaseInsensitiveContains("error") ? L("Home_StoreFailed") : L("Home_StoreOpened", l.name)
+        }
+    }
+
+    func installFromGitHub(_ l: LauncherOption) async {
+        guard let repo = l.gitHubRepo else { return }
+        await busy {
+            self.status = L("Home_Downloading", l.name)
+            let apk: URL
+            do { apk = try await GitHubApk.downloadLatest(repo) }
+            catch { return L("Home_DownloadFailed", l.name, error.localizedDescription) }
+            defer { try? FileManager.default.removeItem(at: apk.deletingLastPathComponent()) }
+            self.status = L("Install_Installing", l.name)
+            let r = await Adb.shared.run(["-s", self.device.serial, "install", "-r", apk.path], timeout: 600)
+            await self.refresh()
+            return r.all.contains("Success")
+                ? L("Home_GitHubDone", l.name)
+                : L("Install_Failed", r.all.components(separatedBy: "\n").last { $0.contains("Failure") || $0.contains("INSTALL_") } ?? r.all)
         }
     }
 

@@ -136,7 +136,11 @@
 "Health_UnderHour" = "moins d'une heure";
 "Home_CheckAgain" = "Vérifier de nouveau";
 "Home_CurrentPill" = "Écran d'accueil actuel";
+"Home_DownloadFailed" = "%1$@ n'a pas pu être téléchargé depuis GitHub : %2$@";
+"Home_Downloading" = "Téléchargement de %1$@ depuis GitHub…";
+"Home_GitHubDone" = "%1$@ est installé sur le téléviseur.";
 "Home_GoogleTvNote" = "Sur Google TV, le bouton Accueil continue d'ouvrir l'accueil de Google. Projectivy peut prendre le contrôle du bouton : dans ses réglages, activez l'option « Override current launcher ».";
+"Home_InstallGitHub" = "Installer depuis GitHub";
 "Home_InstalledPill" = "Installé";
 "Home_MakeHome" = "En faire l'écran d'accueil";
 "Home_OpenStore" = "Ouvrir dans le Play Store du téléviseur";
@@ -148,7 +152,7 @@
 "Home_SetOkGoogleTv" = "%1$@ est maintenant l'écran d'accueil par défaut. Ouvrez-le une fois depuis la liste des applications pour terminer sa configuration.";
 "Home_StoreFailed" = "Le Play Store ne s'est pas ouvert sur le téléviseur. Cherchez l'application dans le Play Store avec la télécommande.";
 "Home_StoreOpened" = "La page Play Store de %1$@ est ouverte sur le téléviseur. Installez-la avec la télécommande, puis appuyez sur « Vérifier de nouveau ».";
-"Home_Text" = "L'écran d'accueil est la seule chose que cette application ne désactive jamais, car le téléviseur en a besoin. Si ses publicités et suggestions vous gênent encore, installez un autre écran d'accueil depuis le Play Store. Ces deux-là sont gratuits.";
+"Home_Text" = "L'écran d'accueil est la seule chose que cette application ne désactive jamais, car le téléviseur en a besoin. Si ses publicités et suggestions vous gênent encore, installez un autre écran d'accueil depuis le Play Store. Ils sont tous gratuits.";
 "Home_Title" = "Facultatif : un écran d'accueil sans publicité";
 "Install_Done" = "%1$@ est installée. Retrouvez-la dans la liste des applications du téléviseur.";
 "Install_Drop" = "Déposez un fichier .apk ici";

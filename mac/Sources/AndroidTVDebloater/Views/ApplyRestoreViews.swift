@@ -150,6 +150,7 @@ struct HomeScreenCard: View {
                     }
                     Spacer()
                     if l.canInstall { Button(L("Home_OpenStore")) { Task { await home.openStore(l) } } }
+                    if l.canInstallFromGitHub { Button(L("Home_InstallGitHub")) { Task { await home.installFromGitHub(l) } } }
                     if l.canMakeHome {
                         Button(L("Home_MakeHome")) { Task { await home.makeHome(l) } }.buttonStyle(.borderedProminent)
                     }

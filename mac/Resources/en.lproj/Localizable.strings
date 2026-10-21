@@ -136,7 +136,11 @@
 "Health_UnderHour" = "less than an hour";
 "Home_CheckAgain" = "Check again";
 "Home_CurrentPill" = "Current home screen";
+"Home_DownloadFailed" = "%1$@ couldn't be downloaded from GitHub: %2$@";
+"Home_Downloading" = "Downloading %1$@ from GitHub…";
+"Home_GitHubDone" = "%1$@ is installed on the TV.";
 "Home_GoogleTvNote" = "On Google TV the Home button keeps opening Google's home screen. Projectivy can take over the button: in its settings, turn on “Override current launcher”.";
+"Home_InstallGitHub" = "Install from GitHub";
 "Home_InstalledPill" = "Installed";
 "Home_MakeHome" = "Make it the home screen";
 "Home_OpenStore" = "Open in Play Store on the TV";
@@ -148,7 +152,7 @@
 "Home_SetOkGoogleTv" = "%1$@ is now the default home screen. Open it once from the apps list to finish setting it up.";
 "Home_StoreFailed" = "The Play Store didn't open on the TV. Search for the app in the Play Store with the remote.";
 "Home_StoreOpened" = "The Play Store page for %1$@ is open on the TV. Install it with the remote, then press “Check again”.";
-"Home_Text" = "The home screen is the one thing this app never turns off, because the TV needs one. If its ads and suggestions still bother you, install another home screen from the Play Store. Both of these are free.";
+"Home_Text" = "The home screen is the one thing this app never turns off, because the TV needs one. If its ads and suggestions still bother you, install another home screen from the Play Store. All of these are free.";
 "Home_Title" = "Optional: a home screen without ads";
 "Install_Done" = "%1$@ is installed. Find it in the TV's apps list.";
 "Install_Drop" = "Drop an .apk file here";

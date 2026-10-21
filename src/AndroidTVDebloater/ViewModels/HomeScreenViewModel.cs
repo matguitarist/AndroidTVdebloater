@@ -1,5 +1,6 @@
 using AndroidTVDebloater.Localization;
 using AndroidTVDebloater.Models;
+using AndroidTVDebloater.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -11,9 +12,11 @@ public sealed partial class LauncherOption : ObservableObject
     public required string Name { get; init; }
     public required LocText DescriptionText { get; init; }
     public string Description => DescriptionText.ToString();
+    /// <summary>"owner/name" when the .apk is also published on GitHub, so it can be installed without the Play Store.</summary>
+    public string? GitHubRepo { get; init; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanInstall), nameof(CanMakeHome))]
+    [NotifyPropertyChangedFor(nameof(CanInstall), nameof(CanMakeHome), nameof(CanInstallFromGitHub))]
     private bool _isInstalled;
 
     [ObservableProperty]
@@ -21,14 +24,15 @@ public sealed partial class LauncherOption : ObservableObject
     private bool _isCurrent;
 
     public bool CanInstall => !IsInstalled;
+    public bool CanInstallFromGitHub => !IsInstalled && GitHubRepo is not null;
     public bool CanMakeHome => IsInstalled && !IsCurrent;
 
     public void RefreshTexts() => OnPropertyChanged(nameof(Description));
 }
 
 /// <summary>
-/// Suggests a home screen without ads, opens it in the Play Store on the TV, and makes it the
-/// default. The original home screen is remembered on this PC so it can be put back.
+/// Suggests a home screen without ads, opens it in the Play Store on the TV (or installs it from
+/// GitHub), and makes it the default. The original home screen is remembered on this PC so it can be put back.
 /// Nothing here runs adb until the user clicks.
 /// </summary>
 public sealed partial class HomeScreenViewModel : ObservableObject
@@ -49,6 +53,12 @@ public sealed partial class HomeScreenViewModel : ObservableObject
             Package = "me.efesser.flauncher", Name = "FLauncher",
             DescriptionText = new("Simple and open source: just your apps, in rows you arrange. No ads, no tracking.",
                                   "Simple et open source : juste vos applications, en rangées que vous organisez. Sans publicité ni pistage."),
+        },
+        new()
+        {
+            Package = "com.overdevs.at4k", Name = "AT4K Launcher", GitHubRepo = "avadhesh18/at4k",
+            DescriptionText = new("Simple and clean, inspired by Apple TV: your favourite apps with what to watch next. No ads, no tracking.",
+                                  "Simple et épuré, inspiré de l'Apple TV : vos applications favorites et ce qu'il y a à regarder ensuite. Sans publicité ni pistage."),
         },
     ];
 
@@ -102,6 +112,28 @@ public sealed partial class HomeScreenViewModel : ObservableObject
         return r.All.Contains("Error", StringComparison.OrdinalIgnoreCase)
             ? Loc.Get("Home_StoreFailed")
             : Loc.Format("Home_StoreOpened", l.Name);
+    });
+
+    [RelayCommand]
+    private Task InstallFromGitHubAsync(LauncherOption l) => Busy(async () =>
+    {
+        Status = Loc.Format("Home_Downloading", l.Name);
+        string apk;
+        try { apk = await GitHubApk.DownloadLatestAsync(l.GitHubRepo!); }
+        catch (Exception ex) { return Loc.Format("Home_DownloadFailed", l.Name, ex.Message); }
+        try
+        {
+            Status = Loc.Format("Install_Installing", l.Name);
+            var r = await _main.Adb.RunAsync(["-s", _device.Serial, "install", "-r", apk], 10 * 60 * 1000);
+            await RefreshAsync();
+            return r.All.Contains("Success")
+                ? Loc.Format("Home_GitHubDone", l.Name)
+                : Loc.Format("Install_Failed", r.All.Split('\n').LastOrDefault(x => x.Contains("Failure") || x.Contains("INSTALL_")) ?? r.All);
+        }
+        finally
+        {
+            try { Directory.Delete(Path.GetDirectoryName(apk)!, true); } catch { }
+        }
     });
 
     [RelayCommand]

@@ -57,7 +57,7 @@ quelques secondes.
 - **Les mêmes choix sur le téléviseur suivant**, et les choix peuvent être enregistrés dans un fichier.
 - **Annule exactement n'importe quelle opération** depuis Restaurer, ou réactive toutes les
   applications en un clic.
-- **Propose un écran d'accueil sans publicité** (Projectivy Launcher, FLauncher) et peut remettre
+- **Propose un écran d'accueil sans publicité** (Projectivy Launcher, FLauncher, AT4K Launcher, qu'elle peut aussi installer directement depuis GitHub) et peut remettre
   celui d'origine.
 - **Désactive le débogage pour vous** à la fin, puis **Recommencer** pour le téléviseur suivant.
 
