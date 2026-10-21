@@ -16,7 +16,7 @@
   <br><a href="README.fr.md">Version française</a>
 </p>
 
-![Choosing what to turn off](docs/choose-light-en.png)
+![Choosing what to turn off](docs/choose-dark-en.png)
 
 ## Download
 
@@ -68,11 +68,11 @@ reset brings everything back too. English and French; light and dark themes foll
 
 | | |
 |---|---|
-| ![Prepare](docs/welcome-light-en.png) | ![Connect](docs/connect-light-en.png) |
-| ![Some changes were undone](docs/choose-returned-light-en.png) | ![Done](docs/apply-dark-en.png) |
-| ![Health check](docs/health-light-en.png) | ![Screen and remote](docs/remote-dark-en.png) |
-| ![Choisir, in French and dark mode](docs/choose-dark-fr.png) | ![The Mac app](docs/mac-welcome-en.png) |
-| ![Fire TV](docs/choose-firetv-light-en.png) | ![Install an app](docs/install-light-en.png) |
+| ![Prepare](docs/welcome-dark-en.png) | ![Connect](docs/connect-dark-en.png) |
+| ![Some changes were undone](docs/choose-returned-dark-en.png) | ![Done](docs/apply-dark-en.png) |
+| ![Health check](docs/health-dark-en.png) | ![Screen and remote](docs/remote-dark-en.png) |
+| ![Choisir, in French](docs/choose-dark-fr.png) | ![The Mac app](docs/mac-welcome-en.png) |
+| ![Fire TV](docs/choose-firetv-dark-en.png) | ![Install an app](docs/install-dark-en.png) |
 
 ## Before you start, on the TV
 

@@ -82,16 +82,16 @@ void Shot(string name, ThemeVariant theme, string lang, Func<MainViewModel, Page
     Console.WriteLine(name);
 }
 
-Shot("welcome-light-en", ThemeVariant.Light, "en", m => new WelcomeViewModel(m), 980);
+Shot("welcome-dark-en", ThemeVariant.Dark, "en", m => new WelcomeViewModel(m), 980);
 Shot("welcome-dark-fr", ThemeVariant.Dark, "fr", m => new WelcomeViewModel(m), 980);
-Shot("apply-light-fr", ThemeVariant.Light, "fr", m =>
+Shot("apply-dark-fr", ThemeVariant.Dark, "fr", m =>
 {
     var a = new ApplyViewModel(m, tv, [], false) { AppsOff = 12, SettingsChanged = 5, BackupPath = @"C:\Users\vous\AppData\Local\AndroidTVDebloater\backups\Example" };
     a.HomeScreen = new HomeScreenViewModel(m, tv);
     a.IsFinished = true;
     return a;
 }, 1500);
-Shot("connect-light-en", ThemeVariant.Light, "en", m =>
+Shot("connect-dark-en", ThemeVariant.Dark, "en", m =>
 {
     var c = new ConnectViewModel(m);
     c.Recent.Clear(); // never this PC's real TVs
@@ -100,7 +100,7 @@ Shot("connect-light-en", ThemeVariant.Light, "en", m =>
     c.Found.Add(new FoundTv("192.168.1.57"));
     return c;
 });
-Shot("connect-waiting-fr", ThemeVariant.Light, "fr", m =>
+Shot("connect-waiting-fr", ThemeVariant.Dark, "fr", m =>
 {
     var c = new ConnectViewModel(m) { State = ConnectState.WaitingForApproval };
     c.Recent.Clear();
@@ -113,9 +113,9 @@ var demoChoices = new ChoiceSet
     Choices = [new() { Id = "pkg:com.google.android.feedback" }, new() { Id = "animations", Option = "0.5" }, new() { Id = "wifiscan" }],
 };
 ChooseViewModel Choose(MainViewModel m, ChoiceSet? last) => new(m, tv) { LastChoices = last };
-Shot("choose-light-en", ThemeVariant.Light, "en", m => Choose(m, demoChoices), 1500);
+Shot("choose-dark-en", ThemeVariant.Dark, "en", m => Choose(m, demoChoices), 1500);
 Shot("choose-dark-fr", ThemeVariant.Dark, "fr", m => Choose(m, null), 1500);
-Shot("choose-full-light-en", ThemeVariant.Light, "en", m => Choose(m, null), 3400);
+Shot("choose-full-dark-en", ThemeVariant.Dark, "en", m => Choose(m, null), 3400);
 Shot("apply-dark-en", ThemeVariant.Dark, "en", m =>
 {
     var a = new ApplyViewModel(m, tv, [], false);
@@ -137,7 +137,7 @@ Shot("apply-dark-en", ThemeVariant.Dark, "en", m =>
     a.IsFinished = true;
     return a;
 }, 1500);
-Shot("apply-working-light-fr", ThemeVariant.Light, "fr", m =>
+Shot("apply-working-dark-fr", ThemeVariant.Dark, "fr", m =>
 {
     var a = new ApplyViewModel(m, tv, [], false);
     a.Items.Add(new StepItem("Enregistrement d'une sauvegarde sur ce PC") { State = StepState.Done });
@@ -148,7 +148,7 @@ Shot("apply-working-light-fr", ThemeVariant.Light, "fr", m =>
     a.Progress = 40;
     return a;
 });
-Shot("restore-light-en", ThemeVariant.Light, "en", m => new RestoreViewModel(m, tv));
+Shot("restore-dark-en", ThemeVariant.Dark, "en", m => new RestoreViewModel(m, tv));
 
 // Tool pages, with made-up readings.
 var demoHealth = new HealthReport
@@ -163,9 +163,9 @@ var demoHealth = new HealthReport
     ],
     Crashing = [new("tv.samba.ssm", 12)],
 };
-Shot("health-light-en", ThemeVariant.Light, "en", m => new HealthViewModel(m, tv, read: false) { Report = demoHealth }, 1000);
+Shot("health-dark-en", ThemeVariant.Dark, "en", m => new HealthViewModel(m, tv, read: false) { Report = demoHealth }, 1000);
 Shot("health-dark-fr", ThemeVariant.Dark, "fr", m => new HealthViewModel(m, tv, read: false) { Report = demoHealth }, 1000);
-Shot("install-light-en", ThemeVariant.Light, "en", m => new InstallViewModel(m, tv));
+Shot("install-dark-en", ThemeVariant.Dark, "en", m => new InstallViewModel(m, tv));
 Shot("remote-dark-en", ThemeVariant.Dark, "en", m =>
 {
     // A stand-in for the TV picture: a dark home screen with a few tiles.
@@ -184,7 +184,7 @@ Shot("remote-dark-en", ThemeVariant.Dark, "en", m =>
     bmp.Render(screen);
     return new RemoteViewModel(m, tv, live: false) { Screen = bmp };
 });
-Shot("choose-returned-light-en", ThemeVariant.Light, "en", m =>
+Shot("choose-returned-dark-en", ThemeVariant.Dark, "en", m =>
 {
     var c = new ChooseViewModel(m, tv) { LastChoices = null };
     c.Returned = new ReturnedItems(new DateTime(2026, 10, 12, 20, 15, 0), ["com.google.android.feedback"],
@@ -203,7 +203,7 @@ var fire = new TvDevice
                "com.android.printspooler", "com.netflix.ninja", "com.android.dreams.basic"],
     ThirdParty = ["com.netflix.ninja"],
 };
-Shot("choose-firetv-light-en", ThemeVariant.Light, "en", m =>
+Shot("choose-firetv-dark-en", ThemeVariant.Dark, "en", m =>
     new ChooseViewModel(m, fire) { LastChoices = null, FirePrivacyOn = ["Fire_IbAds", "Fire_DeviceUsage", "Fire_AppUsage"] },
     1100, fire);
 
@@ -224,7 +224,7 @@ void UpdateShot(string name, ThemeVariant theme, string lang)
     w.Close();
     Console.WriteLine(name);
 }
-UpdateShot("update-light-en", ThemeVariant.Light, "en");
+UpdateShot("update-dark-en", ThemeVariant.Dark, "en");
 UpdateShot("update-dark-fr", ThemeVariant.Dark, "fr");
 // Off the UI thread: awaiting on it here would wait for a dispatcher nobody is running.
 Console.WriteLine($"current {UpdateService.Current}; check: {Task.Run(() => UpdateService.CheckAsync()).Result}");

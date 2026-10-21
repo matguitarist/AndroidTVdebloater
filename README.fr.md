@@ -77,9 +77,9 @@ clair et sombre selon votre système.
 
 | | |
 |---|---|
-| ![Terminé](docs/apply-light-fr.png) | ![Bilan de santé, en anglais](docs/health-light-en.png) |
+| ![Terminé](docs/apply-dark-fr.png) | ![Bilan de santé, en anglais](docs/health-dark-en.png) |
 | ![Écran et télécommande, en anglais](docs/remote-dark-en.png) | ![L'application Mac, en anglais](docs/mac-welcome-en.png) |
-| ![Fire TV, en anglais](docs/choose-firetv-light-en.png) | ![Choisir](docs/choose-dark-fr.png) |
+| ![Fire TV, en anglais](docs/choose-firetv-dark-en.png) | ![Choisir](docs/choose-dark-fr.png) |
 
 ## Avant de commencer, sur le téléviseur
 
