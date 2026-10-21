@@ -154,9 +154,14 @@ public static class Catalog
 
     public static int Version => _current.Version;
 
-    /// <summary>Fetch the latest list from GitHub; it is used from the next TV list on.</summary>
+    private static DateTime _lastRefresh = DateTime.MinValue;
+
+    /// <summary>Fetch the latest list from GitHub; it is used from the next TV list on.
+    /// Called at start and before each Choose page, at most once a minute.</summary>
     public static async Task RefreshFromGitHubAsync()
     {
+        if (DateTime.UtcNow - _lastRefresh < TimeSpan.FromMinutes(1)) return;
+        _lastRefresh = DateTime.UtcNow;
         try
         {
             using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(20) };

@@ -67,6 +67,7 @@ final class AppModel {
             dev = await TvDevice.load(adb, serial: dev.serial)
             device = dev
         }
+        await Catalog.refreshFromGitHub() // the app may have stayed open since the list changed
         choose = ChooseModel(app: self, device: dev)
         page = .choose
     }

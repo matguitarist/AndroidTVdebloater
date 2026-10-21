@@ -86,8 +86,13 @@ enum Catalog {
 
     @MainActor static var version: Int { current.version }
 
+    @MainActor private static var lastRefresh = Date.distantPast
+
     /// Fetch the latest list from GitHub; it is used from the next TV list on.
+    /// Called at start and before each Choose page, at most once a minute.
     @MainActor static func refreshFromGitHub() async {
+        guard Date().timeIntervalSince(lastRefresh) >= 60 else { return }
+        lastRefresh = Date()
         guard let (data, response) = try? await URLSession.shared.data(from: remoteURL),
               (response as? HTTPURLResponse)?.statusCode == 200,
               let remote = parse(data), remote.version > current.version else { return }

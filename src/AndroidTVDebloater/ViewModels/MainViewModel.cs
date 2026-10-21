@@ -122,6 +122,7 @@ public sealed partial class MainViewModel : ObservableObject
     {
         if (Device is null) { GoConnect(); return; }
         if (reload) Device = await TvDevice.LoadAsync(Adb, Device.Serial);
+        await Catalog.RefreshFromGitHubAsync(); // the app may have stayed open since the list changed
         CurrentPage = new ChooseViewModel(this, Device);
     }
 
