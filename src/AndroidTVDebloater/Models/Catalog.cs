@@ -78,6 +78,7 @@ public static class Catalog
     private sealed class WhenDef
     {
         public int? MinSdk { get; set; }
+        public int? MaxSdk { get; set; }
         public string? Network { get; set; }
         public string? Installed { get; set; }
         public string? ScreensaverIsNot { get; set; }
@@ -260,6 +261,7 @@ public static class Catalog
     {
         if (w is null) return true;
         if (w.MinSdk is { } sdk && dev.Sdk < sdk) return false;
+        if (w.MaxSdk is { } max && dev.Sdk > max) return false;
         if (w.Network == "ethernet" && dev.Network != NetworkKind.Ethernet) return false;
         if (w.Network == "wifi" && dev.Network != NetworkKind.WiFi) return false;
         if (w.Installed is { } pkg && !dev.IsInstalled(pkg)) return false;

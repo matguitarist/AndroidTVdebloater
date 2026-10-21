@@ -31,6 +31,7 @@ enum Catalog {
     struct KeepDef: Codable { var id: String }
     struct WhenDef: Codable {
         var minSdk: Int?
+        var maxSdk: Int?
         var network: String?
         var installed: String?
         var screensaverIsNot: String?
@@ -164,6 +165,7 @@ enum Catalog {
     private static func matches(_ w: WhenDef?, _ dev: TvDevice) -> Bool {
         guard let w else { return true }
         if let sdk = w.minSdk, dev.sdk < sdk { return false }
+        if let max = w.maxSdk, dev.sdk > max { return false }
         if w.network == "ethernet" && dev.network != .ethernet { return false }
         if w.network == "wifi" && dev.network != .wifi { return false }
         if let pkg = w.installed, !dev.isInstalled(pkg) { return false }

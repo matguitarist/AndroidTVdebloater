@@ -1,7 +1,7 @@
 {
   "// schema": "Bump 'version' on every change: apps download this file from GitHub and use it when it is newer than their own copy. Bump 'schema' only for changes older apps can't read.",
   "schema": 1,
-  "version": 11,
+  "version": 12,
   "groups": [
     {
       "id": "telemetry",
@@ -411,9 +411,10 @@
       ],
       "writes": [ { "namespace": "secure", "key": "screensaver_components", "value": "{option}" } ] },
     { "id": "bglimit", "kind": "backgroundLimit", "group": "performance", "recommended": false,
+      "when": { "maxSdk": 28 },
       "name": { "en": "Keep fewer apps in memory", "fr": "Garder moins d'applications en mémoire" },
       "description": { "en": "Limits how many closed apps Android keeps in the background, leaving more memory for what you watch.", "fr": "Limite le nombre d'applications fermées qu'Android garde en arrière-plan, pour laisser plus de mémoire à ce que vous regardez." },
-      "warning": { "en": "Apps you go back to may take a second longer to open. Google Play services can reset this limit; the app tells you when it has.", "fr": "Les applications que vous rouvrez peuvent mettre une seconde de plus à s'ouvrir. Les services Google Play peuvent réinitialiser cette limite ; l'application vous le signale." },
+      "warning": { "en": "Apps you go back to may take a second longer to open.", "fr": "Les applications que vous rouvrez peuvent mettre une seconde de plus à s'ouvrir." },
       "options": [
         { "label": { "en": "16 apps", "fr": "16 applications" }, "value": "16" },
         { "label": { "en": "24 apps", "fr": "24 applications" }, "value": "24" }

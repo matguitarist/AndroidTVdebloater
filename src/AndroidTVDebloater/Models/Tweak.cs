@@ -129,6 +129,8 @@ public sealed class BackgroundLimitTweak : Tweak
     {
         var value = SelectedOption?.Value ?? "16";
         // Android 10+ reads it from device_config; older versions from a global setting.
+        // The catalog only offers it up to Android 9: Google Play services wipes device_config's
+        // activity_manager flags on its next sync, so it never lasts on 10+.
         var ok = ctx.Device.Sdk >= 29
             ? await SettingsIO.ChangeAsync(ctx, "device_config:activity_manager", "max_cached_processes", value)
             : await SettingsIO.ChangeAsync(ctx, "global", "activity_manager_constants", $"max_cached_processes={value}");
