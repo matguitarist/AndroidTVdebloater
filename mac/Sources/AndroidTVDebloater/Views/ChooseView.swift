@@ -57,6 +57,9 @@ struct ChooseView: View {
                         VStack(alignment: .leading, spacing: 3) {
                             Text(L("Choose_ReturnedTitle")).font(.headline)
                             Text(choose.returnedText).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                            ForEach(choose.returnedNames, id: \.self) { name in
+                                Text("• " + name).fixedSize(horizontal: false, vertical: true)
+                            }
                         }
                         Spacer()
                         Button(L("Choose_LastNo")) { choose.returned = nil }

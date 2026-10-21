@@ -343,9 +343,17 @@ final class ChooseModel {
         }
     }
 
+    /// Counts only what can be ticked again, so they match the list below.
     var returnedText: String {
         guard let r = returned else { return "" }
-        return L("Choose_ReturnedText", DateText.display(r.since), r.packages.count, r.settings.count)
+        let matches = matchingTweaks(r)
+        return L("Choose_ReturnedText", DateText.display(r.since),
+                 matches.filter { $0.1 == nil }.count, matches.filter { $0.1 != nil }.count)
+    }
+
+    var returnedNames: [String] {
+        guard let r = returned else { return [] }
+        return matchingTweaks(r).map { $0.0.title.text }
     }
 
     /// Tick exactly what came back, with the values chosen last time.

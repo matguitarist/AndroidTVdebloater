@@ -29,7 +29,7 @@ public sealed partial class ChooseViewModel : PageViewModel
 
     /// <summary>Things earlier runs changed that are back (usually after a system update).</summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasReturned), nameof(ReturnedText))]
+    [NotifyPropertyChangedFor(nameof(HasReturned), nameof(ReturnedText), nameof(ReturnedNames))]
     private ReturnedItems? _returned;
 
     /// <summary>Fire TV only: Amazon's tracking switches that are on (string keys of their names).</summary>
@@ -102,8 +102,19 @@ public sealed partial class ChooseViewModel : PageViewModel
         : Loc.Format("Choose_LastText", LastChoices.Choices.Count, LastChoices.Name, LastChoices.CreatedText);
 
     public bool HasReturned => Returned is not null;
-    public string ReturnedText => Returned is null ? "" : Loc.Format("Choose_ReturnedText",
-        Returned.Since.ToString("g", Loc.Culture), Returned.Packages.Count, Returned.Settings.Count);
+    /// <summary>Counts only what can be ticked again, so they match the list below.</summary>
+    public string ReturnedText
+    {
+        get
+        {
+            if (Returned is null) return "";
+            var matches = MatchingTweaks(Returned).ToList();
+            return Loc.Format("Choose_ReturnedText", Returned.Since.ToString("g", Loc.Culture),
+                matches.Count(m => m.Setting is null), matches.Count(m => m.Setting is not null));
+        }
+    }
+
+    public List<string> ReturnedNames => Returned is null ? [] : MatchingTweaks(Returned).Select(m => "• " + m.Tweak.Title).ToList();
 
     public bool IsFireTv => Device.IsFireTv;
     public bool FirePrivacyAllOff => FirePrivacyOn is [];
@@ -137,7 +148,7 @@ public sealed partial class ChooseViewModel : PageViewModel
         foreach (var name in new[]
                  {
                      nameof(SelectedText), nameof(ApplyText), nameof(AndroidText), nameof(RamText), nameof(StorageText),
-                     nameof(NetworkText), nameof(AlreadyOffText), nameof(LastChoicesText), nameof(UnknownText), nameof(ReturnedText),
+                     nameof(NetworkText), nameof(AlreadyOffText), nameof(LastChoicesText), nameof(UnknownText), nameof(ReturnedText), nameof(ReturnedNames),
                      nameof(FirePrivacyText),
                  })
             OnPropertyChanged(name);
